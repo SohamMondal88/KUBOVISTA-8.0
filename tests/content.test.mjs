@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { destinations, journeys, notes } from '../data.js';
+import { legalPages, legalOrder } from '../legal.js';
 test('all 28 requested destinations have unique, route-safe IDs and usable guides',()=>{
  assert.equal(destinations.length,28);
  assert.equal(new Set(destinations.map(d=>d.id)).size,28);
@@ -29,4 +30,21 @@ test('responsive navigation and motion controls are present',async()=>{
  assert.match(app,/function closeMenu\(/);
  assert.match(app,/function updateDock\(/);
  assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,'CSS braces should be balanced');
+});
+test('legal centre includes every required policy and route',async()=>{
+ const [html,app,build]=await Promise.all([
+  readFile(new URL('../index.html',import.meta.url),'utf8'),
+  readFile(new URL('../app.js',import.meta.url),'utf8'),
+  readFile(new URL('../scripts/build.mjs',import.meta.url),'utf8')
+ ]);
+ assert.deepEqual(legalOrder,['privacy','terms','cookies','cancellation','disclaimer','accessibility','grievance','copyright']);
+ for(const id of legalOrder){
+  assert.ok(legalPages[id],`missing ${id} policy`);
+  assert.ok(legalPages[id].sections.length>=4,`${id} policy is too thin`);
+  assert.ok(app.includes(`case'${id}'`),`missing ${id} route`);
+ }
+ assert.match(html,/href="#\/legal"/);
+ assert.match(app,/function legalHub\(/);
+ assert.match(app,/function legalPage\(/);
+ assert.match(build,/'legal\.js'/);
 });
