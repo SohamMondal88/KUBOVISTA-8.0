@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101c19">
+  <meta name="description" content="KUBOVISTA — thoughtfully curated travel guides across North Bengal, Sikkim, Arunachal Pradesh and Goa. Discover 28 destinations and design your next escape.">
+  <title>KUBOVISTA 8.0 — Somewhere worth slowing down</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+  <header id="header">
+    <a class="brand" href="#/" aria-label="KUBOVISTA home"><span class="brand-symbol">k<span>↗</span></span>KUBOVISTA<span class="edition">8.0</span></a>
+    <nav aria-label="Main navigation" id="nav"><a href="#/destinations">Destinations</a><a href="#/journeys">Journeys</a><a href="#/guide">Field notes</a><a href="#/about">Our philosophy</a></nav>
+    <div class="header-actions"><button class="icon-button" id="saved-button" aria-label="Show saved destinations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span id="saved-count">0</span></button><a class="button small" href="#/planner">Plan a trip <span>↗</span></a><button class="icon-button menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="nav">☰</button></div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer><div class="footer-top"><a class="brand" href="#/">KUBOVISTA<span class="edition">8.0</span></a><p>Less ordinary.<br>More out there.</p><a class="button outline" href="#/planner">Find your next story ↗</a></div><div class="footer-bottom"><span>© <span id="year"></span> KUBOVISTA · Made for the curious.</span><div><a href="#/guide">Travel essentials</a><a href="#/privacy">Privacy & information</a><button class="text-button" id="motion-toggle" aria-pressed="false">Motion: on</button></div></div></footer>
+  <dialog id="detail-dialog" aria-labelledby="dialog-title"><button class="dialog-close icon-button" aria-label="Close details">✕</button><div id="dialog-body"></div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

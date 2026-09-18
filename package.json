@@ -1,0 +1,15 @@
+{
+  "name": "kubovista-8",
+  "version": "8.0.0",
+  "private": true,
+  "type": "module",
+  "description": "KUBOVISTA — a responsive motion-led travel guide and personal trip planner",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check app.js && node --check data.js && npm test"
+  },
+  "engines": { "node": ">=20" }
+}
