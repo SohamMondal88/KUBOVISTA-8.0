@@ -30,7 +30,7 @@ Import the repository with its root directory set to the repository root. The ch
 - Saved destinations persisted locally with storage-failure handling.
 - Three sample journeys with accessible native-dialog itineraries.
 - Field notes index and individual editorial articles.
-- About / philosophy and privacy / information pages.
+- About / philosophy plus a complete Legal Centre with privacy, terms, cookies and local storage, cancellation and refunds, travel disclaimer, accessibility, grievance redressal, and copyright policies.
 - Three-step planner with dates, group size, pace and user-defined budget.
 - Editable trip brief, browser-local saving and downloadable text export.
 - Mobile navigation, keyboard focus states, reduced-motion support and motion toggle.
