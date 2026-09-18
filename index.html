@@ -11,14 +11,25 @@
 </head>
 <body>
   <a href="#main" class="skip">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
   <header id="header">
     <a class="brand" href="#/" aria-label="KUBOVISTA home"><span class="brand-symbol">k<span>↗</span></span>KUBOVISTA<span class="edition">8.0</span></a>
     <nav aria-label="Main navigation" id="nav"><a href="#/destinations">Destinations</a><a href="#/journeys">Journeys</a><a href="#/guide">Field notes</a><a href="#/about">Our philosophy</a></nav>
     <div class="header-actions"><button class="icon-button" id="saved-button" aria-label="Show saved destinations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span id="saved-count">0</span></button><a class="button small" href="#/planner">Plan a trip <span>↗</span></a><button class="icon-button menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="nav">☰</button></div>
   </header>
+  <button class="nav-backdrop" id="nav-backdrop" aria-label="Close navigation" tabindex="-1"></button>
   <main id="main" tabindex="-1"></main>
   <footer><div class="footer-top"><a class="brand" href="#/">KUBOVISTA<span class="edition">8.0</span></a><p>Less ordinary.<br>More out there.</p><a class="button outline" href="#/planner">Find your next story ↗</a></div><div class="footer-bottom"><span>© <span id="year"></span> KUBOVISTA · Made for the curious.</span><div><a href="#/guide">Travel essentials</a><a href="#/privacy">Privacy & information</a><button class="text-button" id="motion-toggle" aria-pressed="false">Motion: on</button></div></div></footer>
   <dialog id="detail-dialog" aria-labelledby="dialog-title"><button class="dialog-close icon-button" aria-label="Close details">✕</button><div id="dialog-body"></div></dialog>
+  <nav class="mobile-dock" aria-label="Mobile quick navigation">
+    <a href="#/" data-dock="home"><span aria-hidden="true">⌂</span><small>Home</small></a>
+    <a href="#/destinations" data-dock="destinations"><span aria-hidden="true">⌕</span><small>Explore</small></a>
+    <a href="#/planner" data-dock="planner" class="dock-plan"><span aria-hidden="true">↗</span><small>Plan trip</small></a>
+    <button id="mobile-saved" type="button"><span aria-hidden="true">◇</span><small>Saved</small></button>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
   <div id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

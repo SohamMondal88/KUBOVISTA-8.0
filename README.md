@@ -34,6 +34,8 @@ Import the repository with its root directory set to the repository root. The ch
 - Three-step planner with dates, group size, pace and user-defined budget.
 - Editable trip brief, browser-local saving and downloadable text export.
 - Mobile navigation, keyboard focus states, reduced-motion support and motion toggle.
+- Dedicated mobile dock, full-screen touch navigation, tablet-specific two-column compositions, compact laptop layouts and large-screen scaling.
+- Scroll progress, refined route transitions, parallax, perspective cards, animated editorial rail and touch-safe motion fallbacks.
 - Self-hosted photography, no fonts or scripts from third-party CDNs.
 - Content/asset tests and a GitHub Actions validation workflow.
 

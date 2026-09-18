@@ -18,3 +18,15 @@ test('guide routes are unique and contain article text',()=>{
 test('local photographs are actual JPEG files',async()=>{
  for(const file of ['himalaya.jpg','goa.jpg']){const data=await readFile(new URL('../assets/'+file,import.meta.url));assert.equal(data[0],255);assert.equal(data[1],216);assert.ok(data.length>10000);}
 });
+test('responsive navigation and motion controls are present',async()=>{
+ const [html,css,app]=await Promise.all([
+  readFile(new URL('../index.html',import.meta.url),'utf8'),
+  readFile(new URL('../styles.css',import.meta.url),'utf8'),
+  readFile(new URL('../app.js',import.meta.url),'utf8')
+ ]);
+ for(const id of ['scroll-progress-bar','nav-backdrop','mobile-saved','back-to-top'])assert.match(html,new RegExp(`id="${id}"`));
+ for(const query of ['min-width:701px','max-width:950px','max-width:700px','max-width:390px','hover:none','prefers-reduced-motion:reduce'])assert.ok(css.includes(query),`missing responsive rule ${query}`);
+ assert.match(app,/function closeMenu\(/);
+ assert.match(app,/function updateDock\(/);
+ assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,'CSS braces should be balanced');
+});
