@@ -1,143 +1,383 @@
-export const legalUpdated = '18 September 2026';
-
+export const legalUpdated = "18 September 2026";
 export const legalPages = {
-  privacy: {
-    label: 'Privacy',
-    eyebrow: 'PRIVACY POLICY',
-    title: 'Your information,<br><em>kept simple.</em>',
-    summary: 'What this version of KUBOVISTA stores, what it does not collect, and the controls available to you.',
-    sections: [
-      { title: '1. Scope and current service', paragraphs: [
-        'This policy applies to the KUBOVISTA 8.0 website. The current release is an informational travel guide and browser-based trip-planning tool. It has no user accounts, enquiry submission, checkout, payment gateway, advertising network or first-party analytics service.',
-        'KUBOVISTA does not currently receive the destinations you save or the trip briefs you create. If those features change, this policy and the on-screen notice at the point of collection must be updated before data is collected.'
-      ]},
-      { title: '2. Information stored on your device', paragraphs: [
-        'The website uses your browser’s local storage to remember saved destination identifiers, trip-plan preferences and whether you switched motion effects off. This information remains in that browser profile until you clear it, reset the website data or your browser removes it.'
-      ], bullets: ['Saved destination IDs under kubovista:saved', 'Planner choices under kubovista:plan', 'Motion preference under kubovista:motion']},
-      { title: '3. Hosting and technical records', paragraphs: [
-        'Like most websites, the hosting and network providers may automatically process limited request information—such as IP address, browser type, requested URL, timestamps and security logs—to deliver and protect the site. Those providers act under their own terms and retention practices. KUBOVISTA does not expose those logs through this interface.'
-      ]},
-      { title: '4. External links and photographs', paragraphs: [
-        'Links to tourism authorities, permit portals and other third-party sites open outside KUBOVISTA. Their privacy practices apply once you leave this website. Images are served as local website assets; their original credits and licence sources are documented in the project assets record.'
-      ]},
-      { title: '5. Your choices and rights', paragraphs: [
-        'You can review planner information on screen, download a text copy, overwrite it by saving a new plan, or erase saved places and the trip plan using the control below. You can also clear this site’s storage through your browser settings.',
-        'Applicable privacy law may provide additional rights when an operator processes personal data. Because this release does not accept user-submitted personal data, there is no account profile or server-side trip record for KUBOVISTA to retrieve. A verified privacy contact and operator identity must be published before accounts, enquiries or bookings are enabled.'
-      ]},
-      { title: '6. Children and policy changes', paragraphs: [
-        'This website is a general travel-information service and is not designed to collect personal data from children. Do not submit a child’s identity, travel documents or contact details to any third party without reviewing that provider’s policy and obtaining any consent required by law.',
-        'Material changes will be reflected on this page with a revised effective date. If new data collection is introduced, a clear notice will appear before collection begins.'
-      ]}
+  "privacy": {
+    "label": "Privacy",
+    "eyebrow": "PRIVACY POLICY",
+    "title": "Your information,<br><em>kept simple.</em>",
+    "summary": "What this version of KUBOVISTA stores, what it does not collect, and the controls available to you.",
+    "sections": [
+      {
+        "title": "1. Scope and current service",
+        "paragraphs": [
+          "KUBOVISTA provides travel guides, a local trip planner and, when activated, authenticated traveler accounts, consultation requests, quotations and advance payments. Availability is shown in the relevant account or checkout flow.",
+          "Draft trip briefs and bookmarked destinations stay in the browser. Choosing Request a consultation submits the trip details to the signed-in account for expert review."
+        ]
+      },
+      {
+        "title": "2. Information stored on your device",
+        "paragraphs": [
+          "The website uses your browser’s local storage to remember saved destination identifiers, trip-plan preferences and whether you switched motion effects off. This information remains in that browser profile until you clear it, reset the website data or your browser removes it."
+        ],
+        "bullets": [
+          "Saved destination IDs under kubovista:saved",
+          "Planner choices under kubovista:plan",
+          "Motion preference under kubovista:motion"
+        ]
+      },
+      {
+        "title": "3. Hosting and technical records",
+        "paragraphs": [
+          "Accounts store a name, email, password hash and session metadata. Optional profile fields, settings, submitted trip requests, quotations and transaction references are stored in the service database. Hosting providers may process request logs to operate and secure the service.",
+          "Transactional email is sent through the configured email provider. Optional Google sign-in shares identity information from Google. Razorpay processes checkout payment instruments; KUBOVISTA receives payment references and status, not card numbers, banking passwords or UPI PINs."
+        ]
+      },
+      {
+        "title": "4. External links and photographs",
+        "paragraphs": [
+          "Links to tourism authorities, permit portals and other third-party sites open outside KUBOVISTA. Their privacy practices apply once you leave this website. Images are served as local website assets; their original credits and licence sources are documented in the project assets record."
+        ]
+      },
+      {
+        "title": "5. Your choices and rights",
+        "paragraphs": [
+          "You can edit profile and communication preferences in your account, revoke sessions, request a password reset and delete an account without transaction records. Accounts containing financial records require support-assisted closure so legal retention obligations can be considered. Browser data can be cleared separately below.",
+          "Account information remains until deletion or support-assisted closure, subject to applicable record-retention requirements. A verified operator identity and private privacy/grievance channel must be published before production activation."
+        ]
+      },
+      {
+        "title": "6. Children and policy changes",
+        "paragraphs": [
+          "This website is a general travel-information service and is not designed to collect personal data from children. Do not submit a child’s identity, travel documents or contact details to any third party without reviewing that provider’s policy and obtaining any consent required by law.",
+          "Material changes will be reflected on this page with a revised effective date. If new data collection is introduced, a clear notice will appear before collection begins."
+        ]
+      }
     ],
-    control: 'clear'
+    "control": "clear"
   },
-  terms: {
-    label: 'Terms of use',
-    eyebrow: 'TERMS OF USE',
-    title: 'Clear terms.<br><em>No hidden itinerary.</em>',
-    summary: 'The rules that apply when you browse KUBOVISTA or use its planning tools.',
-    sections: [
-      { title: '1. Acceptance and eligibility', paragraphs: ['By using this website, you agree to these Terms of Use. If you do not agree, please stop using the website. A parent or lawful guardian should supervise use by anyone who cannot legally accept these terms on their own.']},
-      { title: '2. An information service—not a booking', paragraphs: [
-        'KUBOVISTA currently provides destination information, sample journeys and a personal planning tool. It is not presently a travel agent, tour operator, accommodation provider, ticketing service or payment intermediary through this website.',
-        'Using the planner, saving a place or downloading a trip brief does not create a reservation, quotation, supplier relationship or contract with KUBOVISTA or any third party.'
-      ]},
-      { title: '3. Prices, availability and itineraries', paragraphs: [
-        'Any duration, budget or itinerary shown is illustrative. Prices, weather, road access, permits, transport, accommodation and opening hours can change without notice. Confirm material details directly with the relevant authority or supplier before paying or travelling.',
-        'A future commercial offer must present its total price, inclusions, exclusions, supplier identity and cancellation terms before payment. These website terms do not replace a specific written booking agreement.'
-      ]},
-      { title: '4. Responsible use', paragraphs: ['You may use the site for lawful personal travel research. You must not interfere with its operation, attempt unauthorised access, introduce malicious code, scrape it in a way that degrades service, impersonate another person, or reuse content in a misleading or unlawful way.']},
-      { title: '5. Content and intellectual property', paragraphs: [
-        'The KUBOVISTA name, interface, original copy, layout and code are protected to the extent permitted by applicable law. Third-party photographs, names and linked materials remain the property of their respective owners. Limited personal viewing and printing are allowed; commercial republication requires permission from the relevant rights holder.'
-      ]},
-      { title: '6. Third-party services', paragraphs: ['External websites and suppliers are independent from KUBOVISTA. A link is provided for convenience and does not guarantee availability, safety, accuracy, quality or endorsement. Your dealings with a third party are governed by that party’s terms.']},
-      { title: '7. Disclaimers and liability', paragraphs: [
-        'The site is provided on an “as available” basis for general information. To the extent permitted by law, KUBOVISTA does not promise uninterrupted access or that every item is complete, current or suitable for a particular trip.',
-        'Nothing in these terms excludes a right or remedy that cannot lawfully be excluded, including applicable consumer rights. Subject to those rights, KUBOVISTA is not responsible for decisions made solely from illustrative content, third-party failures or events outside reasonable control.'
-      ]},
-      { title: '8. Governing law and changes', paragraphs: ['These terms are governed by the laws of India, subject to mandatory consumer protections and the jurisdiction of competent courts. Updated terms apply from the effective date shown on this page; they do not retroactively change a separately signed booking contract.']}
+  "terms": {
+    "label": "Terms of use",
+    "eyebrow": "TERMS OF USE",
+    "title": "Clear terms.<br><em>No hidden itinerary.</em>",
+    "summary": "The rules that apply when you browse KUBOVISTA or use its planning tools.",
+    "sections": [
+      {
+        "title": "1. Acceptance and eligibility",
+        "paragraphs": [
+          "By using this website, you agree to these Terms of Use. If you do not agree, please stop using the website. A parent or lawful guardian should supervise use by anyone who cannot legally accept these terms on their own."
+        ]
+      },
+      {
+        "title": "2. An information service—not a booking",
+        "paragraphs": [
+          "KUBOVISTA provides destination information, sample journeys, a personal planner and account-based consultation and quotation tools. The provider and scope of any purchased service must be identified in the quotation.",
+          "Saving a plan or submitting a request does not make a reservation. Paying an advance records payment against the quotation; final booking confirmation is a separate step after supplier checks."
+        ]
+      },
+      {
+        "title": "3. Prices, availability and itineraries",
+        "paragraphs": [
+          "Any duration, budget or itinerary shown is illustrative. Prices, weather, road access, permits, transport, accommodation and opening hours can change without notice. Confirm material details directly with the relevant authority or supplier before paying or travelling.",
+          "A future commercial offer must present its total price, inclusions, exclusions, supplier identity and cancellation terms before payment. These website terms do not replace a specific written booking agreement."
+        ]
+      },
+      {
+        "title": "4. Responsible use",
+        "paragraphs": [
+          "You may use the site for lawful personal travel research. You must not interfere with its operation, attempt unauthorised access, introduce malicious code, scrape it in a way that degrades service, impersonate another person, or reuse content in a misleading or unlawful way."
+        ]
+      },
+      {
+        "title": "5. Content and intellectual property",
+        "paragraphs": [
+          "The KUBOVISTA name, interface, original copy, layout and code are protected to the extent permitted by applicable law. Third-party photographs, names and linked materials remain the property of their respective owners. Limited personal viewing and printing are allowed; commercial republication requires permission from the relevant rights holder."
+        ]
+      },
+      {
+        "title": "6. Third-party services",
+        "paragraphs": [
+          "External websites and suppliers are independent from KUBOVISTA. A link is provided for convenience and does not guarantee availability, safety, accuracy, quality or endorsement. Your dealings with a third party are governed by that party’s terms."
+        ]
+      },
+      {
+        "title": "7. Disclaimers and liability",
+        "paragraphs": [
+          "The site is provided on an “as available” basis for general information. To the extent permitted by law, KUBOVISTA does not promise uninterrupted access or that every item is complete, current or suitable for a particular trip.",
+          "Nothing in these terms excludes a right or remedy that cannot lawfully be excluded, including applicable consumer rights. Subject to those rights, KUBOVISTA is not responsible for decisions made solely from illustrative content, third-party failures or events outside reasonable control."
+        ]
+      },
+      {
+        "title": "8. Governing law and changes",
+        "paragraphs": [
+          "These terms are governed by the laws of India, subject to mandatory consumer protections and the jurisdiction of competent courts. Updated terms apply from the effective date shown on this page; they do not retroactively change a separately signed booking contract."
+        ]
+      }
     ]
   },
-  cookies: {
-    label: 'Cookies & storage',
-    eyebrow: 'COOKIES & LOCAL STORAGE',
-    title: 'Small footprint.<br><em>Useful memory.</em>',
-    summary: 'A plain-language record of browser storage and tracking in the current site.',
-    sections: [
-      { title: 'No advertising or analytics cookies', paragraphs: ['KUBOVISTA does not intentionally set advertising, behavioural-profiling or analytics cookies in this release. There is no cookie banner because there are no optional first-party tracking cookies to accept or reject.']},
-      { title: 'Local storage we use', paragraphs: ['Local storage is browser memory, not a traditional cookie. It lets the site remember features on the same device without sending those choices to KUBOVISTA.'], bullets: ['kubovista:saved — destination IDs you bookmark', 'kubovista:plan — destination, duration, party size, style, optional date and self-set budget', 'kubovista:motion — whether decorative motion is switched off']},
-      { title: 'How long it remains', paragraphs: ['The browser keeps these values until you clear them, use private-browsing controls that remove them, or the browser/device removes site data. KUBOVISTA does not set a server-side retention period because it does not receive this local storage.']},
-      { title: 'Hosting and external websites', paragraphs: ['The hosting platform may use essential security or delivery technology under its own policy. Following an external link may allow that destination website to set its own cookies. Review the destination site’s notice before accepting optional tracking.']},
-      { title: 'Your controls', paragraphs: ['Use the button below to remove saved destinations and planner data. The motion preference can be changed from the footer. Browser settings can remove all storage for this site. Blocking local storage may prevent saving, but browsing guides should continue to work.']}
+  "cookies": {
+    "label": "Cookies & storage",
+    "eyebrow": "COOKIES & LOCAL STORAGE",
+    "title": "Small footprint.<br><em>Useful memory.</em>",
+    "summary": "A plain-language record of browser storage and tracking in the current site.",
+    "sections": [
+      {
+        "title": "No advertising or analytics cookies",
+        "paragraphs": [
+          "KUBOVISTA uses essential authentication session cookies when accounts are activated. Session expiry is up to 14 days and may refresh during continued use. There are no first-party advertising trackers in this implementation. Checkout providers may use their own essential security technology."
+        ]
+      },
+      {
+        "title": "Local storage we use",
+        "paragraphs": [
+          "Local storage is browser memory, not a traditional cookie. It lets the site remember features on the same device without sending those choices to KUBOVISTA."
+        ],
+        "bullets": [
+          "kubovista:saved — destination IDs you bookmark",
+          "kubovista:plan — destination, duration, party size, style, optional date and self-set budget",
+          "kubovista:motion — whether decorative motion is switched off"
+        ]
+      },
+      {
+        "title": "How long it remains",
+        "paragraphs": [
+          "The browser keeps these values until you clear them, use private-browsing controls that remove them, or the browser/device removes site data. KUBOVISTA does not set a server-side retention period because it does not receive this local storage."
+        ]
+      },
+      {
+        "title": "Hosting and external websites",
+        "paragraphs": [
+          "The hosting platform may use essential security or delivery technology under its own policy. Following an external link may allow that destination website to set its own cookies. Review the destination site’s notice before accepting optional tracking."
+        ]
+      },
+      {
+        "title": "Your controls",
+        "paragraphs": [
+          "Use the button below to remove saved destinations and planner data. The motion preference can be changed from the footer. Browser settings can remove all storage for this site. Blocking local storage may prevent saving, but browsing guides should continue to work."
+        ]
+      }
     ],
-    control: 'clear'
+    "control": "clear"
   },
-  cancellation: {
-    label: 'Cancellation & refunds',
-    eyebrow: 'CANCELLATION & REFUND POLICY',
-    title: 'Know before<br><em>you commit.</em>',
-    summary: 'What can—and currently cannot—be cancelled or refunded through KUBOVISTA.',
-    sections: [
-      { title: 'Current website status', paragraphs: ['KUBOVISTA 8.0 does not currently accept bookings, deposits, card details or payments. A saved destination or generated trip brief is not a booking. Therefore, there is presently no KUBOVISTA transaction to cancel and no website payment to refund.']},
-      { title: 'Do not send money from this interface', paragraphs: ['The current site does not display a payment link, QR code, bank account or checkout page. Treat any message claiming that a planner brief is confirmed only after an immediate transfer as unauthorised unless it can be verified through an official contact published on this website.']},
-      { title: 'Third-party reservations', paragraphs: ['If you book directly with a hotel, transport provider, activity operator or external platform, that provider’s cancellation, amendment, no-show and refund terms apply. KUBOVISTA cannot cancel or refund a transaction it did not process. Keep invoices, confirmations and the policy accepted at payment.']},
-      { title: 'Before commercial bookings launch', paragraphs: ['Before KUBOVISTA accepts any payment, the applicable booking flow must show the legal seller, supplier, total price, taxes, inclusions, exclusions, cancellation windows, refund method, processing time, force-majeure treatment and grievance contact. The customer must be able to review those terms before giving payment consent.']},
-      { title: 'Non-waivable rights', paragraphs: ['Nothing in this policy limits rights available under applicable consumer law. If a future booking-specific agreement conflicts with a mandatory legal right, that right prevails.']}
+  "cancellation": {
+    "label": "Cancellation & refunds",
+    "eyebrow": "CANCELLATION & REFUND POLICY",
+    "title": "Know before<br><em>you commit.</em>",
+    "summary": "What can—and currently cannot—be cancelled or refunded through KUBOVISTA.",
+    "sections": [
+      {
+        "title": "Current website status",
+        "paragraphs": [
+          "A draft plan or consultation request is free and does not create a reservation. When payments are activated, an advance can be paid against a valid reviewed quotation. The quotation specifies the amount, advance percentage and expiry."
+        ]
+      },
+      {
+        "title": "Do not send money from this interface",
+        "paragraphs": [
+          "Start payment only from your signed-in quotation and review its terms. Razorpay Checkout displays the server-calculated amount. Do not share banking passwords, card credentials or UPI PINs with KUBOVISTA or send funds using unverified payment requests."
+        ]
+      },
+      {
+        "title": "Third-party reservations",
+        "paragraphs": [
+          "If you book directly with a hotel, transport provider, activity operator or external platform, that provider’s cancellation, amendment, no-show and refund terms apply. KUBOVISTA cannot cancel or refund a transaction it did not process. Keep invoices, confirmations and the policy accepted at payment."
+        ]
+      },
+      {
+        "title": "Before commercial bookings launch",
+        "paragraphs": [
+          "Before payment, your quotation must identify the seller, scope, suppliers, taxes, inclusions, exclusions and cancellation/refund terms. Refund eligibility is reviewed against those terms and applicable law. Approved refunds are processed through the payment provider; timing depends on provider and bank processing. Partial refunds and disputed transactions require review by the travel team."
+        ]
+      },
+      {
+        "title": "Non-waivable rights",
+        "paragraphs": [
+          "Nothing in this policy limits rights available under applicable consumer law. If a future booking-specific agreement conflicts with a mandatory legal right, that right prevails."
+        ]
+      }
     ]
   },
-  disclaimer: {
-    label: 'Travel disclaimer',
-    eyebrow: 'TRAVEL INFORMATION DISCLAIMER',
-    title: 'Plan inspired.<br><em>Travel informed.</em>',
-    summary: 'Important limits around destination content, safety, permits, health and external services.',
-    sections: [
-      { title: 'Editorial and illustrative information', paragraphs: ['Destination descriptions, suggested stays, highlights and itineraries are editorial starting points. They are not live operational notices, professional advice, guaranteed experiences or representations that a place is currently accessible. Photographs may represent the broader region rather than the exact village or property named.']},
-      { title: 'Conditions change', paragraphs: ['Weather, landslides, strikes, seasonal closures, border rules, protected-area permits, transport schedules and local restrictions can change quickly. Check current information with official authorities and confirmed suppliers close to departure and again while travelling.']},
-      { title: 'Health, safety and insurance', paragraphs: ['You are responsible for assessing fitness, altitude, weather, food, water, road and activity risks relevant to your group. Seek qualified medical advice where appropriate and consider suitable travel insurance. In an emergency, contact local emergency services and follow official instructions; do not rely on this website for urgent assistance.']},
-      { title: 'Documents and permits', paragraphs: ['Passport, visa, identity, inner-line permit and protected-area requirements depend on nationality, age, route and current rules. Only the competent authority can confirm whether your documents are sufficient. A link or general note on KUBOVISTA is not an approval.']},
-      { title: 'Independent providers', paragraphs: ['Accommodation, transport, guides, restaurants, activities and external websites are operated independently. KUBOVISTA does not currently inspect, rank, contract with or guarantee those providers through this site. Verify licences, insurance, safety practices, accessibility and commercial terms before purchase.']},
-      { title: 'Currency and budgets', paragraphs: ['Planner budgets are values chosen by the user. They are not quotations, fare searches or promises that a trip can be supplied at that amount. Obtain a dated, itemised quotation before making a financial commitment.']}
+  "disclaimer": {
+    "label": "Travel disclaimer",
+    "eyebrow": "TRAVEL INFORMATION DISCLAIMER",
+    "title": "Plan inspired.<br><em>Travel informed.</em>",
+    "summary": "Important limits around destination content, safety, permits, health and external services.",
+    "sections": [
+      {
+        "title": "Editorial and illustrative information",
+        "paragraphs": [
+          "Destination descriptions, suggested stays, highlights and itineraries are editorial starting points. They are not live operational notices, professional advice, guaranteed experiences or representations that a place is currently accessible. Photographs may represent the broader region rather than the exact village or property named."
+        ]
+      },
+      {
+        "title": "Conditions change",
+        "paragraphs": [
+          "Weather, landslides, strikes, seasonal closures, border rules, protected-area permits, transport schedules and local restrictions can change quickly. Check current information with official authorities and confirmed suppliers close to departure and again while travelling."
+        ]
+      },
+      {
+        "title": "Health, safety and insurance",
+        "paragraphs": [
+          "You are responsible for assessing fitness, altitude, weather, food, water, road and activity risks relevant to your group. Seek qualified medical advice where appropriate and consider suitable travel insurance. In an emergency, contact local emergency services and follow official instructions; do not rely on this website for urgent assistance."
+        ]
+      },
+      {
+        "title": "Documents and permits",
+        "paragraphs": [
+          "Passport, visa, identity, inner-line permit and protected-area requirements depend on nationality, age, route and current rules. Only the competent authority can confirm whether your documents are sufficient. A link or general note on KUBOVISTA is not an approval."
+        ]
+      },
+      {
+        "title": "Independent providers",
+        "paragraphs": [
+          "Accommodation, transport, guides, restaurants, activities and external websites are operated independently. KUBOVISTA does not currently inspect, rank, contract with or guarantee those providers through this site. Verify licences, insurance, safety practices, accessibility and commercial terms before purchase."
+        ]
+      },
+      {
+        "title": "Currency and budgets",
+        "paragraphs": [
+          "Planner budgets are values chosen by the user. They are not quotations, fare searches or promises that a trip can be supplied at that amount. Obtain a dated, itemised quotation before making a financial commitment."
+        ]
+      }
     ]
   },
-  accessibility: {
-    label: 'Accessibility',
-    eyebrow: 'ACCESSIBILITY STATEMENT',
-    title: 'More ways<br><em>to wander.</em>',
-    summary: 'How KUBOVISTA supports accessible use and where the experience is still improving.',
-    sections: [
-      { title: 'Our approach', paragraphs: ['KUBOVISTA aims to make its travel information usable across devices, input methods and motion preferences. Accessibility is treated as an ongoing product responsibility, not a one-time badge. This statement does not claim formal certification or full conformance with a specific standard.']},
-      { title: 'Features in this release', bullets: ['Skip-to-content navigation and semantic page landmarks', 'Keyboard-operable links, buttons, filters, dialogs and planner controls', 'Visible focus states and descriptive labels for interactive controls', 'Responsive layouts for phone, tablet and laptop screens', 'Reduced-motion support that follows the device setting, plus a site motion toggle', 'Text alternatives for meaningful images and status messages for dynamic results']},
-      { title: 'Known limitations', paragraphs: ['Some editorial lettering is intentionally large and expressive, destination imagery is illustrative, and downloaded trip briefs are plain-text rather than structured documents. Third-party websites reached through external links may have different accessibility support.']},
-      { title: 'Feedback and assistance', paragraphs: ['A private accessibility-contact channel must be published before the service accepts accounts, enquiries or bookings. Until then, technical issues may be reported through the project repository without including personal, medical or travel-document information. Include the page, browser, device and a short description of the barrier.']},
-      { title: 'Review cycle', paragraphs: ['Accessibility should be retested whenever navigation, forms, colour tokens, animation or third-party services change. The effective date above records the latest policy review, not an independent audit date.']}
+  "accessibility": {
+    "label": "Accessibility",
+    "eyebrow": "ACCESSIBILITY STATEMENT",
+    "title": "More ways<br><em>to wander.</em>",
+    "summary": "How KUBOVISTA supports accessible use and where the experience is still improving.",
+    "sections": [
+      {
+        "title": "Our approach",
+        "paragraphs": [
+          "KUBOVISTA aims to make its travel information usable across devices, input methods and motion preferences. Accessibility is treated as an ongoing product responsibility, not a one-time badge. This statement does not claim formal certification or full conformance with a specific standard."
+        ]
+      },
+      {
+        "title": "Features in this release",
+        "bullets": [
+          "Skip-to-content navigation and semantic page landmarks",
+          "Keyboard-operable links, buttons, filters, dialogs and planner controls",
+          "Visible focus states and descriptive labels for interactive controls",
+          "Responsive layouts for phone, tablet and laptop screens",
+          "Reduced-motion support that follows the device setting, plus a site motion toggle",
+          "Text alternatives for meaningful images and status messages for dynamic results"
+        ]
+      },
+      {
+        "title": "Known limitations",
+        "paragraphs": [
+          "Some editorial lettering is intentionally large and expressive, destination imagery is illustrative, and downloaded trip briefs are plain-text rather than structured documents. Third-party websites reached through external links may have different accessibility support."
+        ]
+      },
+      {
+        "title": "Feedback and assistance",
+        "paragraphs": [
+          "A private accessibility-contact channel must be published before the service accepts accounts, enquiries or bookings. Until then, technical issues may be reported through the project repository without including personal, medical or travel-document information. Include the page, browser, device and a short description of the barrier."
+        ]
+      },
+      {
+        "title": "Review cycle",
+        "paragraphs": [
+          "Accessibility should be retested whenever navigation, forms, colour tokens, animation or third-party services change. The effective date above records the latest policy review, not an independent audit date."
+        ]
+      }
     ]
   },
-  grievance: {
-    label: 'Grievance redressal',
-    eyebrow: 'GRIEVANCE REDRESSAL',
-    title: 'A clear path<br><em>to resolution.</em>',
-    summary: 'How to report a website concern now, and what must be added before commercial launch.',
-    sections: [
-      { title: 'Current service boundary', paragraphs: ['This release is an informational prototype: it has no account, enquiry inbox, booking, payment or contracted travel service. It therefore cannot look up a reservation or refund. For a purchase made on another website, contact the seller shown on that receipt or confirmation.']},
-      { title: 'Website and content issues', paragraphs: ['Technical defects, inaccessible interactions, inaccurate destination copy, intellectual-property concerns or security reports may be raised through the project repository linked below. Do not publish phone numbers, identity documents, payment data, medical information or private itinerary details in a public issue.'], links: [{label:'Open the KUBOVISTA issue tracker ↗', href:'https://github.com/SohamMondal88/KUBOVISTA-8.0/issues'}]},
-      { title: 'Information to include', bullets: ['The page URL or route and the date you saw the issue', 'A concise description and the outcome you expected', 'Screenshots only after removing personal information', 'For content ownership concerns, the work, claimed right and requested action']},
-      { title: 'Commercial-launch requirement', paragraphs: ['Before selling or facilitating travel services, KUBOVISTA must publish its verified legal entity name, geographic address, customer-care contact, designated grievance officer, complaint acknowledgement and resolution process, and any other disclosures required for its operating model. Those details are intentionally not invented in this prototype.']},
-      { title: 'Consumer escalation', paragraphs: ['Consumers in India may also use the Government of India’s National Consumer Helpline. Using that service does not prevent any other remedy available under law.'], links: [{label:'National Consumer Helpline ↗', href:'https://consumerhelpline.gov.in/'}]}
+  "grievance": {
+    "label": "Grievance redressal",
+    "eyebrow": "GRIEVANCE REDRESSAL",
+    "title": "A clear path<br><em>to resolution.</em>",
+    "summary": "How to report a website concern now, and what must be added before commercial launch.",
+    "sections": [
+      {
+        "title": "Current service boundary",
+        "paragraphs": [
+          "Use your trip request and payment references when contacting the verified support channel. Payments and quotes are available in the signed-in account. For purchases made on another platform, contact the seller on that receipt. A private support and grievance contact must be published before commercial activation."
+        ]
+      },
+      {
+        "title": "Website and content issues",
+        "paragraphs": [
+          "Technical defects, inaccessible interactions, inaccurate destination copy, intellectual-property concerns or security reports may be raised through the project repository linked below. Do not publish phone numbers, identity documents, payment data, medical information or private itinerary details in a public issue."
+        ],
+        "links": [
+          {
+            "label": "Open the KUBOVISTA issue tracker ↗",
+            "href": "https://github.com/SohamMondal88/KUBOVISTA-8.0/issues"
+          }
+        ]
+      },
+      {
+        "title": "Information to include",
+        "bullets": [
+          "The page URL or route and the date you saw the issue",
+          "A concise description and the outcome you expected",
+          "Screenshots only after removing personal information",
+          "For content ownership concerns, the work, claimed right and requested action"
+        ]
+      },
+      {
+        "title": "Commercial-launch requirement",
+        "paragraphs": [
+          "Before selling or facilitating travel services, KUBOVISTA must publish its verified legal entity name, geographic address, customer-care contact, designated grievance officer, complaint acknowledgement and resolution process, and any other disclosures required for its operating model. Those details are intentionally not invented in this prototype."
+        ]
+      },
+      {
+        "title": "Consumer escalation",
+        "paragraphs": [
+          "Consumers in India may also use the Government of India’s National Consumer Helpline. Using that service does not prevent any other remedy available under law."
+        ],
+        "links": [
+          {
+            "label": "National Consumer Helpline ↗",
+            "href": "https://consumerhelpline.gov.in/"
+          }
+        ]
+      }
     ]
   },
-  copyright: {
-    label: 'Copyright & content',
-    eyebrow: 'COPYRIGHT & CONTENT USE',
-    title: 'Respect the work.<br><em>Share the wonder.</em>',
-    summary: 'Ownership, permitted personal use, third-party credits and content concerns.',
-    sections: [
-      { title: 'KUBOVISTA material', paragraphs: ['Unless identified otherwise, the KUBOVISTA interface, original written copy, route structure, visual system and source code are controlled by the project owner and may be protected by copyright, trade mark and other applicable law. The repository licence governs reuse of source code where provided.']},
-      { title: 'Personal use', paragraphs: ['You may browse, bookmark, download your own trip brief and print reasonable extracts for personal, non-commercial travel planning. You may not remove attribution, imply endorsement, sell copies, mirror the site, or republish substantial content as your own without permission.']},
-      { title: 'Third-party material', paragraphs: ['Photographs and external resources retain their original ownership and licence conditions. KUBOVISTA’s project ASSETS.md identifies image sources and credits. Place names and public-agency names are used descriptively and do not imply affiliation.']},
-      { title: 'Takedown requests', paragraphs: ['A rights holder should identify the protected work, the KUBOVISTA location, the basis of the claim, contact information and a good-faith statement of authority. The current public issue tracker may be used for an initial notice only if no personal information is included; a private legal-contact channel must be published before commercial launch.'], links: [{label:'View the project repository ↗', href:'https://github.com/SohamMondal88/KUBOVISTA-8.0'}]},
-      { title: 'No ownership transfer', paragraphs: ['Downloading or viewing content does not transfer ownership. Permissions granted here are limited, revocable where lawful, and subject to third-party licence terms.']}
+  "copyright": {
+    "label": "Copyright & content",
+    "eyebrow": "COPYRIGHT & CONTENT USE",
+    "title": "Respect the work.<br><em>Share the wonder.</em>",
+    "summary": "Ownership, permitted personal use, third-party credits and content concerns.",
+    "sections": [
+      {
+        "title": "KUBOVISTA material",
+        "paragraphs": [
+          "Unless identified otherwise, the KUBOVISTA interface, original written copy, route structure, visual system and source code are controlled by the project owner and may be protected by copyright, trade mark and other applicable law. The repository licence governs reuse of source code where provided."
+        ]
+      },
+      {
+        "title": "Personal use",
+        "paragraphs": [
+          "You may browse, bookmark, download your own trip brief and print reasonable extracts for personal, non-commercial travel planning. You may not remove attribution, imply endorsement, sell copies, mirror the site, or republish substantial content as your own without permission."
+        ]
+      },
+      {
+        "title": "Third-party material",
+        "paragraphs": [
+          "Photographs and external resources retain their original ownership and licence conditions. KUBOVISTA’s project ASSETS.md identifies image sources and credits. Place names and public-agency names are used descriptively and do not imply affiliation."
+        ]
+      },
+      {
+        "title": "Takedown requests",
+        "paragraphs": [
+          "A rights holder should identify the protected work, the KUBOVISTA location, the basis of the claim, contact information and a good-faith statement of authority. The current public issue tracker may be used for an initial notice only if no personal information is included; a private legal-contact channel must be published before commercial launch."
+        ],
+        "links": [
+          {
+            "label": "View the project repository ↗",
+            "href": "https://github.com/SohamMondal88/KUBOVISTA-8.0"
+          }
+        ]
+      },
+      {
+        "title": "No ownership transfer",
+        "paragraphs": [
+          "Downloading or viewing content does not transfer ownership. Permissions granted here are limited, revocable where lawful, and subject to third-party licence terms."
+        ]
+      }
     ]
   }
 };
-
-export const legalOrder = ['privacy', 'terms', 'cookies', 'cancellation', 'disclaimer', 'accessibility', 'grievance', 'copyright'];
+export const legalOrder = ["privacy","terms","cookies","cancellation","disclaimer","accessibility","grievance","copyright"];

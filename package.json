@@ -3,13 +3,21 @@
   "version": "8.0.0",
   "private": true,
   "type": "module",
-  "description": "KUBOVISTA — a responsive motion-led travel guide and personal trip planner",
+  "description": "KUBOVISTA \u2014 a responsive motion-led travel guide and personal trip planner",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check app.js && node --check data.js && npm test"
+    "check": "node --check app.js && node --check account.js && node --check data.js && node --check legal.js && node --check server/auth.js && node --check server/razorpay.js && node --check api/bookings.js && node --check api/payments/create-order.js && node --check api/payments/verify.js && node --check api/payments/webhook.js && npm test",
+    "db:migrate": "node --env-file=.env scripts/migrate.mjs"
   },
-  "engines": { "node": "22.x" }
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "better-auth": "1.7.5",
+    "pg": "8.23.0",
+    "razorpay": "2.9.8"
+  }
 }

@@ -4,7 +4,7 @@ A complete responsive travel-guide frontend with a dark alpine visual identity, 
 
 ## Run locally
 
-Use Node.js 22.x, matching the pinned Vercel runtime and CI. There are **no runtime dependencies** and no install step.
+Use Node.js 22.x, matching the pinned Vercel runtime and CI. Install the pinned dependencies with `npm ci`. See [account and payment setup](SETUP_AUTH_PAYMENTS.md) for database, email and merchant configuration.
 
 ```sh
 npm run dev
@@ -17,7 +17,7 @@ npm run check
 npm run build
 ```
 
-The production output is `dist/`. Deploy it to a static host. All navigation uses hash routes so nested views work on static hosting and GitHub Pages project paths without server rewrites. No deployment or hosting account is provisioned by this repository.
+The production output is `dist/`. Deploy to Vercel for the account and payment APIs. Static hosts support only the public guide. All navigation uses hash routes so nested views work on static hosting and GitHub Pages project paths without server rewrites. No deployment or hosting account is provisioned by this repository.
 
 ### Vercel
 
@@ -36,7 +36,9 @@ Import the repository with its root directory set to the repository root. The ch
 - Mobile navigation, keyboard focus states, reduced-motion support and motion toggle.
 - Dedicated mobile dock, full-screen touch navigation, tablet-specific two-column compositions, compact laptop layouts and large-screen scaling.
 - Scroll progress, refined route transitions, parallax, perspective cards, animated editorial rail and touch-safe motion fallbacks.
-- Self-hosted photography, no fonts or scripts from third-party CDNs.
+- Self-hosted photography; Razorpay Checkout loads from the provider only when paying.
+- Verified email/password authentication, optional Google login, profile, settings and session management.
+- Traveler consultations, administrator quotations, Razorpay advances, payment history and notifications.
 - Content/asset tests and a GitHub Actions validation workflow.
 
 ## Edit the content
@@ -45,9 +47,7 @@ Import the repository with its root directory set to the repository root. The ch
 
 ## Scope and launch requirements
 
-This is a working **travel-guide and personal-planning frontend**, not a reservation or payment backend. No enquiries are sent. The interface clearly states that plans remain on the device, routes are sample itineraries, and budgets are entered by the traveler rather than supplier quotes.
-
-Before commercial booking launch, connect an authenticated backend/CRM, verify suppliers and availability, implement enquiry delivery, establish actual business contact details and booking policies, and obtain destination-specific editorial review. Confirm the precise locality/map coordinates for Samsu and Kolbong. North/South/East/West Sikkim are used as travel-region labels. Permit links point to official authorities; no live conditions or weather are claimed.
+The public guide works without credentials. Server-backed accounts and quotation payments require the services described in [SETUP_AUTH_PAYMENTS.md](SETUP_AUTH_PAYMENTS.md). No supplier reservations or live availability are automated. Configure real business contacts, supplier agreements and quotation terms before commercial launch.
 
 Do not insert fabricated reviews, live availability, discounts or destination-specific imagery without verification. Frontend local storage is not a secure store for identity documents or payment information.
 
