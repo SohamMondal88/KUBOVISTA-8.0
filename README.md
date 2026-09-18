@@ -4,7 +4,7 @@ A complete responsive travel-guide frontend with a dark alpine visual identity, 
 
 ## Run locally
 
-Requires Node.js 20 or newer. There are **no runtime dependencies** and no install step.
+Use Node.js 22.x, matching the pinned Vercel runtime and CI. There are **no runtime dependencies** and no install step.
 
 ```sh
 npm run dev
@@ -18,6 +18,10 @@ npm run build
 ```
 
 The production output is `dist/`. Deploy it to a static host. All navigation uses hash routes so nested views work on static hosting and GitHub Pages project paths without server rewrites. No deployment or hosting account is provisioned by this repository.
+
+### Vercel
+
+Import the repository with its root directory set to the repository root. The checked-in `vercel.json` selects the Other framework preset, runs `npm run build`, and serves `dist/`. Its output-directory setting overrides a dashboard value such as `public`; do not rename the generated directory. Node.js is pinned to `22.x` in `package.json` to avoid automatic major-version upgrades. Deploy the commit containing these changes rather than redeploying the earlier failing commit.
 
 ## Included
 
