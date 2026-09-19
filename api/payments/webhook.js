@@ -18,8 +18,8 @@ export default async function handler(req, res) {
       const entity = event.payload?.payment?.entity || event.payload?.refund?.entity;
       if (!entity) return;
       if (event.event === 'payment.captured') {
-        const updated = await client.query(`UPDATE payments SET razorpay_payment_id=$1,status='captured',captured_at=now(),updated_at=now() WHERE razorpay_order_id=$2 AND amount_paise=$3 AND currency=$4 AND status IN ('created','authorized','failed') RETURNING booking_id,user_id`, [entity.id, entity.order_id, entity.amount, entity.currency]);
-        if (updated.rows[0]) await client.query(`UPDATE bookings SET status='advance_paid',updated_at=now() WHERE id=$1 AND status='quotation_ready'`, [updated.rows[0].booking_id]);
+        const updated = await client.query(`UPDATE payments SET razorpay_payment_id=$1,status='captured',captured_at=now(),updated_at=now() WHERE razorpay_order_id=$2 AND amount_paise=$3 AND currency=$4 AND status IN ('created','authorized','failed') RETURNING booking_id,user_id,purpose`, [entity.id, entity.order_id, entity.amount, entity.currency]);
+        if (updated.rows[0]) await client.query(`UPDATE bookings SET status=CASE WHEN $2='deposit' AND status='quotation_ready' THEN 'advance_paid' ELSE status END,booked_at=CASE WHEN $2='deposit' THEN COALESCE(booked_at,now()) ELSE booked_at END,balance_paid_at=CASE WHEN $2='balance' THEN COALESCE(balance_paid_at,now()) ELSE balance_paid_at END,updated_at=now() WHERE id=$1`, [updated.rows[0].booking_id,updated.rows[0].purpose]);
       } else if (event.event === 'payment.failed') {
         await client.query(`UPDATE payments SET razorpay_payment_id=$1,status='failed',failure_reason=$2,updated_at=now() WHERE razorpay_order_id=$3 AND status IN ('created','failed')`, [entity.id, entity.error_description || entity.error_reason || 'Payment failed', entity.order_id]);
       } else if (event.event === 'refund.processed') {
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         const status = Number(remote.amount_refunded) >= Number(remote.amount) ? 'refunded' : 'refund_pending';
         await client.query(`UPDATE payments SET status=$2,updated_at=now() WHERE razorpay_payment_id=$1`, [entity.payment_id, status]);
       } else if (event.event === 'refund.failed') {
-        await client.query(`UPDATE payments SET status='refund_pending',failure_reason=$2,updated_at=now() WHERE razorpay_payment_id=$1`, [entity.payment_id, entity.error_description || 'Refund needs review']);
+        await client.query(`UPDATE payments SET status='refund_pending',failure_reason=$2,updated_at=now() WHERE razorpay_payment_id=$1 AND status!='refunded'`, [entity.payment_id, entity.error_description || 'Refund needs review']);
       }
     });
     return json(res, 200, { received: true });
