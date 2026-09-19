@@ -1,4 +1,4 @@
-export const legalUpdated = "18 September 2026";
+export const legalUpdated = "19 September 2026";
 export const legalPages = {
   "privacy": {
     "label": "Privacy",
@@ -49,6 +49,13 @@ export const legalPages = {
         "paragraphs": [
           "This website is a general travel-information service and is not designed to collect personal data from children. Do not submit a child’s identity, travel documents or contact details to any third party without reviewing that provider’s policy and obtaining any consent required by law.",
           "Material changes will be reflected on this page with a revised effective date. If new data collection is introduced, a clear notice will appear before collection begins."
+        ]
+      },
+      {
+        "title": "Journal contributions and Instagram previews",
+        "paragraphs": [
+          "Stories you submit are stored with your account identifier, display name, content, publication status and submission date. Pending traveler stories are visible to their author and authorized editors. Approved stories and their author display names are public. Contact support to request correction or removal; public author names and stories may remain after account deletion until separately removed.",
+          "Instagram previews are optional. Clicking Load Instagram preview connects your browser to Instagram, which receives connection and browser information and may use cookies under its own policies. No Instagram preview is loaded before that action. Hiding a preview stops displaying it but does not remove cookies Instagram has already set."
         ]
       }
     ],
@@ -110,6 +117,12 @@ export const legalPages = {
         "paragraphs": [
           "These terms are governed by the laws of India, subject to mandatory consumer protections and the jurisdiction of competent courts. Updated terms apply from the effective date shown on this page; they do not retroactively change a separately signed booking contract."
         ]
+      },
+      {
+        "title": "Contributing to the Journal",
+        "paragraphs": [
+          "Submit original content or content you have permission to share. Do not include private personal details, harassment, unlawful material or misleading claims. You retain ownership and allow KUBOVISTA to display your submitted content with your author name when approved. Traveler submissions are reviewed before publication and may be declined or removed. Publication does not mean KUBOVISTA has independently verified every traveler statement."
+        ]
       }
     ]
   },
@@ -152,6 +165,12 @@ export const legalPages = {
         "title": "Your controls",
         "paragraphs": [
           "Use the button below to remove saved destinations and planner data. The motion preference can be changed from the footer. Browser settings can remove all storage for this site. Blocking local storage may prevent saving, but browsing guides should continue to work."
+        ]
+      },
+      {
+        "title": "Optional Instagram media",
+        "paragraphs": [
+          "The Journal offers Instagram profile, reel and photo previews. These third-party frames are created only when you choose Load Instagram preview. You can use the direct Instagram link instead. Your choice is not stored between visits. Instagram controls its own storage and tracking in loaded frames."
         ]
       }
     ],

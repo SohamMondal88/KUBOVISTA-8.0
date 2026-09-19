@@ -44,3 +44,11 @@ Saved destinations and draft briefs remain device-local. Settings record prefere
 Run `npm run check` and `npm run build`. In an isolated configured environment, verify email signup, verification delivery, reset expiry, Google callback, two-user record isolation, quotation expiry, test checkout capture/failure, duplicate webhooks, partial/full refunds and session revocation. Confirm the merchant and public business/contact/legal details before live use. No live payment or production database verification is performed by the automated repository tests.
 
 Operational follow-up: configure monitoring, database backups, retention/deletion jobs for expired sessions and webhook records, and edge rate limits for consultation creation. Reconcile provider orders when a network interruption occurs between order creation and database commit. Do not manually change financial records without reconciliation.
+
+## Journal and Instagram
+
+Run `npm run db:migrate` after updating to create `journal_posts`. The Journal (`#/journal`) combines existing company field notes with published company and traveler stories. Signed-in travelers submit at `#/write`; `#/my-stories` shows their review status. Server-authorized administrators publish company blogs and approve or decline traveler submissions at `#/journal-review`. Each author is limited to ten submissions per day. Public stories retain an author display name after account deletion; handle removal requests through your published support process.
+
+The Instagram section links to and offers an optional profile preview for `@kubo_vista.official`. Administrators can choose “Company Instagram feature” in the editor to add individual public `/p/` photo/carousel or `/reel/` URLs. Confirm every link belongs to the company and embeds are enabled on Instagram before publishing. No post IDs were guessed or media scraped. Embeds are third-party connections loaded only on a visitor's click; hiding a preview removes its iframe but cannot clear Instagram's cookies. There is no automatic API feed sync or media upload service in this release.
+
+Verify a traveler cannot publish directly or read another user's pending submissions; verify admin approval makes a story public. Test the company profile and featured posts with Instagram embeds enabled. Empty and unavailable states remain usable without credentials.

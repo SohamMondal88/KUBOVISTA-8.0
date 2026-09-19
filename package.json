@@ -9,7 +9,7 @@
     "start": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check app.js && node --check account.js && node --check data.js && node --check legal.js && node --check server/auth.js && node --check server/razorpay.js && node --check api/bookings.js && node --check api/payments/create-order.js && node --check api/payments/verify.js && node --check api/payments/webhook.js && npm test",
+    "check": "node --check journal.js && node --check api/journal.js && node --check app.js && node --check account.js && node --check data.js && node --check legal.js && node --check server/auth.js && node --check server/razorpay.js && node --check api/bookings.js && node --check api/payments/create-order.js && node --check api/payments/verify.js && node --check api/payments/webhook.js && npm test",
     "db:migrate": "node --env-file=.env scripts/migrate.mjs"
   },
   "engines": {
