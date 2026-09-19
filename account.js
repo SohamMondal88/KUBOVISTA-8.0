@@ -76,7 +76,7 @@ async function signInPage(main, config, toast) {
       await request('/api/auth/sign-in/email', { method: 'POST', body: JSON.stringify({ email: values.email, password: values.password, rememberMe: Boolean(values.rememberMe), callbackURL: `${location.origin}/#/dashboard` }) });
       sessionCache = undefined; await syncAccountButton(); toast('Welcome back.');
       const params = new URLSearchParams(location.hash.split('?')[1] || '');
-      const next=params.get('return'); location.hash = next && /^\/(dashboard|planner|profile|bookings|booking|payments|settings|security)(?:[/?]|$)/.test(next) ? next : '/dashboard';
+      const next=params.get('return'); location.hash = next && /^\/(dashboard|planner|profile|bookings|booking|payments|settings|security|write|my-stories|journal-review)(?:[/?]|$)/.test(next) ? next : '/dashboard';
     } catch (error) { status.textContent = error.message; button.disabled = !config.auth; }
   });
   document.querySelector('#google-auth')?.addEventListener('click', async () => {
