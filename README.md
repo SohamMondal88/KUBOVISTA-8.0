@@ -26,6 +26,8 @@ Import the repository with its root directory set to the repository root. The ch
 ## Included
 
 - Cinematic responsive home page with discovery controls.
+- Careers, sponsorships, partnerships, verified stay directory, camping/trekking checklists and contact enquiries.
+- India destination map, monthly seasonal guidance, expanded experience filters and optional Open-Meteo weather for travel dates.
 - 28 destination guides; search, spelling aliases, region and travel-style filters.
 - Saved destinations persisted locally with storage-failure handling.
 - Three sample journeys with accessible native-dialog itineraries.
