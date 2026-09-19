@@ -3,7 +3,7 @@ import { requireSession } from '../server/auth.js';
 import { query, transaction } from '../server/db.js';
 import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../server/http.js';
 
-const bookingColumns = `id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes,status,quote_total_paise,advance_percent,quote_notes,quote_expires_at,created_at,updated_at`;
+const bookingColumns = `id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes,status,quote_total_paise,advance_percent,quote_notes,quote_expires_at,created_at,updated_at,payment_policy_version,cancellation_policy,checkin_at,booked_at,confirmed_at,checked_in_at,balance_paid_at,cancellation_requested_at,cancellation_fee_paise,cancellation_refund_paise,itinerary`;
 
 export default async function handler(req, res) {
   if (!['GET', 'POST'].includes(req.method)) return methodNotAllowed(res, ['GET', 'POST']);
@@ -29,9 +29,9 @@ export default async function handler(req, res) {
     if (![days,travelers,budget].every(Number.isSafeInteger) || days < 1 || days > 60 || travelers < 1 || travelers > 30 || budget < 0 || budget > 10_000_000) return json(res, 400, { error: 'Review the trip duration, traveler count and budget.' });
     const departure = /^\d{4}-\d{2}-\d{2}$/.test(body.date || '') ? body.date : null;
     const booking = await transaction(async client => {
-      const created = await client.query(`INSERT INTO bookings (user_id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING ${bookingColumns}`,
-        [session.user.id, destination.id, destination.name, days, travelers, cleanText(body.style, 80), departure, budget * 100, cleanText(body.notes, 1000)]);
+      const created = await client.query(`INSERT INTO bookings (user_id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes,itinerary)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING ${bookingColumns}`,
+        [session.user.id, destination.id, destination.name, days, travelers, cleanText(body.style, 80), departure, budget * 100, cleanText(body.notes, 1000),JSON.stringify(Array.isArray(body.itinerary)?body.itinerary.slice(0,days).map(x=>cleanText(x,600)):[])]);
       await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,$2,$3,'booking')`, [session.user.id, 'Consultation request received', `Your ${destination.name} trip request is ready for expert review.`]);
       return created.rows[0];
     });

@@ -192,11 +192,11 @@ export const legalPages = {
       {
         "title": "Current website status",
         "paragraphs": [
-          "A draft plan or consultation request is free and does not create a reservation. When payments are activated, an advance can be paid against a valid reviewed quotation. The quotation specifies the amount, advance percentage and expiry."
+          "A draft plan or consultation request is free and does not create a reservation. New quotations use a 20% booking/security deposit credited toward the trip total, with the remaining 80% payable after operator-verified check-in. Older quotations retain their accepted terms. A captured deposit alone is not supplier confirmation."
         ]
       },
       {
-        "title": "Do not send money from this interface",
+        "title": "Use your secure quotation checkout",
         "paragraphs": [
           "Start payment only from your signed-in quotation and review its terms. Razorpay Checkout displays the server-calculated amount. Do not share banking passwords, card credentials or UPI PINs with KUBOVISTA or send funds using unverified payment requests."
         ]
@@ -208,9 +208,9 @@ export const legalPages = {
         ]
       },
       {
-        "title": "Before commercial bookings launch",
+        "title": "Cancellation deductions and refund processing",
         "paragraphs": [
-          "Before payment, your quotation must identify the seller, scope, suppliers, taxes, inclusions, exclusions and cancellation/refund terms. Refund eligibility is reviewed against those terms and applicable law. Approved refunds are processed through the payment provider; timing depends on provider and bank processing. Partial refunds and disputed transactions require review by the travel team."
+          "Before payment, review the seller, scope, inclusions, exclusions, scheduled check-in and quotation-specific cancellation rates. New quotations show a grace period measured from recorded deposit capture, followed by tiers for more than seven days, more than 24 hours, or 24 hours or less before scheduled check-in. Grace applies only more than 24 hours before check-in. Deductions apply to the captured deposit, never beyond it. The cancellation page calculates the deduction and refundable remainder at cancellation time. Recording cancellation does not issue a refund: the travel team must reconcile and process any refund through the payment provider. Pending payments, older quotations, and requests at or after scheduled or actual check-in require support review. Provider and bank processing times apply."
         ]
       },
       {

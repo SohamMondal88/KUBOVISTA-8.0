@@ -16,6 +16,6 @@ export default function handler(req, res) {
     payments: paymentsConfigured(),
     paymentProvider: 'Razorpay',
     currency: 'INR',
-    advancePercent: Number(process.env.DEFAULT_ADVANCE_PERCENT || 25)
+    advancePercent: 20
   });
 }

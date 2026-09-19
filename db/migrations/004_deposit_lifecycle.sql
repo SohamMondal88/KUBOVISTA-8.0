@@ -1,0 +1,16 @@
+ALTER TABLE bookings ALTER COLUMN advance_percent SET DEFAULT 20;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_policy_version integer NOT NULL DEFAULT 1;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_policy jsonb;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS checkin_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booked_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS confirmed_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS checked_in_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS balance_paid_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS terms_accepted_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_requested_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_fee_paise bigint;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_refund_paise bigint;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_reason text;
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS purpose text NOT NULL DEFAULT 'deposit' CHECK(purpose IN ('deposit','balance'));
+CREATE INDEX IF NOT EXISTS payments_booking_purpose ON payments(booking_id,purpose);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS itinerary jsonb NOT NULL DEFAULT '[]'::jsonb;

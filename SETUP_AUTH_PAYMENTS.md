@@ -29,7 +29,7 @@ Checkout supports payment methods enabled for your Razorpay merchant account, in
 
 ## Quotation workflow
 
-Set `ADMIN_EMAILS` to verified operator email addresses. Sign in and open `#/admin` (also linked from an administrator's dashboard). Travelers submit a consultation from the planner. Issue a quotation with the total inclusive of taxes, advance percentage, expiry, seller identity, service scope and cancellation terms. Amounts come from this server record, never a browser-entered payment amount. Quotations lock once a payment order exists. A captured advance is not automatic supplier confirmation.
+Set `ADMIN_EMAILS` to verified operator email addresses. Sign in and open `#/admin` (also linked from an administrator's dashboard). Travelers submit a consultation from the planner. Issue a quotation with the total inclusive of taxes, fixed 20% deposit, scheduled check-in, expiry, seller identity, service scope and cancellation terms. Amounts come from this server record, never a browser-entered payment amount. Quotations lock once a payment order exists. A captured advance is not automatic supplier confirmation.
 
 Only the quotation owner can open checkout or view their payment records. Checkout HMAC signatures and provider amount/currency/status are verified. Signed webhooks are deduplicated and cannot downgrade captured payments to failed. Transaction-bearing accounts require support-assisted closure; database constraints preserve payment records.
 
@@ -70,3 +70,17 @@ New public routes: `#/careers`, `#/sponsors`, `#/partnerships`, `#/stays`, `#/ca
 Sources for implementation constraints: [Open-Meteo forecast documentation](https://open-meteo.com/en/docs), [commercial licence and API pricing](https://open-meteo.com/en/pricing), [Leaflet API](https://leafletjs.com/reference.html), [OpenStreetMap tile policy](https://operations.osmfoundation.org/policies/tiles/). Consult [IMD](https://mausam.imd.gov.in/) for official weather advisories. Technical source documentation is not evidence that individual seasonal ratings have been independently validated.
 
 The auxiliary services use `api/config?service=weather|contact-info|enquiries`, retaining the existing serverless-function count rather than adding separate functions for every page.
+
+## Deposit, balance and cancellation rollout
+
+Run `npm run db:migrate` before deploying the updated API; migration `004_deposit_lifecycle.sql` preserves existing quotations as legacy policy version 1. New admin quotations use policy version 2: 20% of the inclusive total at booking, the remainder after recorded check-in. The deposit is credited toward the price, not an additional fee. Configure Razorpay and signed webhooks using the steps above.
+
+Administrators must enter the scheduled check-in, quote expiry no later than check-in, and all cancellation rates explicitly. No commercial deduction rates are supplied by this release. Grace hours (0–168) run from deposit capture, only when more than 24 hours remain before check-in. Outside grace, tiers are >7 days, >24 hours through 7 days, and <=24 hours. Percentages must be nondecreasing and apply only to the captured deposit. Obtain business approval for the actual rates before issuing quotes. Legacy quotations require support handling.
+
+After supplier confirmation, use Confirm booking in the admin page. At arrival, verify actual check-in and use Record check-in; the server blocks this before the scheduled time. Only then can the traveler pay the 80% balance. Confirmation and thank-you pages load owned server records and distinguish payment receipt from supplier confirmation. Editable planner days are stored with the consultation.
+
+Routes: `#/checkout/ID`, `#/checkout/ID?purpose=balance`, `#/confirmation/ID`, `#/thank-you/ID`, `#/cancellation-request/ID`. Cancellation records a timestamped calculation and stops further checkout. It does **not** automatically transfer a refund. Operators must reconcile and issue the refundable remainder in Razorpay; the website must not be represented as automatic refund fulfillment. Unresolved orders and refund states require support reconciliation to avoid cancellation racing a delayed capture. Test deposit capture, operator confirmation, arrival, balance capture, cancellation cutoffs, duplicate requests and signed webhook delivery in a configured staging environment before release.
+
+IRCTC and redBus cards open official external booking websites. They do not issue tickets or synchronize reservations; transport payment and policies are independent.
+
+Public social links: set `PUBLIC_INSTAGRAM_URL`, `PUBLIC_YOUTUBE_URL`, `PUBLIC_WHATSAPP_URL`, `PUBLIC_LINKEDIN_URL`, and `PUBLIC_TWITTER_URL`. Only the supplied Instagram account is preconfigured. Other networks show Coming soon until verified URLs are set; HTTPS provider hosts are validated server-side. Redeploy after setting environment variables.
