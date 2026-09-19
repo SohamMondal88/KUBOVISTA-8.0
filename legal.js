@@ -57,6 +57,13 @@ export const legalPages = {
           "Stories you submit are stored with your account identifier, display name, content, publication status and submission date. Pending traveler stories are visible to their author and authorized editors. Approved stories and their author display names are public. Contact support to request correction or removal; public author names and stories may remain after account deletion until separately removed.",
           "Instagram previews are optional. Clicking Load Instagram preview connects your browser to Instagram, which receives connection and browser information and may use cookies under its own policies. No Instagram preview is loaded before that action. Hiding a preview stops displaying it but does not remove cookies Instagram has already set."
         ]
+      },
+      {
+        "title": "Business enquiries, maps and weather",
+        "paragraphs": [
+          "When activated, our enquiry forms store your name, email, chosen topic, optional organization or portfolio, message and submission date so authorized team members can review and respond. A daily submission limit is checked using your email. Do not submit identity documents, medical records or payment credentials. Contact the company to request correction or removal.",
+          "The destination map loads tiles from OpenStreetMap, which receives browser connection information such as your IP address. Weather lookups send the selected destination coordinates through our server to Open-Meteo; your account details and booking reference are not sent to that provider. Weather responses are temporarily cached."
+        ]
       }
     ],
     "control": "clear"
@@ -254,6 +261,13 @@ export const legalPages = {
         "title": "Currency and budgets",
         "paragraphs": [
           "Planner budgets are values chosen by the user. They are not quotations, fare searches or promises that a trip can be supplied at that amount. Obtain a dated, itemised quotation before making a financial commitment."
+        ]
+      },
+      {
+        "title": "Seasonal colors, map references and forecasts",
+        "paragraphs": [
+          "Map colors are approximate monthly planning guidance, not live safety ratings or confirmation that a route is open. Red means higher seasonal caution rather than a declaration that travel is prohibited. Destination pins show approximate locality or regional centers; some place names are explicitly marked as awaiting confirmation.",
+          "Weather values are model estimates. A day forecast is displayed only when available from the provider, normally within its forecast window. Accuracy varies by lead time, terrain and weather conditions. Check official advisories, local road access, tides and operator guidance before departure."
         ]
       }
     ]
