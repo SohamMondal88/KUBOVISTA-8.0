@@ -25,7 +25,7 @@ header{height:96px;padding-inline:56px;display:flex;align-items:center;justify-c
 @media (max-width:390px){.footer-links{grid-template-columns:1fr}.footer-links>div:last-child{grid-column:auto}.legal-nav{grid-template-columns:1fr}.legal-card{min-height:225px}.legal-section{grid-template-columns:1fr}.legal-number{padding-top:0}.legal-meta{display:grid;grid-template-columns:1fr 1fr}.legal-note{padding-bottom:10px}}
 @media print{.legal-nav,.legal-control,.legal-readiness{display:none!important}.legal-layout{display:block;padding:0}.legal-section{break-inside:avoid;grid-template-columns:35px 1fr}.legal-section p,.legal-section li{color:#222!important}.legal-meta{color:#333;border-color:#777}.legal-note{color:#333}}
 
-/* KUBOVISTA 8.0 — responsive and motion refinement */
+/* KuboVistas — responsive and motion refinement */
 :root{--header-h:96px;--radius-sm:8px;--radius-md:14px;--radius-lg:24px;--shadow:0 24px 70px rgba(0,0,0,.28);--ease:cubic-bezier(.2,.75,.25,1)}
 body{overflow-x:clip;background:radial-gradient(circle at 82% 4%,rgba(210,237,137,.055),transparent 24rem),var(--bg)}
 .scroll-progress{position:fixed;z-index:80;inset:0 0 auto;height:2px;pointer-events:none;background:transparent}.scroll-progress span{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left center;will-change:transform}

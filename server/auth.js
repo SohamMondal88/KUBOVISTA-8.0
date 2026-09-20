@@ -24,7 +24,7 @@ export function getAuth() {
   if (!authConfigured()) throw new Error('Authentication is not configured.');
   if (!authInstance) {
     authInstance = betterAuth({
-      appName: 'KUBOVISTA',
+      appName: 'KuboVistas',
       baseURL: process.env.BETTER_AUTH_URL,
       secret: process.env.BETTER_AUTH_SECRET,
       database: getPool(),
@@ -36,9 +36,9 @@ export function getAuth() {
         revokeSessionsOnPasswordReset: true,
         sendResetPassword: async ({ user, url }) => sendAuthEmail({
           to: user.email,
-          subject: 'Reset your KUBOVISTA password',
+          subject: 'Reset your KuboVistas password',
           heading: 'Choose a new password.',
-          message: 'This secure link lets you reset your KUBOVISTA password. It expires automatically.',
+          message: 'This secure link lets you reset your KuboVistas password. It expires automatically.',
           actionLabel: 'Reset password',
           actionUrl: url
         })
@@ -48,7 +48,7 @@ export function getAuth() {
         autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url }) => sendAuthEmail({
           to: user.email,
-          subject: 'Verify your KUBOVISTA email',
+          subject: 'Verify your KuboVistas email',
           heading: 'One quick check.',
           message: 'Verify your email to protect your travel plans and account.',
           actionLabel: 'Verify email',

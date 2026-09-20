@@ -33,7 +33,7 @@ export default async function handler(req,res){
    await client.query('SELECT id FROM "user" WHERE id=$1 FOR UPDATE',[session.user.id]);
    const count=await client.query("SELECT count(*) FROM journal_posts WHERE user_id=$1 AND created_at>now()-interval '1 day'",[session.user.id]);
    if(Number(count.rows[0].count)>=10)return null;
-   const result=await client.query(`INSERT INTO journal_posts(user_id,author_name,kind,title,summary,body,instagram_url,status,published_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,CASE WHEN $8='published' THEN now() ELSE NULL END) RETURNING id,status`,[session.user.id,post.kind==='traveler'?session.user.name:'KUBOVISTA',post.kind,post.title,post.summary,post.body,post.instagram_url,admin?'published':'pending']);return result.rows[0];
+   const result=await client.query(`INSERT INTO journal_posts(user_id,author_name,kind,title,summary,body,instagram_url,status,published_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,CASE WHEN $8='published' THEN now() ELSE NULL END) RETURNING id,status`,[session.user.id,post.kind==='traveler'?session.user.name:'KuboVistas',post.kind,post.title,post.summary,post.body,post.instagram_url,admin?'published':'pending']);return result.rows[0];
   });
   return saved?json(res,201,{post:saved}):json(res,429,{error:'You can submit up to 10 stories per day. Please try tomorrow.'});
  }catch(error){const failure=publicError(error);return json(res,failure.status,{error:failure.message});}

@@ -27,4 +27,4 @@ createServer(async(req,res)=>{
   if(!path.startsWith(root+sep)){res.writeHead(403).end();return;}
   res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'}).end(await readFile(path));
  }catch(error){console.error(error.message);if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Service unavailable. Please try again.'}));}
-}).listen(port,host,()=>console.log(`KUBOVISTA ready at http://${host}:${port}`));
+}).listen(port,host,()=>console.log(`KuboVistas ready at http://${host}:${port}`));

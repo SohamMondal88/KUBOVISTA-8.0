@@ -4,20 +4,20 @@ export const legalPages = {
     "label": "Privacy",
     "eyebrow": "PRIVACY POLICY",
     "title": "Your information,<br><em>kept simple.</em>",
-    "summary": "What this version of KUBOVISTA stores, what it does not collect, and the controls available to you.",
+    "summary": "What this version of KuboVistas stores, what it does not collect, and the controls available to you.",
     "sections": [
       {
         "title": "Kubo travel assistant",
         "paragraphs": [
-          "Kubo’s built-in guide runs in your browser. Conversation text is held in page memory and cleared on refresh or New chat; downloading a conversation creates a file on your device. It is not saved as a server-side chat transcript by KUBOVISTA.",
+          "Kubo’s built-in guide runs in your browser. Conversation text is held in page memory and cleared on refresh or New chat; downloading a conversation creates a file on your device. It is not saved as a server-side chat transcript by KuboVistas.",
           "AI chat, when activated, requires a verified account and your choice to share the recent conversation with OpenAI to generate a reply. Public destination guides, relevant published blog summaries and requested weather data may be included. Private booking, profile and payment records are not provided to the assistant. Do not enter passwords, OTPs, identity documents, banking information or sensitive personal details.",
-          "KUBOVISTA records account-linked daily request counts and last-request timestamps to limit abuse; operators delete usage rows older than 30 days as part of service maintenance. Requests ask OpenAI not to store response objects, but this is not a promise of zero provider retention: the provider’s applicable processing and retention policies still apply. AI replies may be incorrect and do not create bookings, quotations, cancellation actions or refunds. Contact the travel team to confirm arrangements."
+          "KuboVistas records account-linked daily request counts and last-request timestamps to limit abuse; operators delete usage rows older than 30 days as part of service maintenance. Requests ask OpenAI not to store response objects, but this is not a promise of zero provider retention: the provider’s applicable processing and retention policies still apply. AI replies may be incorrect and do not create bookings, quotations, cancellation actions or refunds. Contact the travel team to confirm arrangements."
         ]
       },
       {
         "title": "1. Scope and current service",
         "paragraphs": [
-          "KUBOVISTA provides travel guides, a local trip planner and, when activated, authenticated traveler accounts, consultation requests, quotations and advance payments. Availability is shown in the relevant account or checkout flow.",
+          "KuboVistas provides travel guides, a local trip planner and, when activated, authenticated traveler accounts, consultation requests, quotations and advance payments. Availability is shown in the relevant account or checkout flow.",
           "Draft trip briefs and bookmarked destinations stay in the browser. Choosing Request a consultation submits the trip details to the signed-in account for expert review."
         ]
       },
@@ -36,13 +36,13 @@ export const legalPages = {
         "title": "3. Hosting and technical records",
         "paragraphs": [
           "Accounts store a name, email, password hash and session metadata. Optional profile fields, settings, submitted trip requests, quotations and transaction references are stored in the service database. Hosting providers may process request logs to operate and secure the service.",
-          "Transactional email is sent through the configured email provider. Optional Google sign-in shares identity information from Google. Razorpay processes checkout payment instruments; KUBOVISTA receives payment references and status, not card numbers, banking passwords or UPI PINs."
+          "Transactional email is sent through the configured email provider. Optional Google sign-in shares identity information from Google. Razorpay processes checkout payment instruments; KuboVistas receives payment references and status, not card numbers, banking passwords or UPI PINs."
         ]
       },
       {
         "title": "4. External links and photographs",
         "paragraphs": [
-          "Links to tourism authorities, permit portals and other third-party sites open outside KUBOVISTA. Their privacy practices apply once you leave this website. Images are served as local website assets; their original credits and licence sources are documented in the project assets record."
+          "Links to tourism authorities, permit portals and other third-party sites open outside KuboVistas. Their privacy practices apply once you leave this website. Images are served as local website assets; their original credits and licence sources are documented in the project assets record."
         ]
       },
       {
@@ -80,7 +80,7 @@ export const legalPages = {
     "label": "Terms of use",
     "eyebrow": "TERMS OF USE",
     "title": "Clear terms.<br><em>No hidden itinerary.</em>",
-    "summary": "The rules that apply when you browse KUBOVISTA or use its planning tools.",
+    "summary": "The rules that apply when you browse KuboVistas or use its planning tools.",
     "sections": [
       {
         "title": "1. Acceptance and eligibility",
@@ -91,7 +91,7 @@ export const legalPages = {
       {
         "title": "2. An information service—not a booking",
         "paragraphs": [
-          "KUBOVISTA provides destination information, sample journeys, a personal planner and account-based consultation and quotation tools. The provider and scope of any purchased service must be identified in the quotation.",
+          "KuboVistas provides destination information, sample journeys, a personal planner and account-based consultation and quotation tools. The provider and scope of any purchased service must be identified in the quotation.",
           "Saving a plan or submitting a request does not make a reservation. Paying an advance records payment against the quotation; final booking confirmation is a separate step after supplier checks."
         ]
       },
@@ -111,20 +111,20 @@ export const legalPages = {
       {
         "title": "5. Content and intellectual property",
         "paragraphs": [
-          "The KUBOVISTA name, interface, original copy, layout and code are protected to the extent permitted by applicable law. Third-party photographs, names and linked materials remain the property of their respective owners. Limited personal viewing and printing are allowed; commercial republication requires permission from the relevant rights holder."
+          "The KuboVistas name, interface, original copy, layout and code are protected to the extent permitted by applicable law. Third-party photographs, names and linked materials remain the property of their respective owners. Limited personal viewing and printing are allowed; commercial republication requires permission from the relevant rights holder."
         ]
       },
       {
         "title": "6. Third-party services",
         "paragraphs": [
-          "External websites and suppliers are independent from KUBOVISTA. A link is provided for convenience and does not guarantee availability, safety, accuracy, quality or endorsement. Your dealings with a third party are governed by that party’s terms."
+          "External websites and suppliers are independent from KuboVistas. A link is provided for convenience and does not guarantee availability, safety, accuracy, quality or endorsement. Your dealings with a third party are governed by that party’s terms."
         ]
       },
       {
         "title": "7. Disclaimers and liability",
         "paragraphs": [
-          "The site is provided on an “as available” basis for general information. To the extent permitted by law, KUBOVISTA does not promise uninterrupted access or that every item is complete, current or suitable for a particular trip.",
-          "Nothing in these terms excludes a right or remedy that cannot lawfully be excluded, including applicable consumer rights. Subject to those rights, KUBOVISTA is not responsible for decisions made solely from illustrative content, third-party failures or events outside reasonable control."
+          "The site is provided on an “as available” basis for general information. To the extent permitted by law, KuboVistas does not promise uninterrupted access or that every item is complete, current or suitable for a particular trip.",
+          "Nothing in these terms excludes a right or remedy that cannot lawfully be excluded, including applicable consumer rights. Subject to those rights, KuboVistas is not responsible for decisions made solely from illustrative content, third-party failures or events outside reasonable control."
         ]
       },
       {
@@ -136,7 +136,7 @@ export const legalPages = {
       {
         "title": "Contributing to the Journal",
         "paragraphs": [
-          "Submit original content or content you have permission to share. Do not include private personal details, harassment, unlawful material or misleading claims. You retain ownership and allow KUBOVISTA to display your submitted content with your author name when approved. Traveler submissions are reviewed before publication and may be declined or removed. Publication does not mean KUBOVISTA has independently verified every traveler statement."
+          "Submit original content or content you have permission to share. Do not include private personal details, harassment, unlawful material or misleading claims. You retain ownership and allow KuboVistas to display your submitted content with your author name when approved. Traveler submissions are reviewed before publication and may be declined or removed. Publication does not mean KuboVistas has independently verified every traveler statement."
         ]
       }
     ]
@@ -150,13 +150,13 @@ export const legalPages = {
       {
         "title": "No advertising or analytics cookies",
         "paragraphs": [
-          "KUBOVISTA uses essential authentication session cookies when accounts are activated. Session expiry is up to 14 days and may refresh during continued use. There are no first-party advertising trackers in this implementation. Checkout providers may use their own essential security technology."
+          "KuboVistas uses essential authentication session cookies when accounts are activated. Session expiry is up to 14 days and may refresh during continued use. There are no first-party advertising trackers in this implementation. Checkout providers may use their own essential security technology."
         ]
       },
       {
         "title": "Local storage we use",
         "paragraphs": [
-          "Local storage is browser memory, not a traditional cookie. It lets the site remember features on the same device without sending those choices to KUBOVISTA."
+          "Local storage is browser memory, not a traditional cookie. It lets the site remember features on the same device without sending those choices to KuboVistas."
         ],
         "bullets": [
           "kubovista:saved — destination IDs you bookmark",
@@ -167,7 +167,7 @@ export const legalPages = {
       {
         "title": "How long it remains",
         "paragraphs": [
-          "The browser keeps these values until you clear them, use private-browsing controls that remove them, or the browser/device removes site data. KUBOVISTA does not set a server-side retention period because it does not receive this local storage."
+          "The browser keeps these values until you clear them, use private-browsing controls that remove them, or the browser/device removes site data. KuboVistas does not set a server-side retention period because it does not receive this local storage."
         ]
       },
       {
@@ -195,7 +195,7 @@ export const legalPages = {
     "label": "Cancellation & refunds",
     "eyebrow": "CANCELLATION & REFUND POLICY",
     "title": "Know before<br><em>you commit.</em>",
-    "summary": "What can—and currently cannot—be cancelled or refunded through KUBOVISTA.",
+    "summary": "What can—and currently cannot—be cancelled or refunded through KuboVistas.",
     "sections": [
       {
         "title": "Current website status",
@@ -206,13 +206,13 @@ export const legalPages = {
       {
         "title": "Use your secure quotation checkout",
         "paragraphs": [
-          "Start payment only from your signed-in quotation and review its terms. Razorpay Checkout displays the server-calculated amount. Do not share banking passwords, card credentials or UPI PINs with KUBOVISTA or send funds using unverified payment requests."
+          "Start payment only from your signed-in quotation and review its terms. Razorpay Checkout displays the server-calculated amount. Do not share banking passwords, card credentials or UPI PINs with KuboVistas or send funds using unverified payment requests."
         ]
       },
       {
         "title": "Third-party reservations",
         "paragraphs": [
-          "If you book directly with a hotel, transport provider, activity operator or external platform, that provider’s cancellation, amendment, no-show and refund terms apply. KUBOVISTA cannot cancel or refund a transaction it did not process. Keep invoices, confirmations and the policy accepted at payment."
+          "If you book directly with a hotel, transport provider, activity operator or external platform, that provider’s cancellation, amendment, no-show and refund terms apply. KuboVistas cannot cancel or refund a transaction it did not process. Keep invoices, confirmations and the policy accepted at payment."
         ]
       },
       {
@@ -256,13 +256,13 @@ export const legalPages = {
       {
         "title": "Documents and permits",
         "paragraphs": [
-          "Passport, visa, identity, inner-line permit and protected-area requirements depend on nationality, age, route and current rules. Only the competent authority can confirm whether your documents are sufficient. A link or general note on KUBOVISTA is not an approval."
+          "Passport, visa, identity, inner-line permit and protected-area requirements depend on nationality, age, route and current rules. Only the competent authority can confirm whether your documents are sufficient. A link or general note on KuboVistas is not an approval."
         ]
       },
       {
         "title": "Independent providers",
         "paragraphs": [
-          "Accommodation, transport, guides, restaurants, activities and external websites are operated independently. KUBOVISTA does not currently inspect, rank, contract with or guarantee those providers through this site. Verify licences, insurance, safety practices, accessibility and commercial terms before purchase."
+          "Accommodation, transport, guides, restaurants, activities and external websites are operated independently. KuboVistas does not currently inspect, rank, contract with or guarantee those providers through this site. Verify licences, insurance, safety practices, accessibility and commercial terms before purchase."
         ]
       },
       {
@@ -284,12 +284,12 @@ export const legalPages = {
     "label": "Accessibility",
     "eyebrow": "ACCESSIBILITY STATEMENT",
     "title": "More ways<br><em>to wander.</em>",
-    "summary": "How KUBOVISTA supports accessible use and where the experience is still improving.",
+    "summary": "How KuboVistas supports accessible use and where the experience is still improving.",
     "sections": [
       {
         "title": "Our approach",
         "paragraphs": [
-          "KUBOVISTA aims to make its travel information usable across devices, input methods and motion preferences. Accessibility is treated as an ongoing product responsibility, not a one-time badge. This statement does not claim formal certification or full conformance with a specific standard."
+          "KuboVistas aims to make its travel information usable across devices, input methods and motion preferences. Accessibility is treated as an ongoing product responsibility, not a one-time badge. This statement does not claim formal certification or full conformance with a specific standard."
         ]
       },
       {
@@ -342,7 +342,7 @@ export const legalPages = {
         ],
         "links": [
           {
-            "label": "Open the KUBOVISTA issue tracker ↗",
+            "label": "Open the KuboVistas issue tracker ↗",
             "href": "https://github.com/SohamMondal88/KUBOVISTA-8.0/issues"
           }
         ]
@@ -359,7 +359,7 @@ export const legalPages = {
       {
         "title": "Commercial-launch requirement",
         "paragraphs": [
-          "Before selling or facilitating travel services, KUBOVISTA must publish its verified legal entity name, geographic address, customer-care contact, designated grievance officer, complaint acknowledgement and resolution process, and any other disclosures required for its operating model. Those details are intentionally not invented in this prototype."
+          "Before selling or facilitating travel services, KuboVistas must publish its verified legal entity name, geographic address, customer-care contact, designated grievance officer, complaint acknowledgement and resolution process, and any other disclosures required for its operating model. Those details are intentionally not invented in this prototype."
         ]
       },
       {
@@ -383,9 +383,9 @@ export const legalPages = {
     "summary": "Ownership, permitted personal use, third-party credits and content concerns.",
     "sections": [
       {
-        "title": "KUBOVISTA material",
+        "title": "KuboVistas material",
         "paragraphs": [
-          "Unless identified otherwise, the KUBOVISTA interface, original written copy, route structure, visual system and source code are controlled by the project owner and may be protected by copyright, trade mark and other applicable law. The repository licence governs reuse of source code where provided."
+          "Unless identified otherwise, the KuboVistas interface, original written copy, route structure, visual system and source code are controlled by the project owner and may be protected by copyright, trade mark and other applicable law. The repository licence governs reuse of source code where provided."
         ]
       },
       {
@@ -397,13 +397,13 @@ export const legalPages = {
       {
         "title": "Third-party material",
         "paragraphs": [
-          "Photographs and external resources retain their original ownership and licence conditions. KUBOVISTA’s project ASSETS.md identifies image sources and credits. Place names and public-agency names are used descriptively and do not imply affiliation."
+          "Photographs and external resources retain their original ownership and licence conditions. KuboVistas’s project ASSETS.md identifies image sources and credits. Place names and public-agency names are used descriptively and do not imply affiliation."
         ]
       },
       {
         "title": "Takedown requests",
         "paragraphs": [
-          "A rights holder should identify the protected work, the KUBOVISTA location, the basis of the claim, contact information and a good-faith statement of authority. The current public issue tracker may be used for an initial notice only if no personal information is included; a private legal-contact channel must be published before commercial launch."
+          "A rights holder should identify the protected work, the KuboVistas location, the basis of the claim, contact information and a good-faith statement of authority. The current public issue tracker may be used for an initial notice only if no personal information is included; a private legal-contact channel must be published before commercial launch."
         ],
         "links": [
           {

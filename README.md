@@ -1,4 +1,4 @@
-# KUBOVISTA 8.0
+# KuboVistas
 
 A complete responsive travel-guide frontend with a dark alpine visual identity, cinematic local photography, pointer-responsive 3D cards, scroll reveals, parallax and accessible motion controls.
 
