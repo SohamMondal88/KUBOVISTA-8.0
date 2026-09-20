@@ -7,6 +7,14 @@ export const legalPages = {
     "summary": "What this version of KUBOVISTA stores, what it does not collect, and the controls available to you.",
     "sections": [
       {
+        "title": "Kubo travel assistant",
+        "paragraphs": [
+          "Kubo’s built-in guide runs in your browser. Conversation text is held in page memory and cleared on refresh or New chat; downloading a conversation creates a file on your device. It is not saved as a server-side chat transcript by KUBOVISTA.",
+          "AI chat, when activated, requires a verified account and your choice to share the recent conversation with OpenAI to generate a reply. Public destination guides, relevant published blog summaries and requested weather data may be included. Private booking, profile and payment records are not provided to the assistant. Do not enter passwords, OTPs, identity documents, banking information or sensitive personal details.",
+          "KUBOVISTA records account-linked daily request counts and last-request timestamps to limit abuse; operators delete usage rows older than 30 days as part of service maintenance. Requests ask OpenAI not to store response objects, but this is not a promise of zero provider retention: the provider’s applicable processing and retention policies still apply. AI replies may be incorrect and do not create bookings, quotations, cancellation actions or refunds. Contact the travel team to confirm arrangements."
+        ]
+      },
+      {
         "title": "1. Scope and current service",
         "paragraphs": [
           "KUBOVISTA provides travel guides, a local trip planner and, when activated, authenticated traveler accounts, consultation requests, quotations and advance payments. Availability is shown in the relevant account or checkout flow.",
