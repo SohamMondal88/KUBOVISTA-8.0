@@ -1,3 +1,4 @@
+import kubo from './kubo.js';
 import {socialLinks} from './social-links.js';
 import tripActions from './trip-actions.js';
 import { weatherFor } from './weather.js';
@@ -7,6 +8,7 @@ import { json, parseBody, cleanText, methodNotAllowed } from './http.js';
 const kinds=['contact','career','sponsor','partnership','stay','equipment'];
 export default async function services(req,res){
  const service=req.query?.service;
+ if(service==='kubo')return kubo(req,res);
  if(service==='social-links'){if(req.method!=='GET')return methodNotAllowed(res,['GET']);return json(res,200,{links:socialLinks()});}
  if(service==='trip-actions')return tripActions(req,res);
  if(service==='weather'){

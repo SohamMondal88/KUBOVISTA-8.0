@@ -7,7 +7,7 @@ const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8'
 const args=process.argv.slice(2); const option=name=>{const i=args.indexOf(name);return i>=0?args[i+1]:undefined;};
 const port=Number(option('--port')||process.env.PORT)||3000;const host=option('--host')||process.env.HOST||'0.0.0.0';
 const endpoints=new Set(['journal','config','profile','settings','bookings','payments','notifications','admin/quote','payments/create-order','payments/verify','payments/webhook']);
-const publicFiles=new Set(['/','/index.html','/styles.css','/app.js','/account.js','/journal.js','/company.js','/explore.js','/destination-meta.js','/partner-data.js','/travel-links.js','/booking-ui.js','/data.js','/legal.js']);
+const publicFiles=new Set(['/','/index.html','/styles.css','/app.js','/account.js','/journal.js','/company.js','/explore.js','/destination-meta.js','/partner-data.js','/travel-links.js','/booking-ui.js','/kubo.js','/kubo-knowledge.js','/navigation.css','/kubo.css','/data.js','/legal.js']);
 createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://localhost');const pathname=decodeURIComponent(url.pathname);
