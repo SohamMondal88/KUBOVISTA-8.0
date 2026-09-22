@@ -4,7 +4,7 @@ A complete responsive travel-guide frontend with a dark alpine visual identity, 
 
 ## Run locally
 
-Use Node.js 22.x, matching the pinned Vercel runtime and CI. Install the pinned dependencies with `npm ci`. See [account and payment setup](SETUP_AUTH_PAYMENTS.md) for database, email and merchant configuration.
+Use Node.js 24.x, matching the pinned Vercel runtime and CI. Install the pinned dependencies with `npm ci`. See [account and payment setup](SETUP_AUTH_PAYMENTS.md) for database, email and merchant configuration.
 
 ```sh
 npm run dev
@@ -21,7 +21,7 @@ The production output is `dist/`. Deploy to Vercel for the account and payment A
 
 ### Vercel
 
-Import the repository with its root directory set to the repository root. The checked-in `vercel.json` selects the Other framework preset, runs `npm run build`, and serves `dist/`. Its output-directory setting overrides a dashboard value such as `public`; do not rename the generated directory. Node.js is pinned to `22.x` in `package.json` to avoid automatic major-version upgrades. Deploy the commit containing these changes rather than redeploying the earlier failing commit.
+Import the repository with its root directory set to the repository root. The checked-in `vercel.json` selects the Other framework preset, runs `npm run build`, and serves `dist/`. Its output-directory setting overrides a dashboard value such as `public`; do not rename the generated directory. Node.js is pinned to `24.x` in `package.json` to avoid automatic major-version upgrades. Deploy the commit containing these changes rather than redeploying the earlier failing commit.
 
 ## Included
 
