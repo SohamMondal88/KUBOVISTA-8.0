@@ -1,7 +1,7 @@
-import { destinations } from '../data.js';
-import { requireSession } from '../server/auth.js';
-import { query, transaction } from '../server/db.js';
-import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../server/http.js';
+import { destinations } from '../../data.js';
+import { requireSession } from '../auth.js';
+import { query, transaction } from '../db.js';
+import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../http.js';
 
 const bookingColumns = `id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes,status,quote_total_paise,advance_percent,quote_notes,quote_expires_at,created_at,updated_at,payment_policy_version,cancellation_policy,checkin_at,booked_at,confirmed_at,checked_in_at,balance_paid_at,cancellation_requested_at,cancellation_fee_paise,cancellation_refund_paise,itinerary`;
 

@@ -1,6 +1,6 @@
-import { requireSession } from '../server/auth.js';
-import { query } from '../server/db.js';
-import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../server/http.js';
+import { requireSession } from '../auth.js';
+import { query } from '../db.js';
+import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../http.js';
 
 const bool = value => value === true;
 

@@ -2,5 +2,23 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/bookings",
+      "destination": "/api/account?resource=bookings"
+    },
+    {
+      "source": "/api/profile",
+      "destination": "/api/account?resource=profile"
+    },
+    {
+      "source": "/api/settings",
+      "destination": "/api/account?resource=settings"
+    },
+    {
+      "source": "/api/notifications",
+      "destination": "/api/account?resource=notifications"
+    }
+  ]
 }
