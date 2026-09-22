@@ -6,6 +6,7 @@ export const legalPages = {
     "title": "Your information,<br><em>kept simple.</em>",
     "summary": "What this version of KuboVistas stores, what it does not collect, and the controls available to you.",
     "sections": [
+      {"title":"Travel Date companion community","paragraphs":["Travel Date stores your chosen display name, destination, trip dates, estimated budget, travel style, trip description, age attestation, join requests and their status. Plans are reviewed before publication and visible to signed-in, email-verified members. Your account email and private profile fields are not included in companion listings. Age is self-declared; we do not claim identity or background verification.","Join introductions are visible to the relevant organiser and requester. Blocking hides the other member’s plans and requests from your account and withdraws active requests between you. Reports and moderation records are available to authorised staff for review. An accepted request does not reveal contact details automatically. Authorised staff can access the account emails for accepted introductions to contact each member separately; contact details are shared between travellers only with their agreement. Contact the team for a separately agreed introduction.","Closing a plan stops public discovery but preserves it in your account history. Companion data is removed when the associated account is deleted, including linked requests; moderation records attached to those plans are also removed. Contact support for assistance. Never include identity documents, home addresses, payment information or other sensitive data in posts or introductions."]},
       {
         "title": "Optional Google advertising",
         "paragraphs": [
@@ -89,6 +90,7 @@ export const legalPages = {
     "title": "Clear terms.<br><em>No hidden itinerary.</em>",
     "summary": "The rules that apply when you browse KuboVistas or use its planning tools.",
     "sections": [
+      {"title":"Travel Date participation","paragraphs":["Companion matching is restricted to adults aged 18 or over who accept the community guidelines. School trips and any participation by minors must be arranged separately through an authorised adult organiser; minors must not create companion posts or requests.","A moderated post or verified email does not establish identity, age, background, compatibility or safety. Travel Date facilitates introductions; accepting a request is not a confirmed trip, contract for travel services or permission to collect money. Trip availability, supplier terms and quotations must be confirmed separately.","Do not use the community for harassment, scams, unsolicited romantic approaches, contact-data harvesting or payment solicitation. We may reject or remove posts following review. Use reporting and blocking for concerns; moderation is not an emergency response service. Review companion guidelines before requesting to join."]},
       {
         "title": "1. Acceptance and eligibility",
         "paragraphs": [
