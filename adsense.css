@@ -1,0 +1,6 @@
+.travel-ad { margin-block: 2rem; padding: 1.25rem; border: 1px solid #d7ded8; border-radius: 16px; text-align: center; min-width: 0; }
+.travel-ad > p { font-size: .8rem; line-height: 1.6; opacity: .75; }
+.travel-ad > a { display: inline-block; margin-top: .8rem; font-size: .8rem; }
+.travel-ad .adsbygoogle { width: 100%; min-height: 100px; }
+.travel-ad:has(.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
+@media (max-width: 480px) { .travel-ad { padding: .75rem; border-radius: 10px; } }

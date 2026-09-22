@@ -1,4 +1,4 @@
-export const legalUpdated = "19 September 2026";
+export const legalUpdated = "22 September 2026";
 export const legalPages = {
   "privacy": {
     "label": "Privacy",
@@ -6,6 +6,13 @@ export const legalPages = {
     "title": "Your information,<br><em>kept simple.</em>",
     "summary": "What this version of KuboVistas stores, what it does not collect, and the controls available to you.",
     "sections": [
+      {
+        "title": "Optional Google advertising",
+        "paragraphs": [
+          "When advertising is activated, selecting Load advertisement connects your browser to Google AdSense. No advertising script is loaded by this integration before that choice. Google and its partners may use cookies and process device, connection and advertising information. Loading an advertisement is not a substitute for the consent choices required in your region.",
+          "Where applicable, use the advertising consent provider’s message and privacy controls to accept, reject or revise choices. Clearing saved trip data does not withdraw advertising consent or remove third-party cookies. Google’s partner-site data information is available at https://policies.google.com/technologies/partner-sites and its advertising controls at https://myadcenter.google.com/. Once loaded, third-party scripts can remain active until the page is reloaded."
+        ]
+      },
       {
         "title": "Kubo travel assistant",
         "paragraphs": [
@@ -148,9 +155,9 @@ export const legalPages = {
     "summary": "A plain-language record of browser storage and tracking in the current site.",
     "sections": [
       {
-        "title": "No advertising or analytics cookies",
+        "title": "Essential cookies and optional advertising",
         "paragraphs": [
-          "KuboVistas uses essential authentication session cookies when accounts are activated. Session expiry is up to 14 days and may refresh during continued use. There are no first-party advertising trackers in this implementation. Checkout providers may use their own essential security technology."
+          "KuboVistas uses essential authentication session cookies when accounts are activated. Session expiry is up to 14 days and may refresh during continued use. When configured, optional Google AdSense advertisements can be loaded on selected public travel pages. Google and its advertising partners may process IP addresses, browser information, cookies and similar identifiers for advertising, measurement and fraud prevention. Checkout providers may use their own essential security technology."
         ]
       },
       {
