@@ -1,4 +1,4 @@
-export const legalUpdated = "22 September 2026";
+export const legalUpdated = "23 September 2026";
 export const legalPages = {
   "privacy": {
     "label": "Privacy",
@@ -90,6 +90,7 @@ export const legalPages = {
     "title": "Clear terms.<br><em>No hidden itinerary.</em>",
     "summary": "The rules that apply when you browse KuboVistas or use its planning tools.",
     "sections": [
+      {"title":"Membership preview and enquiries","paragraphs":["Explorer refers to the website’s free tools, subject to each feature’s availability and account requirements. Explorer Plus and Travel Circle are proposed annual services and are not currently sold or activated. Displayed paid-plan prices and benefits are suggestions for gathering interest, not a final quotation or a promise of availability.","Registering interest creates an enquiry only. It does not create a subscription, member entitlement, recurring payment or price reservation. Any future paid service must specify its final payable price including applicable taxes, scope, duration, renewal, cancellation and refund conditions before payment. Travel costs and supplier services are separate. Membership does not guarantee savings, companions, identity verification or personal safety."]},
       {"title":"Travel Date participation","paragraphs":["Companion matching is restricted to adults aged 18 or over who accept the community guidelines. School trips and any participation by minors must be arranged separately through an authorised adult organiser; minors must not create companion posts or requests.","A moderated post or verified email does not establish identity, age, background, compatibility or safety. Travel Date facilitates introductions; accepting a request is not a confirmed trip, contract for travel services or permission to collect money. Trip availability, supplier terms and quotations must be confirmed separately.","Do not use the community for harassment, scams, unsolicited romantic approaches, contact-data harvesting or payment solicitation. We may reject or remove posts following review. Use reporting and blocking for concerns; moderation is not an emergency response service. Review companion guidelines before requesting to join."]},
       {
         "title": "1. Acceptance and eligibility",
