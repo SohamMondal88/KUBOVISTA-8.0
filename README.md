@@ -60,3 +60,9 @@ Photos are stored locally for dependable rendering. The copyright in photographs
 ## Validation
 
 `npm run check` validates JavaScript syntax and tests destination IDs, route references, itinerary lengths, editorial content and JPEG signatures. Browser QA should cover desktop/tablet/mobile layouts, filters, local saving, dialogs, planner export, keyboard access, reduced motion and storage failures.
+
+### Serverless function budget
+
+The application has 10 deployable JavaScript entry points under `api/`. Profile, settings, bookings and notifications share `api/account.js`; their original URLs are preserved by four explicit Vercel rewrites. Their existing authenticated handlers live under `server/account/` so they are bundled dependencies rather than separate serverless functions. Local development uses the same dispatcher. Authentication and payment webhooks retain their separate raw-body entry points.
+
+Do not leave forwarding files in `api/` for those four URLs: each would add another function. The deployment routing test guards the 12-function ceiling. This reduces function count only; other plan limits and commercial-use terms still apply.

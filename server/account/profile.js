@@ -1,6 +1,6 @@
-import { isAdmin, requireSession } from '../server/auth.js';
-import { query } from '../server/db.js';
-import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../server/http.js';
+import { isAdmin, requireSession } from '../auth.js';
+import { query } from '../db.js';
+import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../http.js';
 
 export default async function handler(req, res) {
   if (!['GET', 'PUT'].includes(req.method)) return methodNotAllowed(res, ['GET', 'PUT']);
