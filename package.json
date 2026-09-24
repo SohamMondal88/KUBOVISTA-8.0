@@ -10,7 +10,8 @@
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "node --check affiliates.js && node --check affiliate-data.js && node --check membership.js && node --check travel-date.js && node --check api/travel-date.js && node --check server/travel-date.js && node --check kubo.js && node --check kubo-knowledge.js && node --check server/kubo.js && node --check booking-ui.js && node --check travel-links.js && node --check server/trip-actions.js && node --check api/admin/quote.js && node --check company.js && node --check explore.js && node --check destination-meta.js && node --check server/services.js && node --check server/weather.js && node --check journal.js && node --check api/journal.js && node --check app.js && node --check account.js && node --check data.js && node --check legal.js && node --check server/auth.js && node --check server/razorpay.js && node --check api/account.js && node --check server/account/bookings.js && node --check server/account/profile.js && node --check server/account/settings.js && node --check server/account/notifications.js && node --check api/payments/create-order.js && node --check api/payments/verify.js && node --check api/payments/webhook.js && npm test",
-    "db:migrate": "node --env-file=.env scripts/migrate.mjs"
+    "db:migrate": "node --env-file=.env scripts/migrate.mjs",
+    "db:check": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/neon-check.mjs"
   },
   "engines": {
     "node": "24.x"
@@ -18,6 +19,7 @@
   "dependencies": {
     "@neon/config": "^1.7.3",
     "@neon/env": "^1.4.4",
+    "@neondatabase/serverless": "1.1.0",
     "better-auth": "1.7.5",
     "leaflet": "1.9.4",
     "pg": "8.23.0",
