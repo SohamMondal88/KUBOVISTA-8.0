@@ -21,14 +21,49 @@ It binds only to loopback and is not included in the public website or serverles
 API routes. It does not change application tables or replace the existing `pg`
 driver used by authentication and transactional booking operations.
 
-Target project: `gentle-frog-90350277`. Target branch: `production`.
+Target project: `gentle-frog-90350277`. Target branch ID: `br-noisy-butterfly-azhmutuk`.
+The branch name has not been verified; commands use the supplied ID explicitly.
 
 The requested `neon.ts` declares managed Neon Auth, a private `uploads` bucket,
 and a sample `api` function from `hello.ts`. AI Gateway remains disabled.
 This does not migrate the application's existing Better Auth integration or deploy
 its existing API handlers. The sample endpoint returns only a greeting.
 
-## Finish after authentication
+## Deploy only the sample function
+
+From the repository directory after merging and pulling these changes:
+
+```sh
+npm ci
+npm i -g neon
+neon login
+npm run neon:link
+npm run neon:deploy:function
+```
+
+The link command uses `--no-env-pull` to preserve existing local application
+credentials. The deploy command explicitly targets project `gentle-frog-90350277`
+and branch `br-noisy-butterfly-azhmutuk`, even if a different branch is linked.
+It deploys slug `api` from the existing `hello.ts` using Node 24 and waits for
+completion. Redeploying that slug updates the existing function on this branch.
+
+The equivalent direct deployment command is:
+
+```sh
+neon function deploy api --src ./hello.ts --project-id gentle-frog-90350277 --branch br-noisy-butterfly-azhmutuk --runtime nodejs24 --wait
+```
+
+Before deploying, confirm in the Neon console that this branch belongs to your
+intended project and that its region supports Functions. Account access and region
+availability have not been verified from this workspace. Sign in on your computer;
+never commit an API key or database URL.
+
+After success, open the HTTPS function URL returned by Neon and confirm it responds
+with `Hello from Neon Functions`. This is a greeting endpoint, not a database
+connectivity test or a migration of the website's existing backend. It needs no
+application secrets. This command is manual; the Vercel build does not deploy it.
+
+## Full service setup (separate from a single-function deployment)
 
 Run in the repository directory on the computer where you sign in:
 
@@ -36,7 +71,7 @@ Run in the repository directory on the computer where you sign in:
 npm ci
 npm i -g neon@latest
 neon login
-neon link --project-id gentle-frog-90350277 --branch production -y
+neon link --project-id gentle-frog-90350277 --branch-id br-noisy-butterfly-azhmutuk --no-env-pull
 neon config plan
 neon deploy
 ```
