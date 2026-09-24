@@ -3,7 +3,7 @@
   "version": "8.0.0",
   "private": true,
   "type": "module",
-  "description": "KuboVistas \u2014 a responsive motion-led travel guide and personal trip planner",
+  "description": "KuboVistas — a responsive motion-led travel guide and personal trip planner",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs",
@@ -16,6 +16,8 @@
     "node": "24.x"
   },
   "dependencies": {
+    "@neon/config": "^1.7.3",
+    "@neon/env": "^1.4.4",
     "better-auth": "1.7.5",
     "leaflet": "1.9.4",
     "pg": "8.23.0",
