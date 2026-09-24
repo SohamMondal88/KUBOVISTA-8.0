@@ -1,3 +1,4 @@
+import { shouldApplyCapture } from '../../server/payment-state.js';
 import { requireSession } from '../../server/auth.js';
 import { query, transaction } from '../../server/db.js';
 import { cleanText, json, methodNotAllowed, parseBody, publicError } from '../../server/http.js';
@@ -21,8 +22,8 @@ export default async function handler(req, res) {
     const payment = await transaction(async client => {
       const locked = await client.query(`SELECT * FROM payments WHERE razorpay_order_id=$1 FOR UPDATE`, [orderId]);
       const previous = locked.rows[0];
-      const updated = await client.query(`UPDATE payments SET razorpay_payment_id=$1,status=CASE WHEN status IN ('captured','refunded','refund_pending') THEN status ELSE $2 END,signature_verified=true,captured_at=CASE WHEN $2='captured' THEN now() ELSE captured_at END,updated_at=now() WHERE razorpay_order_id=$3 RETURNING *`, [paymentId, state, orderId]);
-      if (state === 'captured' && !previous.signature_verified && !['refunded','refund_pending'].includes(previous.status)) {
+      const updated = await client.query(`UPDATE payments SET razorpay_payment_id=$1,status=CASE WHEN status IN ('captured','refunded','refund_pending') THEN status ELSE $2 END,signature_verified=true,captured_at=CASE WHEN $2='captured' THEN COALESCE(captured_at,now()) ELSE captured_at END,updated_at=now() WHERE razorpay_order_id=$3 RETURNING *`, [paymentId, state, orderId]);
+      if (shouldApplyCapture(previous.status, state)) {
         await client.query(`UPDATE bookings SET status=CASE WHEN $2='deposit' AND status='quotation_ready' THEN 'advance_paid' ELSE status END,booked_at=CASE WHEN $2='deposit' THEN COALESCE(booked_at,now()) ELSE booked_at END,balance_paid_at=CASE WHEN $2='balance' THEN COALESCE(balance_paid_at,now()) ELSE balance_paid_at END,updated_at=now() WHERE id=$1`, [updated.rows[0].booking_id,updated.rows[0].purpose]);
         await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,'Trip payment received',$2,'payment')`, [session.user.id, `Your ${local.rows[0].destination_name} ${updated.rows[0].purpose} payment has been captured. We will share confirmation details after final checks.`]);
       }

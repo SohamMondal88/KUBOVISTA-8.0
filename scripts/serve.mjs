@@ -1,7 +1,8 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { resolve, extname, sep } from 'node:path';
-const root=resolve(new URL('..',import.meta.url).pathname);
+const root=resolve(fileURLToPath(new URL('..',import.meta.url)));
 try { process.loadEnvFile(resolve(root,'.env')); } catch {}
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.jpg':'image/jpeg','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8'};
 const args=process.argv.slice(2); const option=name=>{const i=args.indexOf(name);return i>=0?args[i+1]:undefined;};
@@ -26,6 +27,7 @@ createServer(async(req,res)=>{
   if(!publicFiles.has(pathname)&&!/^\/assets\/[a-zA-Z0-9_.-]+$/.test(pathname)){res.writeHead(404).end('Not found');return;}
   const path=resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
   if(!path.startsWith(root+sep)){res.writeHead(403).end();return;}
-  res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'}).end(await readFile(path));
+  let contents;try{contents=await readFile(path);}catch(error){if(error.code==='ENOENT'){res.writeHead(404).end('Not found');return;}throw error;}
+  res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'}).end(req.method==='HEAD'?undefined:contents);
  }catch(error){console.error(error.message);if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Service unavailable. Please try again.'}));}
 }).listen(port,host,()=>console.log(`KuboVistas ready at http://${host}:${port}`));
