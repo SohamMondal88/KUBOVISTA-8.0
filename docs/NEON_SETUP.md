@@ -1,26 +1,5 @@
 # Neon setup
 
-## Check your database connection locally
-
-Install dependencies with `npm ci`. Put your Neon PostgreSQL connection string in
-the gitignored `.env` or `.env.local` as `DATABASE_URL`, then run:
-
-```sh
-npm run db:check
-```
-
-Open `http://127.0.0.1:3000/`. A successful `SELECT version()` returns the database
-version as plain text. Failure returns HTTP 503 without provider error details.
-Stop with Ctrl+C. If port 3000 is busy, set `NEON_CHECK_PORT` to another port.
-This command loads `.env` followed by `.env.local`; the latter overrides duplicate
-file entries, while existing shell environment values take precedence.
-
-This is a standalone local diagnostic adapted from the Neon HTTP server example
-to this ES-module repository. Node 24 loads the environment files without dotenv.
-It binds only to loopback and is not included in the public website or serverless
-API routes. It does not change application tables or replace the existing `pg`
-driver used by authentication and transactional booking operations.
-
 Target project: `gentle-frog-90350277`. Target branch: `production`.
 
 The requested `neon.ts` declares managed Neon Auth, a private `uploads` bucket,
