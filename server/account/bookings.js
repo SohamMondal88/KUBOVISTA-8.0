@@ -1,3 +1,4 @@
+import { validateDepartureDate } from '../booking-validation.js';
 import { destinations } from '../../data.js';
 import { requireSession } from '../auth.js';
 import { query, transaction } from '../db.js';
@@ -27,7 +28,9 @@ export default async function handler(req, res) {
     const travelers = Math.round(Number(body.travelers));
     const budget = Math.round(Number(body.budget));
     if (![days,travelers,budget].every(Number.isSafeInteger) || days < 1 || days > 60 || travelers < 1 || travelers > 30 || budget < 0 || budget > 10_000_000) return json(res, 400, { error: 'Review the trip duration, traveler count and budget.' });
-    const departure = /^\d{4}-\d{2}-\d{2}$/.test(body.date || '') ? body.date : null;
+    let departure;
+    try { departure = validateDepartureDate(body.date); }
+    catch (error) { return json(res, 400, { error: error.message }); }
     const booking = await transaction(async client => {
       const created = await client.query(`INSERT INTO bookings (user_id,destination_id,destination_name,days,travelers,travel_style,departure_date,budget_per_person_paise,notes,itinerary)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING ${bookingColumns}`,
