@@ -7,3 +7,9 @@ playwright-report/
 .env.*
 
 !.env.example
+
+.firebase/
+.firebase-local/
+firebase-debug*.log
+serviceAccount*.json
+*-firebase-adminsdk-*.json
