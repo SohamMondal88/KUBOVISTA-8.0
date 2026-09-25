@@ -28,7 +28,7 @@ test('administrator authorization requires verified identity',()=>{
 });
 test('cross-origin and anonymous account mutations fail closed',async()=>{
  delete process.env.DATABASE_URL;
- process.env.BETTER_AUTH_URL='https://kubovista.example';
+ process.env.APP_URL='https://kubovista.example';
  const response=()=>({setHeader(){},end(body){this.body=JSON.parse(body);}});
  const denied=response();
  assert.equal(await requireSession({method:'POST',headers:{origin:'https://attacker.example'}},denied),null);

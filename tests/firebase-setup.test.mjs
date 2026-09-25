@@ -21,7 +21,7 @@ test('partial Admin credentials fail closed with a non-secret error', () => {
 });
 test('public Firebase config points to the supplied project and public web push key', () => {
   assert.equal(firebaseConfig.projectId, 'kubovista');
-  assert.equal(firebaseConfig.measurementId, 'G-C0ZK56K9YQ');
+  assert.equal(firebaseConfig.measurementId, undefined); // Google tag is configured once in index.html.
   assert.equal(Buffer.from(vapidKey, 'base64url').length, 65);
   assert.equal(Object.keys(firebaseConfig).some(key => /private|credential/i.test(key)), false);
 });

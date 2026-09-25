@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adsenseConfig } from '../scripts/adsense-config.mjs';
 import { eligibleAdPath } from '../adsense.js';
-test('unconfigured builds have no publisher or enabled slot', () => {
-  assert.equal(adsenseConfig().head, '');
-  assert.ok(!adsenseConfig().adsTxt.includes('DIRECT'));
+test('default build uses the supplied publisher without inventing a manual slot', () => {
+  assert.match(adsenseConfig().head, /ca-pub-3851312120061760/);
+  assert.match(adsenseConfig().head, /kubovistas-ad-slot" content=""/);
+  assert.match(adsenseConfig().adsTxt, /pub-3851312120061760, DIRECT/);
 });
 test('verification works without activating advertising', () => {
   const config = adsenseConfig({ ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456' });

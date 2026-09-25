@@ -1,5 +1,5 @@
 export function adsenseConfig(env = {}) {
-  const publisher = (env.ADSENSE_PUBLISHER_ID || '').trim();
+  const publisher = (env.ADSENSE_PUBLISHER_ID || 'ca-pub-3851312120061760').trim();
   const slot = (env.ADSENSE_SLOT_ID || '').trim();
   const enabled = env.ADSENSE_ENABLED === 'true';
   if (publisher && !/^ca-pub-\d{16}$/.test(publisher)) throw new Error('ADSENSE_PUBLISHER_ID must be ca-pub- followed by 16 digits');

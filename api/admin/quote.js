@@ -1,3 +1,4 @@
+import {flushPushSafely} from '../../server/firebase-push.js';
 import {validateCancellationPolicy} from '../../server/booking-policy.js';
 import { isAdmin, requireSession } from '../../server/auth.js';
 import { query, transaction } from '../../server/db.js';
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
       return updated.rows[0];
     });
     if (!booking) return json(res, 404, { error: 'Trip request not found.' });
+    await flushPushSafely(booking.user_id);
     return json(res, 200, { booking });
   } catch (error) {
     const failure = publicError(error);

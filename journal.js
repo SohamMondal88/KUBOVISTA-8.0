@@ -1,9 +1,10 @@
+import { apiFetch } from '/firebase-auth-client.js';
 import {affiliateSection} from './affiliates.js';
 import { notes } from './data.js';
 import { getAccountSession } from './account.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const profile='https://www.instagram.com/kubo_vista.official/';
-async function api(path='',options={}){const r=await fetch('/api/journal'+path,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Journal is unavailable.');return d;}
+async function api(path='',options={}){const r=await apiFetch('/api/journal'+path,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Journal is unavailable.');return d;}
 function embed(url,title){return `<div class="instagram-slot" data-url="${esc(url)}"><span class="eyebrow">INSTAGRAM / KuboVistas</span><h3>${esc(title)}</h3><p>Loading this preview connects to Instagram, which may use cookies. You can also open it directly.</p><button class="button" data-load-instagram>Load Instagram preview</button><a class="underlined" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open on Instagram ↗</a><div class="instagram-frame"></div></div>`;}
 function wireEmbeds(main){main.querySelectorAll('[data-load-instagram]').forEach(button=>button.onclick=()=>{const slot=button.closest('.instagram-slot');const holder=slot.querySelector('.instagram-frame');if(holder.firstChild){holder.replaceChildren();button.textContent='Load Instagram preview';return;}const frame=document.createElement('iframe');frame.src=slot.dataset.url+'embed/';frame.title=slot.querySelector('h3').textContent;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='encrypted-media; fullscreen';holder.replaceChildren(frame);button.textContent='Hide Instagram preview';});}
 const intro=(tag,title,copy)=>`<section class="wrap journal-intro"><span class="eyebrow">${tag}</span><h1>${title}</h1><p>${copy}</p></section>`;

@@ -30,7 +30,7 @@ export default async function services(req,res){
   }
   if(req.method!=='POST')return methodNotAllowed(res,['GET','POST','PATCH']);
   if(!databaseConfigured()||process.env.ENQUIRIES_ENABLED!=='true')return json(res,503,{error:'The enquiry form is not activated. Please use the listed company contact channel.'});
-  let origin;try{origin=new URL(process.env.BETTER_AUTH_URL).origin;}catch{return json(res,503,{error:'Enquiries are not configured.'});}
+  let origin;try{origin=new URL(process.env.APP_URL).origin;}catch{return json(res,503,{error:'Enquiries are not configured.'});}
   if(req.headers.origin!==origin)return json(res,403,{error:'Request origin is not allowed.'});
   const b=parseBody(req);if(b.website)return json(res,400,{error:'Unable to accept this submission.'});
   const name=cleanText(b.name,120),email=cleanText(b.email,254).toLowerCase(),message=cleanText(b.message,5000),organization=cleanText(b.organization,180);

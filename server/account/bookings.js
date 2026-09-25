@@ -1,3 +1,4 @@
+import {flushPushSafely} from '../firebase-push.js';
 import { validateDepartureDate } from '../booking-validation.js';
 import { destinations } from '../../data.js';
 import { requireSession } from '../auth.js';
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
       await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,$2,$3,'booking')`, [session.user.id, 'Consultation request received', `Your ${destination.name} trip request is ready for expert review.`]);
       return created.rows[0];
     });
+    await flushPushSafely(session.user.id);
     return json(res, 201, { booking });
   } catch (error) {
     const failure = publicError(error);

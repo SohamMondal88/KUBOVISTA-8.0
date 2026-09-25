@@ -1,3 +1,4 @@
+import { apiFetch } from '/firebase-auth-client.js';
 import { destinations } from './data.js';
 import { getAccountSession } from './account.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -7,7 +8,7 @@ const money=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',ma
 const options=(all=false)=>`${all?'<option value="">Every destination</option>':'<option value="">Choose a destination</option>'}${destinations.map(d=>`<option value="${esc(d.id)}">${esc(d.name)}</option>`).join('')}`;
 const styleOptions=(all=false)=>`${all?'<option value="">Every travel style</option>':''}${Object.entries(styles).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}`;
 async function api(view='',body,method='POST'){
- const r=await fetch('/api/travel-date'+(view?'?view='+view:''),{credentials:'same-origin',headers:{'Content-Type':'application/json'},...(body?{method,body:JSON.stringify(body)}:{})});
+ const r=await apiFetch('/api/travel-date'+(view?'?view='+view:''),{credentials:'same-origin',headers:{'Content-Type':'application/json'},...(body?{method,body:JSON.stringify(body)}:{})});
  const data=await r.json();if(!r.ok)throw Error(data.error||'Travel Date could not be reached.');return data;
 }
 export const travelTogetherSection=()=>`<section class="wrap td-invitation"><div><span class="eyebrow">MORE OF INDIA. MORE WAYS TO GO.</span><h2>Your people.<br><em>Your kind of journey.</em></h2><p>Travel solo, make memories as a couple, bring your family or gather your friends. We help students and school or college organisers shape thoughtful budget trips, too.</p><div class="td-tags"><span>Solo</span><span>Couples</span><span>Families</span><span>Groups</span><span>Student budgets</span></div><a class="button" href="#/travel-date">Discover Travel Date ↗</a> <a class="underlined" href="#/contact">Organise a school or college trip ↗</a></div><div class="td-invitation-art"><span class="eyebrow">TRAVEL DATE / KUBOVISTAS</span><strong>Different stories.<br>One shared<br><em>direction.</em></strong><p>Find people with a similar destination, travel window and budget. Get to know our country, together.</p></div></section>`;

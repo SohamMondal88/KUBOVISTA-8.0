@@ -1,3 +1,4 @@
+import {flushPushSafely} from '../../server/firebase-push.js';
 import { shouldApplyCapture } from '../../server/payment-state.js';
 import { requireSession } from '../../server/auth.js';
 import { query, transaction } from '../../server/db.js';
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
       }
       return updated.rows[0];
     });
+    await flushPushSafely(session.user.id);
     return json(res, 200, { payment, captured: payment.status === 'captured' });
   } catch (error) {
     const failure = publicError(error);

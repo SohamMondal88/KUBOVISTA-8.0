@@ -1,15 +1,15 @@
 # Account and payment deployment
 
-The code supports PostgreSQL-backed Better Auth and Razorpay quotation advances. It does not provision merchant accounts, supplier reservations or credentials. Use test mode before accepting money.
+The code supports Firebase Authentication, PostgreSQL accounts and Razorpay quotation advances. It does not provision merchant accounts, supplier reservations or credentials. Use test mode before accepting money.
 
 ## Local setup
 
-1. Install Node 22 and run `npm ci`.
+1. Install Node 24 and run `npm ci`.
 2. Copy `.env.example` to `.env`. Keep this file private; never commit credentials.
 3. Create a PostgreSQL database and set `DATABASE_URL`. Remote connections require a valid TLS certificate.
-4. Set `BETTER_AUTH_URL` to the exact site origin (locally `http://localhost:3000`) and generate a random secret of at least 32 characters for `BETTER_AUTH_SECRET`.
-5. Configure `RESEND_API_KEY` and a verified sender in `AUTH_EMAIL_FROM`. Email verification is required for password sign-in.
-6. Run `npm run db:migrate`, then `npm run dev`.
+4. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) to configure Firebase Authentication, Admin credentials and `APP_URL`.
+5. Run migration 007 and map legacy users before activating `FIREBASE_AUTH_ENABLED`.
+6. Firebase sends auth emails; Resend is not needed for verification or password reset. Run `npm run dev` after setup.
 
 The migration creates authentication, profiles, preferences, consultations, quotations, payments and notification tables. Run it against a new database, or review existing table compatibility first. Back up production before schema changes. Existing tables are not automatically upgraded.
 
@@ -19,7 +19,7 @@ Keep the repository root as the project root. The existing `vercel.json` builds 
 
 ## Optional Google login
 
-Configure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, then register `https://YOUR_DOMAIN/api/auth/callback/google` as the authorized redirect URI. Email/password remains available. Do not authorize arbitrary preview origins.
+Enable Google in Firebase Authentication, add the exact site hostname to Authorized domains, and set `FIREBASE_GOOGLE_ENABLED=true`. See FIREBASE_SETUP.md.
 
 ## Razorpay
 
@@ -59,7 +59,7 @@ New public routes: `#/careers`, `#/sponsors`, `#/partnerships`, `#/stays`, `#/ca
 
 **Verified content:** populate `partner-data.js` with real, confirmed partner stays and actual vacancies. `verified: true` is required for a stay listing. Empty states are intentional until real details are supplied. Camping kits are checklists and enquiry options, not stock or rental commitments. No fabricated properties, jobs, ratings or prices are included.
 
-**Enquiries:** run `npm run db:migrate` to add `003_enquiries.sql`. Configure verified `PUBLIC_CONTACT_EMAIL`, `PUBLIC_CONTACT_PHONE`, `PUBLIC_BUSINESS_ADDRESS` and `BETTER_AUTH_URL`. Set `ENQUIRIES_ENABLED=true` only when the team is ready to monitor `#/enquiry-inbox`; verified administrators in the existing allowlist can read and mark enquiries reviewed. Forms save to PostgreSQL and return a reference; no email delivery is claimed or attempted. There is an origin check, honeypot and per-email daily limit. Add provider/WAF rate limiting before public activation because attackers can rotate email addresses. Define a retention policy and remove enquiries when no longer required. Private contact details are returned only to administrators.
+**Enquiries:** run `npm run db:migrate` to add `003_enquiries.sql`. Configure verified `PUBLIC_CONTACT_EMAIL`, `PUBLIC_CONTACT_PHONE`, `PUBLIC_BUSINESS_ADDRESS` and `APP_URL`. Set `ENQUIRIES_ENABLED=true` only when the team is ready to monitor `#/enquiry-inbox`; verified administrators in the existing allowlist can read and mark enquiries reviewed. Forms save to PostgreSQL and return a reference; no email delivery is claimed or attempted. There is an origin check, honeypot and per-email daily limit. Add provider/WAF rate limiting before public activation because attackers can rotate email addresses. Define a retention policy and remove enquiries when no longer required. Private contact details are returned only to administrators.
 
 **Weather:** set `OPEN_METEO_API_KEY` to a commercial Open-Meteo key in Vercel, then redeploy. Never expose the key in frontend configuration. `WEATHER_DEMO=true` enables the free endpoint for non-commercial evaluation only. Otherwise missing credentials produce an explicit unavailable state. Current values are model estimates, not readings from a local weather station. Up to 16 forecast days are requested and a selected date is shown only if the provider returns it. Later/past dates have no invented forecast. Retrieval timestamps, model time, units and Open-Meteo attribution are displayed. Results are cached per destination for 15 minutes per server instance, with a 10-second upstream timeout. Forecasts are not represented as guaranteed or the most accurate available. Date selection is available in destination guides, planner summaries and booking details. Regions use named reference towns; high passes may have completely different weather.
 

@@ -15,3 +15,6 @@
 @media(max-width:599px){.vista-footer .footer-links{grid-template-columns:1fr;gap:0;padding:10px 0 20px}.vista-footer .footer-group{border-bottom:1px solid #ffffff1c}.footer-group>summary{padding-block:15px;min-height:54px}.footer-group>div{padding:0 0 14px}.vista-footer .footer-group a{min-height:44px;padding:11px 0}.footer-cta-actions .button{flex:1;white-space:nowrap;justify-content:center;gap:10px;padding-inline:15px}.footer-contact-link{font-size:12px}}
 @media(max-width:359px){#header{padding-inline:12px}#header .brand{font-size:23px}#header .header-actions>.button{display:none}#header .nav-more-panel{grid-template-columns:1fr}.footer-cta-actions{flex-direction:column}.vista-footer .social-links{gap:7px}}
 @media(prefers-reduced-motion:reduce){#header *, .vista-footer *{animation:none!important;transition:none!important}}.reduce-motion #header *,.reduce-motion .vista-footer *{animation:none!important;transition:none!important}
+
+/* Leave room for fixed chat and back-to-top buttons below privacy controls. */
+.vista-footer{padding-bottom:180px}

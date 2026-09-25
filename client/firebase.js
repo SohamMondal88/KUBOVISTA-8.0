@@ -2,11 +2,9 @@ import { initializeApp, getApps } from 'firebase/app';
 import { firebaseConfig, vapidKey } from './firebase-config.js';
 export const app = getApps().find(app => app.name === 'kubovistas-web') || initializeApp(firebaseConfig, 'kubovistas-web');
 const consentKey = 'kubovistas.analytics-consent.v1';
-let analytics;
-let analyticsSDK;
+const measurementId = 'G-MMP3139QSB';
 let messaging;
 let messagingSDK;
-let analyticsLoading;
 export function analyticsAllowed() {
   try { return localStorage.getItem(consentKey) === 'granted'; } catch { return false; }
 }
@@ -14,33 +12,25 @@ export async function setAnalyticsConsent(enabled) {
   try { localStorage.setItem(consentKey, enabled ? 'granted' : 'denied'); }
   catch { throw new Error('Browser storage is unavailable. Analytics remains off.'); }
   if (!enabled) {
-    window['ga-disable-' + firebaseConfig.measurementId] = true;
-    analyticsSDK?.setConsent({ analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
-    if (analytics) analyticsSDK.setAnalyticsCollectionEnabled(analytics, false);
+    window['ga-disable-' + measurementId] = true;
+    window.gtag?.('consent','update',{analytics_storage:'denied'});
     return false;
   }
   return startAnalytics();
 }
 async function startAnalytics() {
-  if (!analyticsAllowed()) return false;
-  if (!analyticsLoading) analyticsLoading = (async () => {
-    analyticsSDK = await import('firebase/analytics');
-    if (!await analyticsSDK.isSupported() || !analyticsAllowed()) return false;
-    window['ga-disable-' + firebaseConfig.measurementId] = false;
-    analyticsSDK.setConsent({ analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
-    analytics ||= analyticsSDK.initializeAnalytics(app, { config: { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false, page_location: location.origin + '/', page_referrer: '', page_title: 'KuboVistas' } });
-    analyticsSDK.setAnalyticsCollectionEnabled(analytics, true);
-    trackPublicPage();
-    return true;
-  })().finally(() => { analyticsLoading = null; });
-  return analyticsLoading;
+  if (!analyticsAllowed() || typeof window.gtag !== 'function') return false;
+  window['ga-disable-' + measurementId] = false;
+  window.gtag('consent','update',{analytics_storage:'granted'});
+  trackPublicPage();
+  return true;
 }
 function trackPublicPage() {
-  if (!analytics || !analyticsAllowed()) return;
+  if (!analyticsAllowed() || typeof window.gtag !== 'function') return;
   // Never send account IDs, reset tokens, searches, trip briefs or booking URLs.
   const section = (location.hash.slice(1).split('?')[0].split('/')[1] || 'home');
   if (!['home','destinations','destination','journeys','about','journal','guide','stays','camping','membership'].includes(section)) return;
-  analyticsSDK.logEvent(analytics, 'page_view', { page_title: 'KuboVistas — ' + section, page_location: location.origin + '/#/' + (section === 'home' ? '' : section), page_referrer: '' });
+  window.gtag('event', 'page_view', { send_to: measurementId, page_title: 'KuboVistas — ' + section, page_location: location.origin + '/#/' + (section === 'home' ? '' : section), page_referrer: '' });
 }
 async function getMessagingClient() {
   messagingSDK ||= await import('firebase/messaging');
@@ -49,10 +39,11 @@ async function getMessagingClient() {
   return messaging;
 }
 // Call from a user click only. Tokens are deliberately not logged or stored in localStorage.
-// This foundation does not subscribe users to booking notifications or save tokens to an account.
+// Account-specific registration and lifecycle handling live in firebase-auth.js.
+export async function listenForPush(callback) { const client=await getMessagingClient(); return messagingSDK.onMessage(client,callback); }
 export async function requestPushToken() {
   if (!('Notification' in window)) throw new Error('This browser does not support notifications.');
-  const permission = await Notification.requestPermission();
+  const permission = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
   if (permission !== 'granted') throw new Error('Notifications were not enabled. Review your browser site permissions to try again.');
   const client = await getMessagingClient();
   const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/firebase-cloud-messaging-push-scope' });
@@ -99,7 +90,7 @@ export function initializeFirebasePreferences() {
   window.addEventListener('storage', event => {
     if (event.key === consentKey || event.key === null) {
       if (analyticsAllowed()) void startAnalytics().catch(() => {});
-      else { window['ga-disable-' + firebaseConfig.measurementId] = true; if (analytics) analyticsSDK.setAnalyticsCollectionEnabled(analytics, false); }
+      else { window['ga-disable-' + measurementId] = true; window.gtag?.('consent','update',{analytics_storage:'denied'}); }
     }
   });
   void startAnalytics().catch(() => {});
