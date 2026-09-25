@@ -1,3 +1,4 @@
+import { buildFirebase } from './build-firebase.mjs';
 import {validateAffiliateOffers} from '../affiliates.js';
 import {affiliateOffers} from '../affiliate-data.js';
 import { adsenseConfig } from './adsense-config.mjs';
@@ -14,4 +15,5 @@ const html = await readFile(new URL('index.html',output),'utf8');
 await writeFile(new URL('index.html',output),html.replace('<!-- ADSENSE_CONFIG -->',ads.head));
 await writeFile(new URL('ads.txt',output),ads.adsTxt);
 await writeFile(new URL('affiliate-data.js',output),'export const affiliateOffers = '+JSON.stringify(offers)+';\n');
+await buildFirebase(output);
 console.log('Production site built in dist/');

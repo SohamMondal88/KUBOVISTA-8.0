@@ -1,3 +1,4 @@
+import { buildFirebase } from './build-firebase.mjs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +10,8 @@ const args=process.argv.slice(2); const option=name=>{const i=args.indexOf(name)
 const port=Number(option('--port')||process.env.PORT)||3000;const host=option('--host')||process.env.HOST||'0.0.0.0';
 const endpoints=new Set(['account','travel-date','journal','config','profile','settings','bookings','payments','notifications','admin/quote','payments/create-order','payments/verify','payments/webhook']);
 const publicFiles=new Set(['/affiliates.js','/affiliate-data.js','/affiliates.css','/membership.js','/membership.css','/travel-date.js','/travel-date.css','/adsense.js','/adsense.css','/','/index.html','/styles.css','/app.js','/account.js','/journal.js','/company.js','/explore.js','/destination-meta.js','/partner-data.js','/travel-links.js','/booking-ui.js','/kubo.js','/kubo-knowledge.js','/navigation.css','/kubo.css','/data.js','/legal.js']);
+const firebaseOutput=resolve(root,'.firebase-local');
+await buildFirebase(firebaseOutput);
 createServer(async(req,res)=>{
  try {
   const url=new URL(req.url,'http://localhost');const pathname=decodeURIComponent(url.pathname);
@@ -24,8 +27,9 @@ createServer(async(req,res)=>{
    const {default:handler}=await import(new URL(accountRoute?'../api/account.js':auth?'../api/auth/[...all].js':`../api/${key}.js`,import.meta.url));
    await handler(req,res);return;
   }
-  if(!publicFiles.has(pathname)&&!/^\/assets\/[a-zA-Z0-9_.-]+$/.test(pathname)){res.writeHead(404).end('Not found');return;}
-  const path=resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
+  const firebaseAsset=/^\/firebase-(?:client|messaging-sw|chunk-[A-Z0-9]+)\.js$/.test(pathname);
+  if(!firebaseAsset&&!publicFiles.has(pathname)&&!/^\/assets\/[a-zA-Z0-9_.-]+$/.test(pathname)){res.writeHead(404).end('Not found');return;}
+  const path=firebaseAsset?resolve(firebaseOutput,pathname.slice(1)):resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
   if(!path.startsWith(root+sep)){res.writeHead(403).end();return;}
   let contents;try{contents=await readFile(path);}catch(error){if(error.code==='ENOENT'){res.writeHead(404).end('Not found');return;}throw error;}
   res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'}).end(req.method==='HEAD'?undefined:contents);

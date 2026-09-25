@@ -66,3 +66,7 @@ Photos are stored locally for dependable rendering. The copyright in photographs
 The application has 10 deployable JavaScript entry points under `api/`. Profile, settings, bookings and notifications share `api/account.js`; their original URLs are preserved by four explicit Vercel rewrites. Their existing authenticated handlers live under `server/account/` so they are bundled dependencies rather than separate serverless functions. Local development uses the same dispatcher. Authentication and payment webhooks retain their separate raw-body entry points.
 
 Do not leave forwarding files in `api/` for those four URLs: each would add another function. The deployment routing test guards the 12-function ceiling. This reduces function count only; other plan limits and commercial-use terms still apply.
+
+## Firebase
+
+Firebase web SDK, opt-in Analytics, web push foundations and a server-only Admin helper are included. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for console setup and testing. Existing Better Auth accounts and PostgreSQL bookings are not migrated by installing Firebase.
