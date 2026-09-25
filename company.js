@@ -1,3 +1,4 @@
+import { apiFetch } from '/firebase-auth-client.js';
 import {mountSocialLinks,transportLinks} from './travel-links.js';
 import { partnerStays, careerOpenings, campingKits } from './partner-data.js';
 import { escapeText as esc } from './explore.js';
@@ -6,7 +7,7 @@ const hero=(tag,title,copy)=>`<section class="page-intro wrap"><a class="back-li
 const contact=(kind,label,subject='')=>`<a class="button" href="#/contact?kind=${kind}&subject=${encodeURIComponent(subject)}">${label} ↗</a>`;
 const cards=items=>`<div class="company-grid">${items.map(([tag,title,copy])=>`<article class="company-card"><span class="eyebrow green">${tag}</span><h2>${title}</h2><p>${copy}</p></article>`).join('')}</div>`;
 const banner=(title,copy,cta)=>`<section class="company-banner"><div><h2>${title}</h2><p>${copy}</p></div>${cta}</section>`;
-async function service(name,options={}){const r=await fetch('/api/config?service='+name,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Service unavailable');return d;}
+async function service(name,options={}){const r=await apiFetch('/api/config?service='+name,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json'}});const d=await r.json();if(!r.ok)throw Error(d.error||'Service unavailable');return d;}
 export async function companyPage(route,main){
  document.title=`${({careers:'Careers',sponsors:'Sponsorship',partnerships:'Partnerships',stays:'Partner stays',camping:'Camping & trekking kits',contact:'Contact', 'enquiry-inbox':'Enquiry inbox'})[route]} — KuboVistas`;
  if(route==='contact')return contactPage(main);

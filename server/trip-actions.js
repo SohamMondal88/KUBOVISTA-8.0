@@ -1,3 +1,4 @@
+import {flushPushSafely} from './firebase-push.js';
 import {requireSession,isAdmin} from './auth.js';
 import {transaction} from './db.js';
 import {json,parseBody,cleanText,methodNotAllowed} from './http.js';
@@ -23,6 +24,7 @@ export default async function tripActions(req,res){
     if(!deposit||b.cancellation_requested_at||b.status==='cancelled')return {status:409,error:'A captured deposit and an active booking are required.'};
     if(body.action==='checkin'&&(!b.confirmed_at||!b.checkin_at||Date.parse(b.checkin_at)>Date.now()))return {status:409,error:'Confirm the booking first; check-in cannot be recorded before its scheduled time.'};
     await client.query(body.action==='confirm'?"UPDATE bookings SET status='confirmed',confirmed_at=COALESCE(confirmed_at,now()),updated_at=now() WHERE id=$1":"UPDATE bookings SET checked_in_at=COALESCE(checked_in_at,now()),updated_at=now() WHERE id=$1",[id]);
+    if(body.action==='confirm'&&!b.confirmed_at||body.action==='checkin'&&!b.checked_in_at)await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,$2,$3,'booking')",[b.user_id,body.action==='confirm'?'Booking confirmed':'Check-in recorded',body.action==='confirm'?'The operator has confirmed your booking. Review the details in your account.':'Your operator recorded check-in. You can review the remaining balance in your account.']);
     return {status:200,updated:true};
    }
    if(body.action!=='cancel'||b.user_id!==session.user.id)return {status:403,error:'Only the traveler can request this cancellation.'};
@@ -34,6 +36,7 @@ export default async function tripActions(req,res){
    await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,'Cancellation recorded',$2,'booking')",[b.user_id,'Your cancellation deduction and refundable remainder are recorded. Any refund is pending operator reconciliation and processing.']);
    return {status:200,cancellation:{...estimate,recorded:true}};
   });
+  if(req.method==='POST'&&result.status===200)await flushPushSafely();
   return json(res,result.status,result);
  }catch(error){return json(res,409,{error:error.message?.startsWith('This booking')||error.message?.startsWith('After check-in')||error.message?.startsWith('Cancellation requires')?error.message:'This request needs support review. No new cancellation has been recorded.'});}
 }

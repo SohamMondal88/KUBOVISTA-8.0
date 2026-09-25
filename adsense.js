@@ -1,4 +1,4 @@
-// Manual placements only. Keep Auto ads OFF in the AdSense dashboard.
+// Publisher bootstrap is in index.html; optional manual slots remain separately configurable.
 const allowed = new Set(['/', '/destinations', '/guide']);
 const requested = new Set();
 let loading;
@@ -9,6 +9,7 @@ export function eligibleAdPath(hash) {
 }
 
 function loadAds(publisher) {
+  if(document.querySelector('script[src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher+'"]'))return Promise.resolve();
   if (!loading) loading = new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.async = true;

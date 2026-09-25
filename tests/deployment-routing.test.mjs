@@ -14,9 +14,9 @@ test('unknown, prototype, traversal and repeated routing values are rejected',as
  assert.equal((await response(request('/api/auth/sign-in/email',{resource:'profile'}))).status,404);
 });
 test('grouped account endpoints still reject anonymous reads and cross-origin mutations',async()=>{
- const previous=process.env.BETTER_AUTH_SECRET;process.env.BETTER_AUTH_SECRET='';
+ const previous=process.env.FIREBASE_AUTH_ENABLED;process.env.FIREBASE_AUTH_ENABLED='';
  try{for(const name of names){assert.equal((await response(request('/api/'+name))).status,401);const method=name==='bookings'?'POST':name==='notifications'?'PATCH':'PUT';assert.equal((await response(request('/api/'+name,{},method))).status,403);}}
- finally{if(previous===undefined)delete process.env.BETTER_AUTH_SECRET;else process.env.BETTER_AUTH_SECRET=previous;}
+ finally{if(previous===undefined)delete process.env.FIREBASE_AUTH_ENABLED;else process.env.FIREBASE_AUTH_ENABLED=previous;}
 });
 test('method restrictions stay in the original handler',async()=>{
  const r=await response(request('/api/account',{resource:'bookings'},'DELETE'));assert.equal(r.status,405);

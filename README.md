@@ -69,4 +69,4 @@ Do not leave forwarding files in `api/` for those four URLs: each would add anot
 
 ## Firebase
 
-Firebase web SDK, opt-in Analytics, web push foundations and a server-only Admin helper are included. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for console setup and testing. Existing Better Auth accounts and PostgreSQL bookings are not migrated by installing Firebase.
+Firebase Authentication replaces the previous auth runtime. Account-linked FCM booking notifications use PostgreSQL device registrations and a retry queue. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) before deployment: configure credentials/providers, run migrations and explicitly map existing users. Booking/payment ownership remains in PostgreSQL. AdSense publisher ca-pub-3851312120061760 is included; approval and consent/dashboard configuration remain owner tasks.

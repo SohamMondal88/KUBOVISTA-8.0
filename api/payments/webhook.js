@@ -1,3 +1,4 @@
+import {flushPushSafely} from '../../server/firebase-push.js';
 import { createHash } from 'node:crypto';
 import { transaction } from '../../server/db.js';
 import { json, methodNotAllowed, publicError, readRawBody } from '../../server/http.js';
@@ -20,16 +21,19 @@ export default async function handler(req, res) {
       if (event.event === 'payment.captured') {
         const updated = await client.query(`UPDATE payments SET razorpay_payment_id=$1,status='captured',captured_at=now(),updated_at=now() WHERE razorpay_order_id=$2 AND amount_paise=$3 AND currency=$4 AND status IN ('created','authorized','failed') RETURNING booking_id,user_id,purpose`, [entity.id, entity.order_id, entity.amount, entity.currency]);
         if (updated.rows[0]) await client.query(`UPDATE bookings SET status=CASE WHEN $2='deposit' AND status='quotation_ready' THEN 'advance_paid' ELSE status END,booked_at=CASE WHEN $2='deposit' THEN COALESCE(booked_at,now()) ELSE booked_at END,balance_paid_at=CASE WHEN $2='balance' THEN COALESCE(balance_paid_at,now()) ELSE balance_paid_at END,updated_at=now() WHERE id=$1`, [updated.rows[0].booking_id,updated.rows[0].purpose]);
+        if(updated.rows[0])await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,'Trip payment received','Your payment was captured. Sign in to review your trip and payment record.','payment')",[updated.rows[0].user_id]);
       } else if (event.event === 'payment.failed') {
         await client.query(`UPDATE payments SET razorpay_payment_id=$1,status='failed',failure_reason=$2,updated_at=now() WHERE razorpay_order_id=$3 AND status IN ('created','failed')`, [entity.id, entity.error_description || entity.error_reason || 'Payment failed', entity.order_id]);
       } else if (event.event === 'refund.processed') {
         const remote = await getRazorpay().payments.fetch(entity.payment_id);
         const status = Number(remote.amount_refunded) >= Number(remote.amount) ? 'refunded' : 'refund_pending';
-        await client.query(`UPDATE payments SET status=$2,updated_at=now() WHERE razorpay_payment_id=$1`, [entity.payment_id, status]);
+        const refunded=await client.query(`UPDATE payments SET status=$2,updated_at=now() WHERE razorpay_payment_id=$1 RETURNING user_id`, [entity.payment_id, status]);
+        if(refunded.rows[0])await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,'Refund update','The payment provider reported a processed refund. Check your account or contact support for the reconciled amount.','payment')",[refunded.rows[0].user_id]);
       } else if (event.event === 'refund.failed') {
         await client.query(`UPDATE payments SET status='refund_pending',failure_reason=$2,updated_at=now() WHERE razorpay_payment_id=$1 AND status!='refunded'`, [entity.payment_id, entity.error_description || 'Refund needs review']);
       }
     });
+    await flushPushSafely();
     return json(res, 200, { received: true });
   } catch (error) {
     const failure = publicError(error);

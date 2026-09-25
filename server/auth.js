@@ -1,93 +1,42 @@
-import { betterAuth } from 'better-auth';
-import { fromNodeHeaders } from 'better-auth/node';
-import { APIError } from 'better-auth/api';
-import { getPool, databaseConfigured } from './db.js';
-import { emailConfigured, sendAuthEmail } from './email.js';
-
-let authInstance;
-
-function socialProviders() {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) return {};
-  return { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET } };
-}
-
-function trustedOrigins() {
-  return [process.env.BETTER_AUTH_URL, ...(process.env.AUTH_TRUSTED_ORIGINS || '').split(',')]
-    .map(value => value?.trim()).filter(Boolean);
-}
-
+import { getAuth as firebaseAuth } from 'firebase-admin/auth';
+import { getFirebaseAdmin } from './firebase-admin.js';
+import { databaseConfigured, transaction } from './db.js';
+import { resolveFirebaseUser } from './firebase-identity.js';
+import { json } from './http.js';
 export function authConfigured() {
-  return databaseConfigured() && emailConfigured() && Boolean(process.env.BETTER_AUTH_SECRET?.length >= 32 && process.env.BETTER_AUTH_URL);
+  return process.env.FIREBASE_AUTH_ENABLED === 'true' && databaseConfigured() && Boolean(process.env.APP_URL) &&
+    Boolean((process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) || process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.FIREBASE_USE_ADC === 'true');
 }
-
-export function getAuth() {
-  if (!authConfigured()) throw new Error('Authentication is not configured.');
-  if (!authInstance) {
-    authInstance = betterAuth({
-      appName: 'KuboVistas',
-      baseURL: process.env.BETTER_AUTH_URL,
-      secret: process.env.BETTER_AUTH_SECRET,
-      database: getPool(),
-      trustedOrigins: trustedOrigins(),
-      emailAndPassword: {
-        enabled: true,
-        minPasswordLength: 10,
-        requireEmailVerification: emailConfigured(),
-        revokeSessionsOnPasswordReset: true,
-        sendResetPassword: async ({ user, url }) => sendAuthEmail({
-          to: user.email,
-          subject: 'Reset your KuboVistas password',
-          heading: 'Choose a new password.',
-          message: 'This secure link lets you reset your KuboVistas password. It expires automatically.',
-          actionLabel: 'Reset password',
-          actionUrl: url
-        })
-      },
-      emailVerification: {
-        sendOnSignUp: emailConfigured(),
-        autoSignInAfterVerification: true,
-        sendVerificationEmail: async ({ user, url }) => sendAuthEmail({
-          to: user.email,
-          subject: 'Verify your KuboVistas email',
-          heading: 'One quick check.',
-          message: 'Verify your email to protect your travel plans and account.',
-          actionLabel: 'Verify email',
-          actionUrl: url
-        })
-      },
-      socialProviders: socialProviders(),
-      user: {
-        additionalFields: {
-          role: { type: 'string', required: false, defaultValue: 'traveler', input: false }
-        },
-        deleteUser: { enabled: true, beforeDelete: async user => { const result = await getPool().query('SELECT id FROM payments WHERE user_id=$1 LIMIT 1', [user.id]); if (result.rowCount) throw new APIError('BAD_REQUEST', { message: 'Accounts with transaction records require a support-assisted closure to preserve financial records.' }); } }
-      },
-      session: { expiresIn: 60 * 60 * 24 * 14, updateAge: 60 * 60 * 24 },
-      rateLimit: { enabled: true, storage: 'database', window: 60, max: 100 }
-    });
+export function getAuth() { return firebaseAuth(getFirebaseAdmin()); }
+export function originAllowed(req) {
+  try { return req.headers.origin === new URL(process.env.APP_URL).origin; } catch { return false; }
+}
+export async function readFirebaseSession(req, {configured=authConfigured, verify=(token,revoked)=>getAuth().verifyIdToken(token,revoked), resolve=decoded=>resolveFirebaseUser(decoded,transaction)} = {}) {
+  const header = req.headers.authorization || '';
+  if (!/^Bearer [^\s]+$/.test(header)) return null;
+  if (!configured()) throw Object.assign(new Error('Firebase accounts are not configured yet.'), { status: 503 });
+  let decoded;
+  try { decoded = await verify(header.slice(7), true); }
+  catch (error) {
+    if (['auth/id-token-expired','auth/id-token-revoked','auth/invalid-id-token','auth/argument-error','auth/user-disabled','auth/user-not-found'].includes(error.code)) return null;
+    throw Object.assign(new Error('Identity verification is temporarily unavailable.'), { status: 503 });
   }
-  return authInstance;
+  const user = await resolve(decoded);
+  return { user, authTime: decoded.auth_time, firebaseUid: decoded.uid };
 }
-
-export async function getSession(req) {
-  if (!authConfigured()) return null;
-  return getAuth().api.getSession({ headers: fromNodeHeaders(req.headers) });
-}
-
+export const getSession=req=>readFirebaseSession(req);
 export async function requireSession(req, res) {
-  if (!['GET', 'HEAD'].includes(req.method) && req.headers.origin !== new URL(process.env.BETTER_AUTH_URL || 'http://localhost:3000').origin) { res.statusCode=403; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({error:'Request origin is not allowed.'})); return null; }
-  const session = await getSession(req);
-  if (!session) {
-    res.statusCode = 401;
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-store');
-    res.end(JSON.stringify({ error: 'Please sign in to continue.' }));
+  if (!['GET','HEAD'].includes(req.method) && !originAllowed(req)) { json(res,403,{error:'Request origin is not allowed.'}); return null; }
+  try {
+    const session = await getSession(req);
+    if (!session) { json(res,401,{error:'Please sign in to continue.'}); return null; }
+    return session;
+  } catch(error) {
+    json(res, error.status || 503, {error: error.status ? error.message : 'Account service is unavailable. Please try again.'});
     return null;
   }
-  return session;
 }
-
 export function isAdmin(session) {
-  const configured = (process.env.ADMIN_EMAILS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+  const configured=(process.env.ADMIN_EMAILS||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);
   return session?.user?.emailVerified === true && (session?.user?.role === 'admin' || configured.includes(session?.user?.email?.toLowerCase()));
 }
