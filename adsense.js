@@ -12,7 +12,7 @@ const requested = new Set();
 let loading;
 
 export function eligibleAdPath(hash) {
-  const path = (hash.replace(/^#/, '') || '/').split('?')[0].replace(/\\/+$/, '') || '/';
+  const path = (hash.replace(/^#/, '') || '/').split('?')[0].replace(/\/+$/, '') || '/';
   if (publicPages.has(path) || guidePaths.has(path)) return path;
   // Destination details, account/checkout, UGC, admin, travel matching and unknown routes stay ad-free.
   return null;
@@ -24,7 +24,7 @@ function loadAds(publisher) {
     const script = document.createElement('script');
     script.async = true;
     script.crossOrigin = 'anonymous';
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisher}`;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + publisher;
     script.onload = resolve;
     script.onerror = () => { script.remove(); loading = null; reject(new Error('Ads unavailable')); };
     document.head.append(script);
@@ -36,7 +36,7 @@ export function mountAd(main) {
   const path = eligibleAdPath(location.hash);
   const publisher = document.querySelector('meta[name="google-adsense-account"]')?.content;
   const slot = document.querySelector('meta[name="kubovistas-ad-slot"]')?.content;
-  if (!path || requested.has(path) || !/^ca-pub-\\d{16}$/.test(publisher || '') || !/^\\d+$/.test(slot || '')) return;
+  if (!path || requested.has(path) || !/^ca-pub-\d{16}$/.test(publisher || '') || !/^\d+$/.test(slot || '')) return;
   const region = document.createElement('aside');
   region.className = 'travel-ad wrap';
   region.setAttribute('aria-label', 'Advertisement');
