@@ -1,15 +1,25 @@
-// Publisher bootstrap is in index.html; optional manual slots remain separately configurable.
-const allowed = new Set(['/', '/destinations', '/guide']);
+// Publisher bootstrap is in index.html; placements are manual so route exclusions work in this hash-routed app.
+import { notes } from './data.js';
+
+const publicPages = new Set([
+  '/', '/destinations', '/journeys', '/membership', '/about',
+  '/legal', '/privacy', '/terms', '/cookies', '/cancellation',
+  '/disclaimer', '/accessibility', '/grievance', '/copyright',
+  '/careers', '/sponsors', '/partnerships', '/stays', '/camping', '/contact'
+]);
+const guidePaths = new Set(notes.map(note => '/guide/' + note.id));
 const requested = new Set();
 let loading;
 
 export function eligibleAdPath(hash) {
-  const path = (hash.replace(/^#/, '') || '/').split('?')[0];
-  return allowed.has(path) ? path : null;
+  const path = (hash.replace(/^#/, '') || '/').split('?')[0].replace(/\\/+$/, '') || '/';
+  if (publicPages.has(path) || guidePaths.has(path)) return path;
+  // Destination details, account/checkout, UGC, admin, travel matching and unknown routes stay ad-free.
+  return null;
 }
 
 function loadAds(publisher) {
-  if(document.querySelector('script[src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher+'"]'))return Promise.resolve();
+  if (document.querySelector('script[src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + publisher + '"]')) return Promise.resolve();
   if (!loading) loading = new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.async = true;
@@ -26,7 +36,7 @@ export function mountAd(main) {
   const path = eligibleAdPath(location.hash);
   const publisher = document.querySelector('meta[name="google-adsense-account"]')?.content;
   const slot = document.querySelector('meta[name="kubovistas-ad-slot"]')?.content;
-  if (!path || requested.has(path) || !/^ca-pub-\d{16}$/.test(publisher || '') || !/^\d+$/.test(slot || '')) return;
+  if (!path || requested.has(path) || !/^ca-pub-\\d{16}$/.test(publisher || '') || !/^\\d+$/.test(slot || '')) return;
   const region = document.createElement('aside');
   region.className = 'travel-ad wrap';
   region.setAttribute('aria-label', 'Advertisement');
