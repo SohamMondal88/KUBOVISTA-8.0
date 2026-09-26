@@ -17,6 +17,13 @@ test('head contains one Google tag and one supplied AdSense publisher script',()
  assert.equal(source.includes("import('firebase/analytics')"),false);
  assert.equal(html.includes('G-C0ZK56K9YQ'),false);
 });
+test('login loads modern Google Identity Services once with the corrected client ID',()=>{
+ assert.equal((html.match(/src="https:\/\/accounts\.google\.com\/gsi\/client"/g)||[]).length,1);
+ assert.equal((html.match(/name="google-signin-client_id"/g)||[]).length,1);
+ assert.match(html,/330040271750-e4s9q3gb7b2bnl3crbf5dmmv25bu6456\.apps\.googleusercontent\.com/);
+ assert.equal(html.includes('apis.google.com/js/platform.js'),false);
+ assert.equal(html.includes('g-signin2'),false);
+});
 test('Analytics stays disabled until opt-in and sends sanitized public events only',async()=>{
  const ctx=context();const events=()=>ctx.dataLayer.filter(v=>v[0]==='event');
  assert.equal(ctx['ga-disable-G-MMP3139QSB'],true);assert.equal(events().length,0);
