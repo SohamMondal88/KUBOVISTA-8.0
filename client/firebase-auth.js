@@ -1,5 +1,6 @@
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, confirmPasswordReset, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, GoogleAuthProvider, signInWithPopup, signOut, browserLocalPersistence, browserSessionPersistence, setPersistence, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, confirmPasswordReset, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, GoogleAuthProvider, signInWithPopup, signInWithCredential, signOut, browserLocalPersistence, browserSessionPersistence, setPersistence, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { app, requestPushToken, disablePush, listenForPush } from './firebase.js';
+import { googleClientId } from './firebase-config.js';
 export const auth=getAuth(app);
 let phoneConfirmation;
 let phoneRecaptcha;
@@ -36,6 +37,7 @@ function friendly(error) {
   const messages={
     'auth/invalid-credential':'Email or password is incorrect. Migrated accounts must use Forgot password first.',
     'auth/email-already-in-use':'This email already has an account. Sign in or reset your password.',
+    'auth/account-exists-with-different-credential':'An account already exists with this email. Sign in using its original method, then link Google from account settings.',
     'auth/too-many-requests':'Too many attempts. Please wait before trying again.',
     'auth/popup-blocked':'Allow the Google sign-in popup and try again.',
     'auth/popup-closed-by-user':'Google sign-in was closed. You can try again.',
@@ -52,6 +54,37 @@ async function reauthenticate(password) {
   else throw Error('This sign-in method needs support-assisted account changes.');
 }
 async function refreshIdentity(){if(auth.currentUser){await auth.currentUser.reload();await auth.currentUser.getIdToken(true);}}
+let googleIdentity;
+let googleCredentialHandler;
+async function getGoogleIdentity() {
+  if (googleIdentity) return googleIdentity;
+  for (let attempt=0;attempt<100;attempt++) {
+    if (window.google?.accounts?.id) return googleIdentity=window.google.accounts.id;
+    await new Promise(resolve=>setTimeout(resolve,50));
+  }
+  throw Error('Google sign-in could not be loaded. Check your connection and try again.');
+}
+export async function mountGoogleSignIn(target,{text='continue_with',onCredential}={}) {
+  if (!target || typeof onCredential!=='function') return;
+  const identity=await getGoogleIdentity();
+  googleCredentialHandler=onCredential;
+  if (!target.isConnected) return;
+  if (!target.dataset.googleInitialized) {
+    identity.initialize({
+      client_id: googleClientId,
+      callback: response => {
+        const handler=googleCredentialHandler;
+        if (!response?.credential || !handler) return;
+        void handler(response.credential);
+      },
+      auto_select:false,
+      cancel_on_tap_outside:true
+    });
+    target.dataset.googleInitialized='true';
+  }
+  target.replaceChildren();
+  identity.renderButton(target,{type:'standard',theme:'outline',size:'large',text,shape:'pill',logo_alignment:'left',width:Math.min(360,Math.max(240,target.clientWidth||320))});
+}
 export async function authRequest(path, options={}) {
   await ready;
   const body=options.body?JSON.parse(options.body):{};
@@ -76,6 +109,15 @@ export async function authRequest(path, options={}) {
       await updateProfile(user,{displayName:body.name});
       try {await sendEmailVerification(user,{url:location.origin+'/#/login'});} catch {location.hash='/verify-email?email='+encodeURIComponent(body.email);throw Error('Account created, but the verification email could not be sent. Use Send another link.');}
       return {success:true};
+    }
+    if(path.endsWith('/sign-in/google-credential')) {
+      if(typeof body.credential!=='string' || body.credential.length<100 || body.credential.length>10000)throw Error('Google returned an invalid sign-in response. Please try again.');
+      await setPersistence(auth,browserLocalPersistence);
+      if(auth.currentUser)await logout();
+      await signInWithCredential(auth,GoogleAuthProvider.credential(body.credential));
+      await refreshIdentity();
+      try { return await server('/api/auth/get-session'); }
+      catch(error) { await signOut(auth); throw error; }
     }
     if(path.endsWith('/sign-in/social')) {
       await setPersistence(auth,browserLocalPersistence);
