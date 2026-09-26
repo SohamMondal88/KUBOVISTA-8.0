@@ -10,7 +10,7 @@ Vercel serves the app; Hostinger manages DNS for the custom domain. Keep those D
 
 ## Configure an ad unit and consent
 
-Create a responsive Display ad unit in AdSense and copy its numeric slot ID. In Vercel, set `ADSENSE_SLOT_ID` for the Production environment. Keep `ADSENSE_ENABLED=false` while configuring Privacy & messaging and validating consent for the audiences you serve. The optional page-level Load advertisement control is not a certified CMP and does not replace regional consent requirements. Use a Google-certified CMP for applicable EEA, UK and Switzerland traffic.
+The supplied responsive AdSense slot is `8921763854`. It is used by both eligible regular-page placements and the AMP display unit. In Vercel, set `ADSENSE_SLOT_ID=8921763854` for Production. Keep `ADSENSE_ENABLED=false` while configuring Privacy & messaging and validating consent for the audiences you serve. The optional page-level Load advertisement control is not a certified CMP and does not replace regional consent requirements. Use a Google-certified CMP for applicable EEA, UK and Switzerland traffic.
 
 ## Activate placements
 
@@ -19,13 +19,13 @@ After the site is approved and consent has been configured and checked, set thes
 | Variable | Value |
 | --- | --- |
 | `ADSENSE_PUBLISHER_ID` | `ca-pub-3851312120061760` |
-| `ADSENSE_SLOT_ID` | Numeric responsive Display ad unit ID from AdSense |
+| `ADSENSE_SLOT_ID` | `8921763854` |
 | `ADSENSE_CONSENT_READY` | `true` after consent setup is validated |
 | `ADSENSE_ENABLED` | `true` |
 
-The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`#/destination/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. AMP Auto ads runs only on the separate AMP page.
+The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`#/destination/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. The separate `/amp.html` page includes AMP Auto ads and the supplied responsive AMP display unit (`width=100vw`, `height=320`) when ads are enabled.
 
-These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. The supplied publisher ID is not an ad-unit slot ID, so regular-page ads remain inactive until a valid numeric slot is configured.
+These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. The regular-page and AMP ad markup are both omitted from the built AMP page unless `ADSENSE_ENABLED=true`, the publisher and slot IDs are valid, and `ADSENSE_CONSENT_READY=true`. This is a build-time gate; it does not replace a visitor-facing consent platform where required.
 
 ## Behaviour and checks
 
