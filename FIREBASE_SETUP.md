@@ -16,6 +16,22 @@ Project: **kubovistas-6666**. Firebase Authentication is the identity provider a
 
 No live project settings, accounts, database migrations, secrets or deployments were changed automatically by this PR. SDK setup alone cannot enable your private Firebase project.
 
+## Google sign-in configuration
+
+The login and signup screens use the current Google Identity Services library (`https://accounts.google.com/gsi/client`) to render Google's official button. The configured OAuth web client is:
+
+`330040271750-e4s9q3gb7b2bnl3crbf5dmmv25bu6456.apps.googleusercontent.com`
+
+The duplicated suffix from the supplied value was corrected. The retired `platform.js` / `g-signin2` integration is deliberately not loaded. Google returns an ID token to the browser; the Firebase SDK exchanges it with `GoogleAuthProvider.credential(...)` and `signInWithCredential(...)`. Protected APIs continue receiving a Firebase ID token, which Firebase Admin verifies on the server.
+
+Before enabling the production button:
+
+1. Confirm this OAuth web client belongs to the Google Cloud project connected to Firebase project `kubovistas-6666`. If it belongs to another project, create or select the correct Web application client in the Firebase project's Google Cloud credentials.
+2. In Google Cloud Console → APIs & Services → Credentials → the OAuth web client, add the exact production origin (for example `https://kubovista.com`), the active Vercel production origin if it is used directly, and localhost only for development. Origins contain no path, hash, or trailing route.
+3. Complete and publish the OAuth consent screen as appropriate for the app's audience. Add test users while the app remains in Testing.
+4. In Firebase Console → Authentication → Sign-in method, enable Google and select a support email. Add the production and Vercel hostnames under Authorized domains.
+5. In Vercel, set `FIREBASE_GOOGLE_ENABLED=true` only after the preceding settings are complete. The button is hidden when this flag is false.
+
 ## Authentication behavior
 
 - Browser uses Firebase's email/password, Google popup, verification and reset SDKs. Keep me signed in selects local versus session persistence.
