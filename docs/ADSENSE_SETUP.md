@@ -1,48 +1,39 @@
 # Google AdSense setup
 
-This integration is disabled by default. It does not create an AdSense account or guarantee approval or earnings.
+The publisher bootstrap is included in the main site's HTML head and the AMP Auto ads tag is included in `amp.html`. Regular app pages use manual responsive ad units because this is a hash-routed single-page app. The integration does not create an AdSense account or guarantee approval or earnings.
 
-## 1. Verify your site
+## Verify the site
 
-Add the actual public website domain in AdSense (not the GitHub repository URL). In Vercel, set the production build environment variable `ADSENSE_PUBLISHER_ID` to your real `ca-pub-` ID followed by 16 digits. Redeploy. The build inserts Google's account verification meta tag into the HTML head and creates `/ads.txt` with the matching seller record. Choose meta-tag verification in AdSense, verify ownership and request review.
+Add the actual public website domain in AdSense (not the GitHub repository URL). The current publisher ID is `ca-pub-3851312120061760`. The production build inserts the publisher verification meta tag and creates `/ads.txt` with the matching seller record. Verify ownership in AdSense and request review.
 
-Keep `ADSENSE_ENABLED` unset or `false` during verification. Never use the example IDs from tests. Environment changes require a new build. Keep preview deployments unconfigured.
+Vercel serves the app; Hostinger manages DNS for the custom domain. Keep those DNS records pointed to Vercel. The AMP canonical URL in `amp.html` must match the chosen production domain if it changes.
 
-## 2. Configure privacy and an ad unit
+## Configure an ad unit and consent
 
-Create a responsive Display ad unit in AdSense and copy its numeric `data-ad-slot` value. Keep **Auto ads OFF**: this hash-routed application cannot reliably use ordinary URL exclusions to separate checkout and account screens. This implementation uses manual placements on home, destinations and the travel guide only; it does not monetise user-generated stories or private pages.
+Create a responsive Display ad unit in AdSense and copy its numeric slot ID. In Vercel, set `ADSENSE_SLOT_ID` for the Production environment. Keep `ADSENSE_ENABLED=false` while configuring Privacy & messaging and validating consent for the audiences you serve. The optional page-level Load advertisement control is not a certified CMP and does not replace regional consent requirements. Use a Google-certified CMP for applicable EEA, UK and Switzerland traffic.
 
-In AdSense Privacy & messaging, configure and publish the appropriate consent messages for your audiences. Use a Google-certified CMP for applicable EEA, UK and Switzerland traffic. If using Google's message, confirm that it displays with the AdSense tag; a third-party CMP may require its own installed tag. Test rejection, acceptance and revisiting privacy choices. The Load advertisement button is a network-loading choice, NOT a certified CMP or a replacement for regional consent requirements. Review the site's privacy/cookie disclosures against your actual configuration.
+## Activate placements
 
-## 3. Activate after approval and consent validation
-
-Set these production build variables and redeploy:
+After the site is approved and consent has been configured and checked, set these Production environment variables in Vercel and redeploy:
 
 | Variable | Value |
 | --- | --- |
-| `ADSENSE_PUBLISHER_ID` | Your real `ca-pub-…` account ID |
-| `ADSENSE_SLOT_ID` | Numeric responsive Display ad unit ID |
-| `ADSENSE_CONSENT_READY` | `true` only after publishing and validating consent handling |
+| `ADSENSE_PUBLISHER_ID` | `ca-pub-3851312120061760` |
+| `ADSENSE_SLOT_ID` | Numeric responsive Display ad unit ID from AdSense |
+| `ADSENSE_CONSENT_READY` | `true` after consent setup is validated |
 | `ADSENSE_ENABLED` | `true` |
 
-`ADSENSE_CONSENT_READY` is an operator configuration acknowledgment, not an automated compliance check. No credentials or passwords are needed in frontend code. Publisher and slot IDs are public identifiers.
+The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`#/destination/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. AMP Auto ads runs only on the separate AMP page.
 
-## Behaviour and validation
+These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. The supplied publisher ID is not an ad-unit slot ID, so regular-page ads remain inactive until a valid numeric slot is configured.
 
-- Eligible pages show a labelled, responsive optional advertisement region; a visitor must select Load advertisement before Google's script is requested.
-- There is no timer-based refresh. Each eligible route requests at most one placement per document session. Returning to a previously served route does not request another impression.
-- Navigation removes the region; a pending script load checks that its original region is still mounted before requesting an ad. Already loaded Google scripts remain in the document until reload.
-- An ad blocker, script error or unfilled inventory must not stop travel browsing. No placeholder ad claims earnings or approval.
-- Verify the production HTML contains your publisher meta tag and `/ads.txt` is publicly reachable with the correct line.
-- Check mobile, tablet and desktop layouts; verify login, planner, checkout and account routes have no ad units. Confirm Auto ads remains disabled in Google's dashboard.
-- Validate consent using the CMP tools and relevant regional test settings before enabling production ads. Do not click your own ads or encourage visitors to click them.
-- AdSense review and inventory availability determine whether ads appear; code alone cannot ensure delivery.
+## Behaviour and checks
 
-Run `npm run check` and `npm run build`. To inspect configured build output locally, supply the variables to the build and serve `dist/` using a static server. `npm run dev` serves unconfigured source files and intentionally does not activate ads.
+- A visitor explicitly selects **Load advertisement** before the app requests the manual ad unit.
+- A route gets at most one placement request per document session. Returning to a previously served route does not request another impression.
+- An ad blocker, script error or unfilled inventory must not stop travel browsing.
+- Check the production HTML, `/ads.txt`, AMP validation and mobile/tablet/desktop layouts after deployment.
+- Confirm destination details and protected routes never show a placement. Do not click your own ads or encourage visitors to click them.
+- Google's approval, consent requirements and available inventory determine whether an ad appears; code alone cannot ensure delivery.
 
-To disable new ad loads, set `ADSENSE_ENABLED=false` and redeploy. Existing open tabs must reload to pick up this change.
-
-Official references:
-- https://support.google.com/adsense/answer/7584263
-- https://support.google.com/adsense/answer/12171612
-- https://support.google.com/adsense/answer/13554116
+Run `npm run check` and `npm run build`. To disable new regular-app ad loads, set `ADSENSE_ENABLED=false` in Vercel and redeploy. Existing open tabs must reload to pick up the change.
