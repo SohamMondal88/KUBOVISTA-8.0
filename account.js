@@ -1,4 +1,4 @@
-import { apiFetch, authRequest, enableBookingPush, disableBookingPush, startPhoneSignIn, confirmPhoneSignIn } from '/firebase-auth-client.js';
+import { apiFetch, authRequest, enableBookingPush, disableBookingPush, startPhoneSignIn, confirmPhoneSignIn, mountGoogleSignIn } from '/firebase-auth-client.js';
 import {policyMarkup,mountBookingActions,bookingFlowPage} from './booking-ui.js';
 import { mountWeather } from './explore.js';
 import { destinations } from './data.js';
@@ -68,8 +68,36 @@ function field(label, name, type = 'text', options = '') {
   return `<label>${label}<input name="${name}" type="${type}" ${options}></label>`;
 }
 
+async function setupGoogleAuth(toast,{signup=false,onSuccess}={}) {
+  const target=document.querySelector('#google-auth');
+  const status=document.querySelector('#google-auth-status');
+  if(!target)return;
+  let busy=false;
+  try {
+    await mountGoogleSignIn(target,{
+      text:signup?'signup_with':'continue_with',
+      onCredential:async credential=>{
+        if(busy)return;
+        busy=true;target.inert=true;if(status)status.textContent=signup?'Creating your account with Google…':'Signing you in with Google…';
+        try {
+          await request('/api/auth/sign-in/google-credential',{method:'POST',body:JSON.stringify({credential})});
+          sessionCache=undefined;
+          await syncAccountButton();
+          toast(signup?'Your Google account is ready.':'Welcome back.');
+          onSuccess();
+        } catch(error) {
+          if(status)status.textContent=error.message;
+          target.inert=false;busy=false;
+        }
+      }
+    });
+  } catch(error) {
+    if(status)status.textContent=error.message;
+  }
+}
+
 async function signInPage(main, config, toast) {
-  main.innerHTML = authLayout('WELCOME BACK', 'Continue your<br><em>next chapter.</em>', 'Sign in to keep consultation requests, quotations and payments in one calm place.', `<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Password', 'password', 'password', 'autocomplete="current-password" minlength="10" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="#/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<button class="social-button" id="google-auth">Continue with Google</button>' : ''}<details class="phone-auth"><summary>Sign in with phone</summary><form id="phone-form" class="account-form">${field('Phone number', 'phone', 'tel', 'autocomplete="tel" placeholder="+91 98765 43210" required')}${field('SMS code', 'code', 'text', 'inputmode="numeric" autocomplete="one-time-code" maxlength="6"')}<div id="phone-recaptcha"></div><button class="button outline" type="submit" ${config.auth ? '' : 'disabled'}>Send code / verify ↗</button><p class="form-status" role="status"></p></form></details><p class="auth-switch">New to KuboVistas? <a href="#/signup">Create an account</a></p>`, config);
+  main.innerHTML = authLayout('WELCOME BACK', 'Continue your<br><em>next chapter.</em>', 'Sign in to keep consultation requests, quotations and payments in one calm place.', `<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Password', 'password', 'password', 'autocomplete="current-password" minlength="10" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="#/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Continue with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ''}<details class="phone-auth"><summary>Sign in with phone</summary><form id="phone-form" class="account-form">${field('Phone number', 'phone', 'tel', 'autocomplete="tel" placeholder="+91 98765 43210" required')}${field('SMS code', 'code', 'text', 'inputmode="numeric" autocomplete="one-time-code" maxlength="6"')}<div id="phone-recaptcha"></div><button class="button outline" type="submit" ${config.auth ? '' : 'disabled'}>Send code / verify ↗</button><p class="form-status" role="status"></p></form></details><p class="auth-switch">New to KuboVistas? <a href="#/signup">Create an account</a></p>`, config);
   const form = document.querySelector('#login-form');
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -84,10 +112,11 @@ async function signInPage(main, config, toast) {
       const next=params.get('return'); location.hash = next && /^\/(dashboard|planner|profile|bookings|booking|payments|settings|security|write|my-stories|journal-review|travel-date)(?:[/?]|$)/.test(next) ? next : '/dashboard';
     } catch (error) { status.textContent = error.message; button.disabled = !config.auth; }
   });
-  document.querySelector('#google-auth')?.addEventListener('click', async () => {
-    try { const data = await request('/api/auth/sign-in/social', { method: 'POST', body: JSON.stringify({ provider: 'google', callbackURL: `${location.origin}/#/dashboard` }) }); if (data.url) location.href = data.url; }
-    catch (error) { toast(error.message); }
-  });
+  await setupGoogleAuth(toast,{onSuccess:()=>{
+    const params=new URLSearchParams(location.hash.split('?')[1]||'');
+    const next=params.get('return');
+    location.hash=next&&/^\/(dashboard|planner|profile|bookings|booking|payments|settings|security|write|my-stories|journal-review|travel-date)(?:[/?]|$)/.test(next)?next:'/dashboard';
+  }});
   document.querySelector('#phone-form')?.addEventListener('submit', async event => {
     event.preventDefault();
     const form = event.currentTarget; const status = form.querySelector('.form-status'); const values = Object.fromEntries(new FormData(form));
@@ -99,7 +128,7 @@ async function signInPage(main, config, toast) {
 }
 
 async function signUpPage(main, config, toast) {
-  main.innerHTML = authLayout('CREATE YOUR ACCOUNT', 'Travel plans.<br><em>One private place.</em>', 'Build a profile, request a consultation and pay only against a reviewed quotation.', `<span class="eyebrow green">NEW TRAVELER</span><h2>Start somewhere.</h2><form id="signup-form" class="account-form">${field('Full name', 'name', 'text', 'autocomplete="name" maxlength="80" required')}${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Create password', 'password', 'password', 'autocomplete="new-password" minlength="10" required')}<div class="password-hint"><span>10+ characters</span><span>Use a unique password</span></div><label class="check-row"><input name="terms" type="checkbox" required> I agree to the Terms and acknowledge the Privacy Policy.</label><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Create my account ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<button class="social-button" id="google-auth">Sign up with Google</button>' : ''}<p class="auth-switch">Already have an account? <a href="#/login">Sign in</a></p>`, config);
+  main.innerHTML = authLayout('CREATE YOUR ACCOUNT', 'Travel plans.<br><em>One private place.</em>', 'Build a profile, request a consultation and pay only against a reviewed quotation.', `<span class="eyebrow green">NEW TRAVELER</span><h2>Start somewhere.</h2><form id="signup-form" class="account-form">${field('Full name', 'name', 'text', 'autocomplete="name" maxlength="80" required')}${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Create password', 'password', 'password', 'autocomplete="new-password" minlength="10" required')}<div class="password-hint"><span>10+ characters</span><span>Use a unique password</span></div><label class="check-row"><input name="terms" type="checkbox" required> I agree to the Terms and acknowledge the Privacy Policy.</label><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Create my account ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Sign up with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ''}<p class="auth-switch">Already have an account? <a href="#/login">Sign in</a></p>`, config);
   const form = document.querySelector('#signup-form');
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -113,10 +142,7 @@ async function signUpPage(main, config, toast) {
       else { await syncAccountButton(); location.hash = '/welcome'; }
     } catch (error) { status.textContent = error.message; button.disabled = !config.auth; }
   });
-  document.querySelector('#google-auth')?.addEventListener('click', async () => {
-    try { const data = await request('/api/auth/sign-in/social', { method: 'POST', body: JSON.stringify({ provider: 'google', callbackURL: `${location.origin}/#/welcome`, newUserCallbackURL: `${location.origin}/#/welcome` }) }); if (data.url) location.href = data.url; }
-    catch (error) { toast(error.message); }
-  });
+  await setupGoogleAuth(toast,{signup:true,onSuccess:()=>{location.hash='/welcome';}});
 }
 
 async function forgotPage(main, config) {
