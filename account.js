@@ -1,4 +1,4 @@
-import { apiFetch, authRequest, enableBookingPush, disableBookingPush } from '/firebase-auth-client.js';
+import { apiFetch, authRequest, enableBookingPush, disableBookingPush, startPhoneSignIn, confirmPhoneSignIn } from '/firebase-auth-client.js';
 import {policyMarkup,mountBookingActions,bookingFlowPage} from './booking-ui.js';
 import { mountWeather } from './explore.js';
 import { destinations } from './data.js';
@@ -69,7 +69,7 @@ function field(label, name, type = 'text', options = '') {
 }
 
 async function signInPage(main, config, toast) {
-  main.innerHTML = authLayout('WELCOME BACK', 'Continue your<br><em>next chapter.</em>', 'Sign in to keep consultation requests, quotations and payments in one calm place.', `<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Password', 'password', 'password', 'autocomplete="current-password" minlength="10" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="#/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<button class="social-button" id="google-auth">Continue with Google</button>' : ''}<p class="auth-switch">New to KuboVistas? <a href="#/signup">Create an account</a></p>`, config);
+  main.innerHTML = authLayout('WELCOME BACK', 'Continue your<br><em>next chapter.</em>', 'Sign in to keep consultation requests, quotations and payments in one calm place.', `<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field('Email address', 'email', 'email', 'autocomplete="email" required')}${field('Password', 'password', 'password', 'autocomplete="current-password" minlength="10" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="#/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? '' : 'disabled'}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<button class="social-button" id="google-auth">Continue with Google</button>' : ''}<details class="phone-auth"><summary>Sign in with phone</summary><form id="phone-form" class="account-form">${field('Phone number', 'phone', 'tel', 'autocomplete="tel" placeholder="+91 98765 43210" required')}${field('SMS code', 'code', 'text', 'inputmode="numeric" autocomplete="one-time-code" maxlength="6"')}<div id="phone-recaptcha"></div><button class="button outline" type="submit" ${config.auth ? '' : 'disabled'}>Send code / verify ↗</button><p class="form-status" role="status"></p></form></details><p class="auth-switch">New to KuboVistas? <a href="#/signup">Create an account</a></p>`, config);
   const form = document.querySelector('#login-form');
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -87,6 +87,14 @@ async function signInPage(main, config, toast) {
   document.querySelector('#google-auth')?.addEventListener('click', async () => {
     try { const data = await request('/api/auth/sign-in/social', { method: 'POST', body: JSON.stringify({ provider: 'google', callbackURL: `${location.origin}/#/dashboard` }) }); if (data.url) location.href = data.url; }
     catch (error) { toast(error.message); }
+  });
+  document.querySelector('#phone-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget; const status = form.querySelector('.form-status'); const values = Object.fromEntries(new FormData(form));
+    try {
+      if (!values.code) { await startPhoneSignIn(values.phone); status.textContent = 'Verification code sent by SMS.'; }
+      else { await confirmPhoneSignIn(values.code); await syncAccountButton(); location.hash = '/dashboard'; }
+    } catch (error) { status.textContent = error.message || 'Phone sign-in could not be completed.'; }
   });
 }
 

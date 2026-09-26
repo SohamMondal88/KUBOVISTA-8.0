@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function boundedString(value, max) { return value is string && value.size() <= max; }
+    function validProfile(data) {
+      return data.keys().hasOnly(['displayName', 'photoURL', 'city', 'travelStyle', 'bio', 'updatedAt'])
+        && boundedString(data.displayName, 80)
+        && boundedString(data.photoURL, 500)
+        && boundedString(data.city, 80)
+        && boundedString(data.travelStyle, 80)
+        && boundedString(data.bio, 400)
+        && data.updatedAt is timestamp;
+    }
+    function validDraft(data) {
+      return data.keys().hasOnly(['destination', 'startDate', 'endDate', 'travellers', 'notes', 'createdAt', 'updatedAt'])
+        && boundedString(data.destination, 120)
+        && boundedString(data.startDate, 30)
+        && boundedString(data.endDate, 30)
+        && data.travellers is int && data.travellers >= 1 && data.travellers <= 30
+        && boundedString(data.notes, 2000)
+        && data.createdAt is timestamp && data.updatedAt is timestamp;
+    }
+    match /users/{uid} {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && validProfile(request.resource.data);
+      allow update: if owner(uid) && validProfile(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'city', 'travelStyle', 'bio', 'updatedAt']);
+      allow delete: if false;
+      match /tripDrafts/{draftId} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && validDraft(request.resource.data);
+        allow update: if owner(uid) && validDraft(request.resource.data)
+          && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if owner(uid);
+      }
+    }
+    match /stories/{storyId} {
+      allow read: if resource.data.status == 'published';
+      allow create: if signedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.status == 'draft'
+        && boundedString(request.resource.data.title, 140)
+        && boundedString(request.resource.data.body, 10000)
+        && request.resource.data.keys().hasOnly(['authorUid', 'title', 'body', 'status', 'createdAt', 'updatedAt']);
+      allow update: if signedIn() && resource.data.authorUid == request.auth.uid
+        && request.resource.data.authorUid == resource.data.authorUid
+        && request.resource.data.status in ['draft', 'submitted']
+        && boundedString(request.resource.data.title, 140)
+        && boundedString(request.resource.data.body, 10000)
+        && request.resource.data.keys().hasOnly(['authorUid', 'title', 'body', 'status', 'createdAt', 'updatedAt']);
+      allow delete: if signedIn() && resource.data.authorUid == request.auth.uid;
+    }
+  }
+}

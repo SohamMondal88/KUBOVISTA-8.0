@@ -1,3 +1,4 @@
+import './patch-jwks-esm.mjs';
 import { buildFirebase } from './build-firebase.mjs';
 import {validateAffiliateOffers} from '../affiliates.js';
 import {affiliateOffers} from '../affiliate-data.js';
