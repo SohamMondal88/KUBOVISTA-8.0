@@ -13,6 +13,19 @@ test('verification works without activating advertising', () => {
   assert.match(config.head, /kubovistas-ad-slot" content=""/);
   assert.equal(config.adsTxt, 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n');
 });
+test('AMP Auto ads and the supplied display unit honor the activation and consent gate', () => {
+  const disabled = adsenseConfig();
+  assert.equal(disabled.ampScripts, '');
+  assert.equal(disabled.ampBody, '');
+  const enabled = adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' });
+  assert.match(enabled.ampScripts, /custom-element="amp-auto-ads"/);
+  assert.match(enabled.ampScripts, /custom-element="amp-ad"/);
+  assert.match(enabled.ampBody, /<amp-auto-ads type="adsense" data-ad-client="ca-pub-3851312120061760">/);
+  assert.match(enabled.ampBody, /data-ad-slot="8921763854"/);
+  assert.match(enabled.ampBody, /data-auto-format="mcrspv"/);
+  assert.match(enabled.ampBody, /width="100vw" height="320"/);
+  assert.equal(adsenseConfig({ ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' }).ampBody.includes('ca-pub-1234567890123456'), true);
+});
 test('invalid IDs and incomplete activation fail closed', () => {
   assert.throws(() => adsenseConfig({ ADSENSE_PUBLISHER_ID: '"><script>' }));
   assert.throws(() => adsenseConfig({ ADSENSE_ENABLED: 'true' }));
