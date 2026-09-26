@@ -29,8 +29,14 @@ export async function apiFetch(path,options={}) {
 }
 async function server(path,options={}) {
   const response=await apiFetch(path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
-  const data=await response.json();
-  if(!response.ok)throw Error(data.error||'Account service unavailable.');
+  const type=response.headers.get('content-type')||'';
+  let data={};
+  if(type.includes('application/json')) {
+    try { data=await response.json(); } catch { data={}; }
+  } else {
+    try { await response.text(); } catch {}
+  }
+  if(!response.ok)throw Error(data.error||'Account service is temporarily unavailable. Please try again shortly.');
   return data;
 }
 function friendly(error) {
