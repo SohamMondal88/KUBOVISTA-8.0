@@ -19,6 +19,10 @@ export async function readFirebaseSession(req, {configured=authConfigured, verif
   try { decoded = await verify(header.slice(7), true); }
   catch (error) {
     if (['auth/id-token-expired','auth/id-token-revoked','auth/invalid-id-token','auth/argument-error','auth/user-disabled','auth/user-not-found'].includes(error.code)) return null;
+    console.error('Firebase identity verification failed', {
+      code: error?.code || error?.name || 'unknown',
+      message: String(error?.message || 'No error message').slice(0, 240)
+    });
     throw Object.assign(new Error('Identity verification is temporarily unavailable.'), { status: 503 });
   }
   const user = await resolve(decoded);
