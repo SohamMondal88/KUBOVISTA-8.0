@@ -55,6 +55,7 @@ async function reauthenticate(password) {
 }
 async function refreshIdentity(){if(auth.currentUser){await auth.currentUser.reload();await auth.currentUser.getIdToken(true);}}
 let googleIdentity;
+let googleInitialized=false;
 let googleCredentialHandler;
 async function getGoogleIdentity() {
   if (googleIdentity) return googleIdentity;
@@ -69,7 +70,7 @@ export async function mountGoogleSignIn(target,{text='continue_with',onCredentia
   const identity=await getGoogleIdentity();
   googleCredentialHandler=onCredential;
   if (!target.isConnected) return;
-  if (!target.dataset.googleInitialized) {
+  if (!googleInitialized) {
     identity.initialize({
       client_id: googleClientId,
       callback: response => {
@@ -80,7 +81,7 @@ export async function mountGoogleSignIn(target,{text='continue_with',onCredentia
       auto_select:false,
       cancel_on_tap_outside:true
     });
-    target.dataset.googleInitialized='true';
+    googleInitialized=true;
   }
   target.replaceChildren();
   identity.renderButton(target,{type:'standard',theme:'outline',size:'large',text,shape:'pill',logo_alignment:'left',width:Math.min(360,Math.max(240,target.clientWidth||320))});
