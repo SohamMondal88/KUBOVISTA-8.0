@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getApps } from 'firebase-admin/app';
 import { getFirebaseAdmin } from '../server/firebase-admin.js';
-import { firebaseConfig, vapidKey } from '../client/firebase-config.js';
+import { firebaseConfig, vapidKey, googleClientId } from '../client/firebase-config.js';
 
 test('Admin SDK import does not initialize privileged services', () => {
   assert.equal(getApps().some(app => app.name === 'kubovistas-admin'), false);
@@ -24,4 +24,6 @@ test('public Firebase config points to the supplied project and public web push 
   assert.equal(firebaseConfig.measurementId, 'G-XNM7K6BGHR');
   assert.equal(Buffer.from(vapidKey, 'base64url').length, 65);
   assert.equal(Object.keys(firebaseConfig).some(key => /private|credential/i.test(key)), false);
+  assert.equal(googleClientId, '330040271750-e4s9q3gb7b2bnl3crbf5dmmv25bu6456.apps.googleusercontent.com');
+  assert.equal((googleClientId.match(/\.apps\.googleusercontent\.com/g) || []).length, 1);
 });
