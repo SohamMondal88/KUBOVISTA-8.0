@@ -1,11 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getApps } from 'firebase-admin/app';
-import { getFirebaseAdmin } from '../server/firebase-admin.js';
+import { getFirebaseAdmin, normalizeFirebaseAdminValue } from '../server/firebase-admin.js';
 import { firebaseConfig, vapidKey, googleClientId } from '../client/firebase-config.js';
 
 test('Admin SDK import does not initialize privileged services', () => {
   assert.equal(getApps().some(app => app.name === 'kubovistas-admin'), false);
+});
+test('Admin environment values normalize quoted Vercel input', () => {
+  assert.equal(normalizeFirebaseAdminValue('  "firebase-admin@example.invalid"  '), 'firebase-admin@example.invalid');
+  assert.equal(normalizeFirebaseAdminValue('"line-1\\nline-2"', { multiline: true }), 'line-1\nline-2');
+  assert.equal(normalizeFirebaseAdminValue('   '), undefined);
 });
 test('partial Admin credentials fail closed with a non-secret error', () => {
   const email = process.env.FIREBASE_CLIENT_EMAIL;
