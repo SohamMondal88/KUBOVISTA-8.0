@@ -1,4 +1,5 @@
 import { buildFirebase } from './build-firebase.mjs';
+import { adsenseConfig } from './adsense-config.mjs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8'
 const args=process.argv.slice(2); const option=name=>{const i=args.indexOf(name);return i>=0?args[i+1]:undefined;};
 const port=Number(option('--port')||process.env.PORT)||3000;const host=option('--host')||process.env.HOST||'0.0.0.0';
 const endpoints=new Set(['account','travel-date','journal','config','profile','settings','bookings','payments','notifications','admin/quote','payments/create-order','payments/verify','payments/webhook']);
-const publicFiles=new Set(['/ads.txt','/affiliates.js','/affiliate-data.js','/affiliates.css','/membership.js','/membership.css','/travel-date.js','/travel-date.css','/adsense.js','/adsense.css','/','/index.html','/styles.css','/app.js','/account.js','/journal.js','/company.js','/explore.js','/destination-meta.js','/partner-data.js','/travel-links.js','/booking-ui.js','/kubo.js','/kubo-knowledge.js','/navigation.css','/kubo.css','/data.js','/legal.js']);
+const publicFiles=new Set(['/ads.txt','/affiliates.js','/affiliate-data.js','/affiliates.css','/membership.js','/membership.css','/travel-date.js','/travel-date.css','/adsense.js','/adsense.css','/','/index.html','/amp.html','/styles.css','/app.js','/account.js','/journal.js','/company.js','/explore.js','/destination-meta.js','/partner-data.js','/travel-links.js','/booking-ui.js','/kubo.js','/kubo-knowledge.js','/navigation.css','/kubo.css','/data.js','/legal.js']);
 const firebaseOutput=resolve(root,'.firebase-local');
 await buildFirebase(firebaseOutput);
 createServer(async(req,res)=>{
@@ -32,6 +33,14 @@ createServer(async(req,res)=>{
   const path=firebaseAsset?resolve(firebaseOutput,pathname.slice(1)):resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
   if(!path.startsWith(root+sep)){res.writeHead(403).end();return;}
   let contents;try{contents=await readFile(path);}catch(error){if(error.code==='ENOENT'){res.writeHead(404).end('Not found');return;}throw error;}
+  if(pathname==='/amp.html'){
+   const ads=adsenseConfig(process.env);
+   const html=contents.toString('utf8')
+    .replace('<!-- ADSENSE_AMP_ACCOUNT -->',ads.ampAccount)
+    .replace('<!-- ADSENSE_AMP_SCRIPTS -->',ads.ampScripts)
+    .replace('<!-- ADSENSE_AMP_BODY -->',ads.ampBody);
+   contents=Buffer.from(html);
+  }
   res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'}).end(req.method==='HEAD'?undefined:contents);
  }catch(error){console.error(error.message);if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Service unavailable. Please try again.'}));}
 }).listen(port,host,()=>console.log(`KuboVistas ready at http://${host}:${port}`));
