@@ -9,3 +9,6 @@ export const firebaseConfig = Object.freeze({
   measurementId: 'G-XNM7K6BGHR'
 });
 export const vapidKey = 'BP-Qqb4W8SVEu3e-PdDy1c-LMTGSGb6847RNDknoEV0NMX_QoPWlLROZQrfHPsA3qJj4sx0YtYJwo9WDVWSUlB4';
+
+// Public OAuth web client used by the Google Identity Services button.
+export const googleClientId = '330040271750-e4s9q3gb7b2bnl3crbf5dmmv25bu6456.apps.googleusercontent.com';
