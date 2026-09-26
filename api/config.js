@@ -12,7 +12,7 @@ export default function handler(req, res) {
     database: databaseConfigured(),
     emailVerification: true,
     authProvider: 'firebase',
-    google: process.env.FIREBASE_GOOGLE_ENABLED === 'true',
+    google: authConfigured() && process.env.FIREBASE_GOOGLE_ENABLED === 'true',
     payments: paymentsConfigured(),
     paymentProvider: 'Razorpay',
     currency: 'INR',
