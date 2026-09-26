@@ -11,14 +11,14 @@ export function adsenseConfig(env = {}) {
   const ampScripts = enabled ? [
     '<script async custom-element="amp-auto-ads" src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js"></script>',
     '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>'
-  ].join('\\n') : '';
+  ].join('\n') : '';
   const ampBody = enabled ? [
     '<amp-auto-ads type="adsense" data-ad-client="' + publisher + '"></amp-auto-ads>',
     '<amp-ad width="100vw" height="320" type="adsense" data-ad-client="' + publisher + '" data-ad-slot="' + slot + '" data-auto-format="mcrspv" data-full-width=""><div overflow=""></div></amp-ad>'
-  ].join('\\n') : '';
+  ].join('\n') : '';
   return {
-    head: publisher ? '<meta name="google-adsense-account" content="' + publisher + '">\\n<meta name="kubovistas-ad-slot" content="' + (enabled ? slot : '') + '">' : '',
-    adsTxt: publisher ? 'google.com, ' + publisher.slice(3) + ', DIRECT, f08c47fec0942fa0\\n' : '# AdSense is not configured.\\n',
+    head: publisher ? '<meta name="google-adsense-account" content="' + publisher + '">\n<meta name="kubovistas-ad-slot" content="' + (enabled ? slot : '') + '">' : '',
+    adsTxt: publisher ? 'google.com, ' + publisher.slice(3) + ', DIRECT, f08c47fec0942fa0\n' : '# AdSense is not configured.\n',
     ampAccount,
     ampScripts,
     ampBody
