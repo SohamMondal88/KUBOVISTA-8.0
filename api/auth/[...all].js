@@ -1,5 +1,5 @@
 import { requireSession, getAuth } from '../../server/auth.js';
-import { query, transaction } from '../../server/db.js';
+import { firestore, serverTimestamp } from '../../server/firestore.js';
 import { json, methodNotAllowed } from '../../server/http.js';
 export const config = { api: { bodyParser: false } };
 export default async function handler(req,res) {
@@ -12,21 +12,18 @@ export default async function handler(req,res) {
   try {
     if(action==='revoke-sessions') {
       await getAuth().revokeRefreshTokens(session.firebaseUid);
-      await query('DELETE FROM firebase_devices WHERE user_id=$1',[session.user.id]);
+      const devices=await firestore().collection('devices').where('user_id','==',session.user.id).get();
+      const batch=firestore().batch();devices.docs.forEach(item=>batch.delete(item.ref));await batch.commit();
       return json(res,200,{success:true});
     }
-    const blocked=await transaction(async client=>{
-      await client.query('SELECT id FROM "user" WHERE id=$1 FOR UPDATE',[session.user.id]);
-      const payments=await client.query('SELECT id FROM payments WHERE user_id=$1 LIMIT 1',[session.user.id]);
-      if(payments.rowCount)return true;
-      await client.query('UPDATE "user" SET disabled_at=now() WHERE id=$1',[session.user.id]);
-      await client.query('DELETE FROM firebase_devices WHERE user_id=$1',[session.user.id]);
-      return false;
-    });
+    const db=firestore();
+    const payments=await db.collection('payments').where('user_id','==',session.user.id).limit(1).get();
+    const blocked=!payments.empty;
     if(blocked)return json(res,409,{error:'Accounts with payment records require support-assisted closure to preserve financial records.'});
-    // A failure leaves a disabled local account for operator recovery; never re-enable implicitly.
+    await db.collection('users').doc(session.user.id).set({disabled_at:serverTimestamp()},{merge:true});
     await getAuth().deleteUser(session.firebaseUid);
-    await query('DELETE FROM "user" WHERE id=$1',[session.user.id]);
+    const collections=['users','profiles','settings'];const batch=db.batch();collections.forEach(name=>batch.delete(db.collection(name).doc(session.user.id)));
+    const devices=await db.collection('devices').where('user_id','==',session.user.id).get();devices.docs.forEach(item=>batch.delete(item.ref));await batch.commit();
     return json(res,200,{success:true});
   } catch { return json(res,503,{error:'The security operation needs support review. Please do not create a replacement account.'}); }
 }

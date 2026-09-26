@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { getMessaging } from 'firebase-admin/messaging';
 import { getFirebaseAdmin } from './firebase-admin.js';
-import { query } from './db.js';
+import { firestore, serverTimestamp, snapshotData } from './firestore.js';
 export function tokenHash(token){return createHash('sha256').update(token).digest('hex');}
 export function validPushToken(token){return typeof token==='string' && token.length>=30 && token.length<=4096 && /^[A-Za-z0-9_:\-]+$/.test(token);}
 export function dispatcherAuthorized(header,secret=process.env.PUSH_DISPATCH_SECRET){
@@ -12,34 +12,34 @@ export function dispatcherAuthorized(header,secret=process.env.PUSH_DISPATCH_SEC
 export function privatePushPayload(delivery,origin){
   return {token:delivery.token,notification:{title:'KuboVistas trip update',body:'You have a new account update. Sign in to view it.'},data:{notificationId:delivery.notification_id},webpush:{headers:{TTL:'3600'},notification:{tag:delivery.notification_id},fcmOptions:{link:origin+'/#/notifications'}}};
 }
-export async function dispatchPush({userId=null,runQuery=query,send=message=>getMessaging(getFirebaseAdmin()).send(message)}={}){
+export async function dispatchPush({userId=null,db=firestore(),send=message=>getMessaging(getFirebaseAdmin()).send(message)}={}){
   if(process.env.FIREBASE_PUSH_ENABLED!=='true')return {enabled:false,sent:0};
   const origin=new URL(process.env.APP_URL).origin;
-  // Claims have a lease; a crashed worker becomes retryable without holding a DB transaction over a network request.
-  const claimed=await runQuery(`WITH pending AS (
-    SELECT p.id FROM firebase_push_deliveries p JOIN firebase_devices d ON d.token_hash=p.token_hash AND d.user_id=p.user_id
-    JOIN "user" u ON u.id=p.user_id WHERE ($1::text IS NULL OR p.user_id=$1) AND p.sent_at IS NULL AND p.attempts<6 AND p.available_at<=now()
-    AND (p.locked_until IS NULL OR p.locked_until<now()) AND p.created_at>now()-interval '24 hours'
-    AND d.updated_at>now()-interval '30 days' AND u.disabled_at IS NULL
-    ORDER BY p.created_at LIMIT 20 FOR UPDATE OF p SKIP LOCKED)
-    UPDATE firebase_push_deliveries p SET locked_until=now()+interval '2 minutes',attempts=attempts+1 FROM pending WHERE p.id=pending.id RETURNING p.*`,[userId]);
-  let sent=0;
-  await Promise.all(claimed.rows.map(async delivery=>{
-    // Recheck account ownership after claiming: token reassignment must not deliver an old account's queue.
-    const device=await runQuery('SELECT token FROM firebase_devices WHERE token_hash=$1 AND user_id=$2',[delivery.token_hash,delivery.user_id]);
-    if(!device.rowCount)return;
+  const notificationQuery=userId?db.collection('notifications').where('user_id','==',userId):db.collection('notifications');
+  const notifications=(await notificationQuery.limit(20).get()).docs.map(snapshotData).filter(item=>!item.read_at);
+  let claimed=0,sent=0;
+  for(const notification of notifications){
+    const devices=(await db.collection('devices').where('user_id','==',notification.user_id).limit(10).get()).docs.map(snapshotData);
+    await Promise.all(devices.map(async device=>{
+      const deliveryId=tokenHash(`${notification.id}:${device.token_hash}`),ref=db.collection('push_deliveries').doc(deliveryId);
+      const shouldSend=await db.runTransaction(async transaction=>{
+        const snapshot=await transaction.get(ref),existing=snapshot.exists?snapshot.data():null;
+        if(existing?.sent_at||Number(existing?.attempts||0)>=6)return false;
+        transaction.set(ref,{notification_id:notification.id,token_hash:device.token_hash,user_id:notification.user_id,attempts:Number(existing?.attempts||0)+1,last_error:null,updated_at:serverTimestamp(),created_at:existing?.created_at||serverTimestamp()},{merge:true});
+        return true;
+      });
+      if(!shouldSend)return;claimed++;
     try{
-      await send(privatePushPayload({...delivery,token:device.rows[0].token},origin));
-      await runQuery('UPDATE firebase_push_deliveries SET sent_at=now(),locked_until=NULL,last_error=NULL WHERE id=$1',[delivery.id]);sent++;
+        await send(privatePushPayload({notification_id:notification.id,token:device.token},origin));
+        await ref.set({sent_at:serverTimestamp(),last_error:null,updated_at:serverTimestamp()},{merge:true});sent++;
     }catch(error){
       const code=String(error.code||'delivery-failed').slice(0,120);
-      if(['messaging/registration-token-not-registered','messaging/invalid-registration-token'].includes(code))await runQuery('DELETE FROM firebase_devices WHERE token_hash=$1 AND user_id=$2',[delivery.token_hash,delivery.user_id]);
-      else await runQuery("UPDATE firebase_push_deliveries SET locked_until=NULL,last_error=$2,available_at=now()+interval '5 minutes' WHERE id=$1",[delivery.id,code]);
+        if(['messaging/registration-token-not-registered','messaging/invalid-registration-token'].includes(code))await db.collection('devices').doc(device.token_hash).delete();
+        else await ref.set({last_error:code,updated_at:serverTimestamp()},{merge:true});
     }
-  }));
-  await runQuery("DELETE FROM firebase_devices WHERE updated_at<now()-interval '30 days'");
-  await runQuery("DELETE FROM firebase_push_deliveries WHERE created_at<now()-interval '7 days'");
-  return {enabled:true,claimed:claimed.rowCount,sent};
+    }));
+  }
+  return {enabled:true,claimed,sent};
 }
 
 export async function flushPushSafely(userId){

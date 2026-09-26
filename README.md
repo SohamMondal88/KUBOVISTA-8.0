@@ -69,4 +69,4 @@ Do not leave forwarding files in `api/` for those four URLs: each would add anot
 
 ## Firebase
 
-Firebase Authentication replaces the previous auth runtime. Account-linked FCM booking notifications use PostgreSQL device registrations and a retry queue. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) before deployment: configure credentials/providers, run migrations and explicitly map existing users. Booking/payment ownership remains in PostgreSQL. AdSense publisher ca-pub-3851312120061760 is included; approval and consent/dashboard configuration remain owner tasks.
+Firebase Authentication and Admin Firestore power verified account sessions, profiles, settings, trip requests, dashboard payment history and FCM device registrations. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) before deployment. Legacy journal, companion-matching and business-enquiry features still require PostgreSQL when enabled. AdSense publisher ca-pub-3851312120061760 is included; approval and consent/dashboard configuration remain owner tasks.

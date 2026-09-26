@@ -1,20 +1,29 @@
 # Firebase Authentication, booking notifications and AdSense
 
-Project: **kubovistas-6666**. Firebase Authentication is the identity provider and Firestore is the client data layer for profiles, trip drafts and moderated stories. PostgreSQL remains server-authoritative for existing profiles, bookings, payments and in-app notifications until migration is completed. FCM sends optional booking push alerts to authenticated devices.
+Project: **kubovistas-6666**. Firebase Authentication is the identity provider. Admin Firestore is server-authoritative for account identity, profiles, settings, trip requests, dashboard payment history, in-app notifications and FCM devices. Legacy journal, companion-matching and business-enquiry features remain PostgreSQL-backed only when separately enabled.
 
 ## Mandatory deployment order
 
-1. Back up PostgreSQL. Use a staging database and Firebase test project/emulators before production. Pause signups during the production identity cutover. Do not enable the new auth flag until mapping is finished.
+1. Use a Firebase test project/emulators before production. If migrating existing PostgreSQL accounts, export and retain a private backup and plan an explicit UID/data import; do not merge accounts by email automatically.
 2. Firebase Console → Authentication → Sign-in method: enable Email/Password; optionally enable Google with support email. Configure a password policy matching the site's 10-character minimum. Enable email enumeration protection. Set reasonable quotas/abuse controls.
 3. Authentication → Settings → Authorized domains: add the actual Vercel/custom hostname and localhost if developing locally. Keep Firebase-hosted email-action handling enabled in Templates; the emails return users to `/#/login`. Do not set a custom email-action URL without implementing its `mode`/`oobCode` handler.
-4. Set server-only hosting environment variables: `DATABASE_URL`, exact `APP_URL` (e.g. https://kubovista.com), `FIREBASE_PROJECT_ID=kubovistas-6666`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`. Use Application Default Credentials instead where appropriate and explicitly set `FIREBASE_USE_ADC=true` if relying on hosted ADC. Never send the service-account key to the browser or commit it. Resend and old auth secrets are no longer used for authentication.
-5. Node 24: `npm ci`, `npm run check`, `npm run build`. Copy `.env.example` to private `.env` for CLI commands. Run `npm run db:migrate` with the new code. Migration 007 adds UID mappings, closure markers, FCM device registrations and a transactional notification queue. It does not delete bookings or rewrite their owners.
-6. Run `npm run firebase:migrate-users` (dry run). Review account counts and resolve conflicting emails. Then run `npm run firebase:migrate-users -- --apply` while signups are paused. It creates Firebase users with UID equal to their original database ID, then records that explicit mapping. It preserves original email-verification state and uses no old password hash.
+4. Create Firestore in production mode. Deploy `firestore.rules` and `firestore.indexes.json` with `firebase deploy --only firestore`. Server collections are intentionally not granted browser access; Admin SDK calls are authorized by the service account.
+5. Set server-only hosting environment variables: exact `APP_URL` (for example `https://kubovista.com`), `FIREBASE_PROJECT_ID=kubovistas-6666`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`. Never expose or commit the service-account JSON. `DATABASE_URL` is not required for authentication or the account dashboard.
+6. Node 24: run `npm ci`, `npm run check`, and `npm run build`.
 7. Existing users must use **Forgot password** to establish a Firebase password; unverified users must verify their email. This command does not email your users. Communicate the change yourself after a successful staging test.
-8. If Firebase already has an account for an old email with a different UID, migration fails closed. Do not delete that account or automatically merge by email. Verify ownership/identity in both systems; a trusted operator can explicitly update `"user".firebase_uid` to the reviewed UID using a parameterized SQL statement. Keep a private audit record. Never allow a browser to choose its database user ID.
-9. Set `FIREBASE_AUTH_ENABLED=true` and, if enabled in the console, `FIREBASE_GOOGLE_ENABLED=true`. Deploy the new code and restart the site. Existing Better Auth cookies are ignored; everyone signs in again. Old auth tables remain as inactive migration history. Do not drop them until backup/retention and cutover review are complete.
+8. Set `FIREBASE_AUTH_ENABLED=true` and, if enabled in the console, `FIREBASE_GOOGLE_ENABLED=true`. Deploy the new code. Existing Better Auth cookies are ignored; everyone signs in again.
 
 No live project settings, accounts, database migrations, secrets or deployments were changed automatically by this PR. SDK setup alone cannot enable your private Firebase project.
+
+## Rotate and install the Firebase Admin key
+
+The previously published key must be treated as compromised even after its text is removed from the current branch.
+
+1. Firebase Console → Project settings → Service accounts → **Manage service account permissions**. In Google Cloud IAM → Service Accounts → the Firebase Admin SDK account → **Keys**, disable/delete the exposed key.
+2. Create a new JSON key only for that service account and store the downloaded file privately. Never paste it into GitHub, chat, a public `.env` file, or browser code.
+3. In Vercel → Project → Settings → Environment Variables, replace `FIREBASE_CLIENT_EMAIL` with the JSON `client_email` and `FIREBASE_PRIVATE_KEY` with the complete JSON `private_key`. The key must begin with `-----BEGIN PRIVATE KEY-----` and end with `-----END PRIVATE KEY-----`. Vercel may store real newlines or the JSON `\n` form; the server accepts both.
+4. Confirm `FIREBASE_PROJECT_ID=kubovistas-6666`, `APP_URL=https://kubovista.com`, and `FIREBASE_AUTH_ENABLED=true`, then redeploy Production.
+5. Rotate `PUSH_DISPATCH_SECRET` too, because the former value was committed. Generate a new 32+ byte random value and update only the Vercel secret.
 
 ## Google sign-in configuration
 
@@ -35,7 +44,7 @@ Before enabling the production button:
 ## Authentication behavior
 
 - Browser uses Firebase's email/password, Google popup, verification and reset SDKs. Keep me signed in selects local versus session persistence.
-- Every protected API receives a Firebase bearer ID token. The server verifies signature, issuer/project, expiry and revocation with Firebase Admin, then maps the UID to its database owner. Verified email is required for account data. New users cannot claim legacy records by matching an email.
+- Every protected API receives a Firebase bearer ID token. The server verifies signature, issuer/project, expiry and revocation with Firebase Admin, then reads or creates `users/{uid}` in Firestore. Verified email is required for account data; email matching is never used to claim another UID.
 - Profiles, booking access, quote administration, payments, journal, companion matching and AI requests all use the same verified identity. Admin roles remain server-owned; the verified Firebase email or retained database role is checked against your operator configuration.
 - API mutations also require an exact `APP_URL` Origin. Add preview hosts through separate preview environments, not a wildcard.
 - Security page supports password change, all-device session revocation, current-device sign-out and recent-sign-in account deletion. Google account actions reauthenticate with Google. Accounts with payment records require support-assisted closure. Firebase does not expose a device-session list here.
