@@ -1,6 +1,19 @@
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, confirmPasswordReset, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, GoogleAuthProvider, signInWithPopup, signOut, browserLocalPersistence, browserSessionPersistence, setPersistence } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, confirmPasswordReset, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, GoogleAuthProvider, signInWithPopup, signOut, browserLocalPersistence, browserSessionPersistence, setPersistence, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { app, requestPushToken, disablePush, listenForPush } from './firebase.js';
 export const auth=getAuth(app);
+let phoneConfirmation;
+let phoneRecaptcha;
+export async function startPhoneSignIn(phoneNumber, containerId = 'phone-recaptcha') {
+  if (!phoneRecaptcha) phoneRecaptcha = new RecaptchaVerifier(auth, containerId, { size: 'invisible' });
+  phoneConfirmation = await signInWithPhoneNumber(auth, phoneNumber, phoneRecaptcha);
+  return true;
+}
+export async function confirmPhoneSignIn(code) {
+  if (!phoneConfirmation) throw Error('Request a verification code first.');
+  const result = await phoneConfirmation.confirm(code);
+  phoneConfirmation = undefined;
+  return result.user;
+}
 const ready=new Promise(resolve=>{const stop=onAuthStateChanged(auth,()=>{stop();resolve();});});
 let pushToken;
 let pushListener;
