@@ -11,7 +11,7 @@ test('verification works without activating advertising', () => {
   const config = adsenseConfig({ ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456' });
   assert.match(config.head, /google-adsense-account/);
   assert.match(config.head, /kubovistas-ad-slot" content=""/);
-  assert.equal(config.adsTxt, 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\\n');
+  assert.equal(config.adsTxt, 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n');
 });
 test('invalid IDs and incomplete activation fail closed', () => {
   assert.throws(() => adsenseConfig({ ADSENSE_PUBLISHER_ID: '"><script>' }));
