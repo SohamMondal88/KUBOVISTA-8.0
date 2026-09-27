@@ -11,6 +11,7 @@ import { renderJournal } from './journal.js';
 import { destinations, journeys, notes } from './data.js';
 import { legalPages, legalOrder, legalUpdated } from './legal.js';
 import { accountRoutes, createConsultation, renderAccountRoute, syncAccountButton } from './account.js';
+import { inject } from '@vercel/analytics';
 
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -137,3 +138,6 @@ mountKubo();
 document.addEventListener('kubo:open',closeMenu);
 
 const footerMedia=matchMedia('(min-width:600px)');function syncFooterGroups(){document.querySelectorAll('.footer-group').forEach(group=>group.open=footerMedia.matches);}footerMedia.addEventListener('change',syncFooterGroups);syncFooterGroups();
+
+// Initialize Vercel Web Analytics
+inject();
