@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { shouldApplyCapture } from '../server/payment-state.js';
 import { validateDepartureDate } from '../server/booking-validation.js';
+
+test('Vercel static analytics injection resolves without breaking native modules', async () => {
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const shim=await readFile(new URL('../vercel-analytics.js',import.meta.url),'utf8');
+  assert.match(html,/"@vercel\/analytics":"\/vercel-analytics\.js"/);
+  assert.match(shim,/export function inject\(\)/);
+});
 
 test('authorization followed by capture applies the booking transition once', () => {
   assert.equal(shouldApplyCapture('created', 'authorized'), false);
