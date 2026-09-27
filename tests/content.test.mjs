@@ -12,9 +12,18 @@ test('journey routes resolve to destination guides and every day has a plan',()=
  const ids=new Set(destinations.map(d=>d.id));
  for(const j of journeys){assert.equal(j.schedule.length,j.days);for(const id of j.stops)assert.ok(ids.has(id),id);}
 });
-test('guide routes are unique and contain article text',()=>{
+test('editorial guides are original, substantial, attributed and source-backed',()=>{
  assert.equal(new Set(notes.map(n=>n.id)).size,notes.length);
- for(const n of notes)assert.ok(n.body.every(p=>p.length>60));
+ assert.ok(notes.length>=8,'publish a useful editorial library, not a token set of posts');
+ for(const n of notes){
+  assert.ok(n.wordCount>=300,`${n.id} is too thin`);
+  assert.ok(n.sections.length>=4,`${n.id} needs a clear reader-focused structure`);
+  assert.ok(n.body.every(p=>p.length>60));
+  assert.match(n.published,/^\d{4}-\d{2}-\d{2}$/);
+  assert.match(n.updated,/^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(n.sources.length>=2,`${n.id} needs official planning resources`);
+  assert.ok(n.sources.every(source=>source.href.startsWith('https://')));
+ }
 });
 test('local photographs are actual JPEG files',async()=>{
  for(const file of ['himalaya.jpg','goa.jpg']){const data=await readFile(new URL('../assets/'+file,import.meta.url));assert.equal(data[0],255);assert.equal(data[1],216);assert.ok(data.length>10000);}

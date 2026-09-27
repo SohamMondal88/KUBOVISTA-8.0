@@ -2,6 +2,12 @@
 
 The publisher bootstrap is included in the main site's HTML head and the AMP Auto ads tag is included in `amp.html`. Regular app pages use manual responsive ad units because this is a hash-routed single-page app. The integration does not create an AdSense account or guarantee approval or earnings.
 
+The production authorization file must remain publicly readable at `https://kubovista.com/ads.txt` with exactly:
+
+`google.com, pub-3851312120061760, DIRECT, f08c47fec0942fa0`
+
+The automated tests compare the root file with the generated record so a publisher-ID mismatch fails before deployment. AdSense dashboard status is controlled by Google's crawler and cannot be changed by repository code; after deployment, allow time for Google to crawl the file and use **Check for updates** in AdSense if the site still shows Not found or Unauthorized.
+
 ## Verify the site
 
 Add the actual public website domain in AdSense (not the GitHub repository URL). The current publisher ID is `ca-pub-3851312120061760`. The production build inserts the publisher verification meta tag and creates `/ads.txt` with the matching seller record. Verify ownership in AdSense and request review.
@@ -37,3 +43,5 @@ These route exclusions are enforced by the app code; do not turn on site-wide Au
 - Google's approval, consent requirements and available inventory determine whether an ad appears; code alone cannot ensure delivery.
 
 Run `npm run check` and `npm run build`. To disable new regular-app ad loads, set `ADSENSE_ENABLED=false` in Vercel and redeploy. Existing open tabs must reload to pick up the change.
+
+For ongoing content-quality checks, follow `docs/CONTENT_PUBLISHING.md`. Do not activate ads on thin, placeholder, private or user-submission routes.

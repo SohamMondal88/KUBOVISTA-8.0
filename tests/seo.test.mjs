@@ -22,6 +22,16 @@ test('SEO route metadata is unique and private pages are noindex',()=>{
   assert.ok(privateSeoRoutes.every(page=>!page.index&&(/^(\/account\/|\/journal\/|\/company\/enquiry-inbox$)/.test(page.path)||page.path==='/planner')));
 });
 
+test('article routes expose publication metadata and substantial original copy',()=>{
+  const articles=publicSeoRoutes.filter(page=>page.type==='Article');
+  assert.ok(articles.length>=8);
+  for(const page of articles){
+    assert.ok(page.article.wordCount>=300,page.path);
+    assert.equal(page.article.body.join(' '),page.copy);
+    assert.equal(page.lastmod,'2026-09-27');
+  }
+});
+
 test('templates contain clean internal links and absolute assets',async()=>{
   const files=['index.html','app.js','company.js','journal.js','membership.js','travel-date.js','booking-ui.js','kubo.js'];
   for(const file of files){

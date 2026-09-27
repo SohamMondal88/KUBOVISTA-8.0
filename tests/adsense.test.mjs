@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adsenseConfig } from '../scripts/adsense-config.mjs';
 import { eligibleAdPath } from '../adsense.js';
+import { readFile } from 'node:fs/promises';
 test('default build uses the supplied publisher without inventing a manual slot', () => {
   assert.match(adsenseConfig().head, /ca-pub-3851312120061760/);
   assert.match(adsenseConfig().head, /kubovistas-ad-slot" content=""/);
@@ -12,6 +13,11 @@ test('verification works without activating advertising', () => {
   assert.match(config.head, /google-adsense-account/);
   assert.match(config.head, /kubovistas-ad-slot" content=""/);
   assert.equal(config.adsTxt, 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n');
+});
+test('root ads.txt authorizes only the configured AdSense publisher', async () => {
+  const file=await readFile(new URL('../ads.txt',import.meta.url),'utf8');
+  assert.equal(file,'google.com, pub-3851312120061760, DIRECT, f08c47fec0942fa0\n');
+  assert.equal(file,adsenseConfig().adsTxt);
 });
 test('AMP Auto ads and the supplied display unit honor the activation and consent gate', () => {
   const disabled = adsenseConfig();
