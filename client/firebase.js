@@ -28,9 +28,11 @@ async function startAnalytics() {
 function trackPublicPage() {
   if (!analyticsAllowed() || typeof window.gtag !== 'function') return;
   // Never send account IDs, reset tokens, searches, trip briefs or booking URLs.
-  const section = (location.hash.slice(1).split('?')[0].split('/')[1] || 'home');
-  if (!['home','destinations','destination','journeys','about','journal','guide','stays','camping','membership'].includes(section)) return;
-  window.gtag('event', 'page_view', { send_to: measurementId, page_title: 'KuboVistas — ' + section, page_location: location.origin + '/#/' + (section === 'home' ? '' : section), page_referrer: '' });
+  const pathname=location.pathname||'/';
+  if (/^\/(account|planner)(?:\/|$)/.test(pathname) || /^\/journal\/(write|my-stories|journal-review)(?:\/|$)/.test(pathname)) return;
+  const section = (pathname.split('/').filter(Boolean)[0] || 'home');
+  if (!['home','destinations','journeys','company','journal','guides','membership','legal'].includes(section)) return;
+  window.gtag('event', 'page_view', { send_to: measurementId, page_title: document.title, page_location: location.origin + location.pathname, page_referrer: '' });
 }
 async function getMessagingClient() {
   messagingSDK ||= await import('firebase/messaging');
@@ -86,7 +88,8 @@ export function initializeFirebasePreferences() {
     } catch { form.querySelector('[role=status]').textContent = 'Could not enable Analytics. Please try again.'; }
     finally { button.disabled = false; }
   });
-  window.addEventListener('hashchange', trackPublicPage);
+  window.addEventListener('popstate', trackPublicPage);
+  window.addEventListener('kubovistas:navigate', trackPublicPage);
   window.addEventListener('storage', event => {
     if (event.key === consentKey || event.key === null) {
       if (analyticsAllowed()) void startAnalytics().catch(() => {});

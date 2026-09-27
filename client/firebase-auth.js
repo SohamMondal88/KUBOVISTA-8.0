@@ -114,7 +114,7 @@ export async function authRequest(path, options={}) {
       await setPersistence(auth,browserLocalPersistence);
       const {user}=await createUserWithEmailAndPassword(auth,body.email,body.password);
       await updateProfile(user,{displayName:body.name});
-      try {await sendEmailVerification(user,{url:location.origin+'/#/login'});} catch {location.hash='/verify-email?email='+encodeURIComponent(body.email);throw Error('Account created, but the verification email could not be sent. Use Send another link.');}
+      try {await sendEmailVerification(user,{url:location.origin+'/account/login'});} catch {location.hash='/verify-email?email='+encodeURIComponent(body.email);throw Error('Account created, but the verification email could not be sent. Use Send another link.');}
       return {success:true};
     }
     if(path.endsWith('/sign-in/google-credential')) {
@@ -131,13 +131,13 @@ export async function authRequest(path, options={}) {
       if(auth.currentUser)await logout();
       await signInWithPopup(auth,new GoogleAuthProvider());
       await server('/api/auth/get-session');
-      return {url:location.origin+'/#/dashboard'};
+      return {url:location.origin+'/account/dashboard'};
     }
-    if(action==='request-password-reset') {try{await sendPasswordResetEmail(auth,body.email,{url:location.origin+'/#/login'});}catch(error){if(error.code!=='auth/user-not-found')throw error;}return {success:true};}
+    if(action==='request-password-reset') {try{await sendPasswordResetEmail(auth,body.email,{url:location.origin+'/account/login'});}catch(error){if(error.code!=='auth/user-not-found')throw error;}return {success:true};}
     if(action==='reset-password') {await confirmPasswordReset(auth,body.token,body.newPassword);return {success:true};}
     if(action==='send-verification-email') {
       if(!auth.currentUser)throw Error('Sign in first, then request a new verification email.');
-      await sendEmailVerification(auth.currentUser,{url:location.origin+'/#/login'});return {success:true};
+      await sendEmailVerification(auth.currentUser,{url:location.origin+'/account/login'});return {success:true};
     }
     if(action==='change-password') {
       await reauthenticate(body.currentPassword);
@@ -200,6 +200,6 @@ onAuthStateChanged(auth,()=>window.dispatchEvent(new Event('kubovistas-auth-chan
 window.addEventListener('kubovistas-booking-update',()=>{
   document.getElementById('booking-push-notice')?.remove();
   const notice=document.createElement('aside');notice.id='booking-push-notice';notice.className='booking-push-notice';notice.setAttribute('role','status');
-  notice.innerHTML='<span>You have a new KuboVistas account update.</span> <a href="#/notifications">View updates</a> <button type="button" aria-label="Dismiss booking update">×</button>';
+  notice.innerHTML='<span>You have a new KuboVistas account update.</span> <a href="/notifications">View updates</a> <button type="button" aria-label="Dismiss booking update">×</button>';
   notice.querySelector('button').onclick=()=>notice.remove();document.body.append(notice);
 });

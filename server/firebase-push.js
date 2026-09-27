@@ -10,7 +10,7 @@ export function dispatcherAuthorized(header,secret=process.env.PUSH_DISPATCH_SEC
   return actual.length===expected.length&&timingSafeEqual(actual,expected);
 }
 export function privatePushPayload(delivery,origin){
-  return {token:delivery.token,notification:{title:'KuboVistas trip update',body:'You have a new account update. Sign in to view it.'},data:{notificationId:delivery.notification_id},webpush:{headers:{TTL:'3600'},notification:{tag:delivery.notification_id},fcmOptions:{link:origin+'/#/notifications'}}};
+  return {token:delivery.token,notification:{title:'KuboVistas trip update',body:'You have a new account update. Sign in to view it.'},data:{notificationId:delivery.notification_id},webpush:{headers:{TTL:'3600'},notification:{tag:delivery.notification_id},fcmOptions:{link:origin+'/account/notifications'}}};
 }
 export async function dispatchPush({userId=null,db=firestore(),send=message=>getMessaging(getFirebaseAdmin()).send(message)}={}){
   if(process.env.FIREBASE_PUSH_ENABLED!=='true')return {enabled:false,sent:0};

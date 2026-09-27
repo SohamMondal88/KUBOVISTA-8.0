@@ -12,7 +12,7 @@ test('guide keeps destination context without inventing prices or weather',()=>{
 });
 test('guide supports all travel topics and safe internal navigation',()=>{
  for(const q of ['family trip','solo trip','group trip','Goa','train ticket','homestays','blogs','deposit','contact','cost']){
-  const answer=guideAnswer([user(q)]);assert.ok(answer.text.length>80);assert.ok(answer.links.every(l=>l.href.startsWith('#/')));
+  const answer=guideAnswer([user(q)]);assert.ok(answer.text.length>80);assert.ok(answer.links.every(l=>l.href.startsWith('/')));
  }
 });
 test('AI input rejects injected roles, malformed history and oversized content',()=>{

@@ -43,7 +43,7 @@ test('legal centre includes every required policy and route',async()=>{
   assert.ok(legalPages[id].sections.length>=4,`${id} policy is too thin`);
   assert.ok(app.includes(`case'${id}'`),`missing ${id} route`);
  }
- assert.match(html,/href="#\/legal"/);
+ assert.match(html,/href="\/legal"/);
  assert.match(app,/function legalHub\(/);
  assert.match(app,/function legalPage\(/);
  assert.match(build,/'legal\.js'/);

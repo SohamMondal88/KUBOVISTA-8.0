@@ -1,18 +1,19 @@
-// Publisher bootstrap is in index.html; placements are manual so route exclusions work in this hash-routed app.
+// Publisher bootstrap is in index.html; placements remain manual so sensitive routes stay ad-free.
 import { notes } from './data.js';
 
 const publicPages = new Set([
-  '/', '/destinations', '/journeys', '/membership', '/about',
-  '/legal', '/privacy', '/terms', '/cookies', '/cancellation',
-  '/disclaimer', '/accessibility', '/grievance', '/copyright',
-  '/careers', '/sponsors', '/partnerships', '/stays', '/camping', '/contact'
+  '/', '/destinations', '/journeys', '/membership', '/company/about',
+  '/legal', '/legal/privacy', '/legal/terms', '/legal/cookies', '/legal/cancellation',
+  '/legal/disclaimer', '/legal/accessibility', '/legal/grievance', '/legal/copyright',
+  '/company/careers', '/company/sponsors', '/company/partnerships', '/company/stays', '/company/camping', '/company/contact'
 ]);
-const guidePaths = new Set(notes.map(note => '/guide/' + note.id));
+const guidePaths = new Set(notes.map(note => '/guides/' + note.id));
 const requested = new Set();
 let loading;
 
-export function eligibleAdPath(hash) {
-  const path = (hash.replace(/^#/, '') || '/').split('?')[0].replace(/\/+$/, '') || '/';
+export function eligibleAdPath(value) {
+  const raw=String(value||'/').replace(/^#/, '');
+  const path = new URL(raw.startsWith('/')?raw:'/'+raw,'https://kubovista.com').pathname.replace(/\/+$/, '') || '/';
   if (publicPages.has(path) || guidePaths.has(path)) return path;
   // Destination details, account/checkout, UGC, admin, travel matching and unknown routes stay ad-free.
   return null;
@@ -33,7 +34,7 @@ function loadAds(publisher) {
 }
 
 export function mountAd(main) {
-  const path = eligibleAdPath(location.hash);
+  const path = eligibleAdPath(location.pathname);
   const publisher = document.querySelector('meta[name="google-adsense-account"]')?.content;
   const slot = document.querySelector('meta[name="kubovistas-ad-slot"]')?.content;
   if (!path || requested.has(path) || !/^ca-pub-\d{16}$/.test(publisher || '') || !/^\d+$/.test(slot || '')) return;
@@ -49,7 +50,7 @@ export function mountAd(main) {
   const notice = document.createElement('p');
   notice.textContent = 'Loads Google advertising services. Advertising privacy choices are provided by our consent provider where applicable.';
   const policy = document.createElement('a');
-  policy.href = '#/cookies';
+  policy.href = '/legal/cookies';
   policy.textContent = 'Cookies & advertising';
   region.append(label, button, notice, policy);
   main.append(region);
@@ -57,7 +58,7 @@ export function mountAd(main) {
     button.disabled = true;
     try {
       await loadAds(publisher);
-      if (!region.isConnected || eligibleAdPath(location.hash) !== path) return;
+      if (!region.isConnected || eligibleAdPath(location.pathname) !== path) return;
       const ad = document.createElement('ins');
       ad.className = 'adsbygoogle';
       ad.style.display = 'block';

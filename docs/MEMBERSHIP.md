@@ -1,6 +1,6 @@
 # Membership page
 
-Route: `#/membership`. Linked from the Discover menu and footer. This is a membership preview and interest flow, not a recurring billing implementation.
+Route: `/membership`. Linked from the Discover menu and footer. This is a membership preview and interest flow, not a recurring billing implementation.
 
 ## Recommended initial offer
 

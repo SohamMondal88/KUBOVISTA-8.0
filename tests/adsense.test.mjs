@@ -33,11 +33,11 @@ test('invalid IDs and incomplete activation fail closed', () => {
   assert.match(adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_CONSENT_READY: 'true' }).head, /content="1234567890"/);
 });
 test('manual placements cover public content and known guides, but skip destination details', () => {
-  for (const path of ['/', '/destinations', '/journeys', '/membership', '/about', '/travel-date', '/contact', '/careers', '/guide/slow-travel', '/guide/mountain-packing']) {
+  for (const path of ['/', '/destinations', '/journeys', '/membership', '/company/about', '/travel-date', '/company/contact', '/company/careers', '/guides/slow-travel', '/guides/mountain-packing']) {
     const expected = path === '/travel-date' ? null : path;
     assert.equal(eligibleAdPath('#' + path), expected);
   }
-  for (const path of ['/destination/darjeeling', '/destination/goa', '/checkout', '/login', '/profile', '/payments', '/planner', '/story/1', '/write', '/unknown', '/guide/unknown', '/enquiry-inbox']) {
+  for (const path of ['/destinations/darjeeling', '/destinations/goa', '/account/checkout', '/account/login', '/account/profile', '/account/payments', '/planner', '/journal/1', '/journal/write', '/unknown', '/guides/unknown', '/company/inbox']) {
     assert.equal(eligibleAdPath('#' + path), null);
   }
 });

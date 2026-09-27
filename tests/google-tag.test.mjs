@@ -6,7 +6,7 @@ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../client/firebase.js',import.meta.url),'utf8');
 function context(){
  const stored=new Map();
- const ctx={location:{origin:'https://kubo.example',hash:'#/destinations?email=private@example.com'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{getElementById:()=>null},addEventListener(){},Event,console};ctx.window=ctx;
+ const ctx={location:{origin:'https://kubo.example',pathname:'/destinations',search:'?email=private@example.com'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{title:'KuboVistas destinations',getElementById:()=>null},addEventListener(){},Event,console};ctx.window=ctx;
  vm.createContext(ctx);vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],ctx);
  vm.runInContext(source.replace(/^import .*$/gm,'').replace(/^export const app =.*$/m,'').replace(/\bexport /g,''),ctx);
  return ctx;
@@ -28,8 +28,8 @@ test('Analytics stays disabled until opt-in and sends sanitized public events on
  const ctx=context();const events=()=>ctx.dataLayer.filter(v=>v[0]==='event');
  assert.equal(ctx['ga-disable-G-MMP3139QSB'],true);assert.equal(events().length,0);
  await ctx.setAnalyticsConsent(true);assert.equal(ctx['ga-disable-G-MMP3139QSB'],false);
- assert.equal(events().length,1);assert.equal(events()[0][2].page_location,'https://kubo.example/#/destinations');
- ctx.location.hash='#/booking/private-booking-id?token=secret';ctx.trackPublicPage();assert.equal(events().length,1);
- await ctx.setAnalyticsConsent(false);ctx.location.hash='#/about';ctx.trackPublicPage();assert.equal(events().length,1);
+ assert.equal(events().length,1);assert.equal(events()[0][2].page_location,'https://kubo.example/destinations');
+ ctx.location.pathname='/account/booking/private-booking-id';ctx.location.search='?token=secret';ctx.trackPublicPage();assert.equal(events().length,1);
+ await ctx.setAnalyticsConsent(false);ctx.location.pathname='/company/about';ctx.location.search='';ctx.trackPublicPage();assert.equal(events().length,1);
  assert.equal(ctx['ga-disable-G-MMP3139QSB'],true);
 });

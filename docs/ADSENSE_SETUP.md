@@ -23,7 +23,7 @@ After the site is approved and consent has been configured and checked, set thes
 | `ADSENSE_CONSENT_READY` | `true` after consent setup is validated |
 | `ADSENSE_ENABLED` | `true` |
 
-The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`#/destination/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. The separate `/amp.html` page includes AMP Auto ads and the supplied responsive AMP display unit (`width=100vw`, `height=320`) when ads are enabled.
+The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`/destinations/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. The separate `/amp.html` page includes AMP Auto ads and the supplied responsive AMP display unit (`width=100vw`, `height=320`) when ads are enabled.
 
 These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. The regular-page and AMP ad markup are both omitted from the built AMP page unless `ADSENSE_ENABLED=true`, the publisher and slot IDs are valid, and `ADSENSE_CONSENT_READY=true`. This is a build-time gate; it does not replace a visitor-facing consent platform where required.
 

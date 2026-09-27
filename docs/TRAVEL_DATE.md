@@ -8,7 +8,7 @@ Travel Date is an adult travel-companion finder, not romantic matchmaking or a c
 2. Run `npm run db:migrate` with the production database connection from a trusted environment. This adds migration 006; it does not alter existing booking/payment tables.
 3. Assign real moderators through the existing verified-admin role or `ADMIN_EMAILS`. Publish functioning business contact channels for coordination and support.
 4. Set `TRAVEL_DATE_ENABLED=true` on the backend and redeploy only when someone can review posts and reports. With the flag off or core services missing, writes return 503 and no matching data is available.
-5. Visit `#/travel-date` using separate verified organiser, traveller and administrator accounts. Test moderation, join, accept/decline, withdrawal, close, report, block and account deletion in staging before launch.
+5. Visit `/travel-date` using separate verified organiser, traveller and administrator accounts. Test moderation, join, accept/decline, withdrawal, close, report, block and account deletion in staging before launch.
 
 ## Workflow
 
