@@ -6,24 +6,96 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/destination/:id", "destination": "/destinations/:id", "permanent": true },
-    { "source": "/guide", "destination": "/guides", "permanent": true },
-    { "source": "/guide/:id", "destination": "/guides/:id", "permanent": true },
-    { "source": "/about", "destination": "/company/about", "permanent": true },
-    { "source": "/contact", "destination": "/company/contact", "permanent": true },
-    { "source": "/careers", "destination": "/company/careers", "permanent": true },
-    { "source": "/partnerships", "destination": "/company/partnerships", "permanent": true },
-    { "source": "/sponsors", "destination": "/company/sponsors", "permanent": true },
-    { "source": "/stays", "destination": "/company/stays", "permanent": true },
-    { "source": "/camping", "destination": "/company/camping", "permanent": true },
-    { "source": "/privacy", "destination": "/legal/privacy", "permanent": true },
-    { "source": "/terms", "destination": "/legal/terms", "permanent": true },
-    { "source": "/cookies", "destination": "/legal/cookies", "permanent": true },
-    { "source": "/cancellation", "destination": "/legal/cancellation", "permanent": true },
-    { "source": "/disclaimer", "destination": "/legal/disclaimer", "permanent": true },
-    { "source": "/accessibility", "destination": "/legal/accessibility", "permanent": true },
-    { "source": "/grievance", "destination": "/legal/grievance", "permanent": true },
-    { "source": "/copyright", "destination": "/legal/copyright", "permanent": true }
+    {
+      "source": "/destination/:id",
+      "destination": "/destinations/:id",
+      "permanent": true
+    },
+    {
+      "source": "/guide",
+      "destination": "/guides",
+      "permanent": true
+    },
+    {
+      "source": "/guide/:id",
+      "destination": "/guides/:id",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/company/about",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/company/contact",
+      "permanent": true
+    },
+    {
+      "source": "/careers",
+      "destination": "/company/careers",
+      "permanent": true
+    },
+    {
+      "source": "/partnerships",
+      "destination": "/company/partnerships",
+      "permanent": true
+    },
+    {
+      "source": "/sponsors",
+      "destination": "/company/sponsors",
+      "permanent": true
+    },
+    {
+      "source": "/stays",
+      "destination": "/company/stays",
+      "permanent": true
+    },
+    {
+      "source": "/camping",
+      "destination": "/company/camping",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/legal/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/legal/terms",
+      "permanent": true
+    },
+    {
+      "source": "/cookies",
+      "destination": "/legal/cookies",
+      "permanent": true
+    },
+    {
+      "source": "/cancellation",
+      "destination": "/legal/cancellation",
+      "permanent": true
+    },
+    {
+      "source": "/disclaimer",
+      "destination": "/legal/disclaimer",
+      "permanent": true
+    },
+    {
+      "source": "/accessibility",
+      "destination": "/legal/accessibility",
+      "permanent": true
+    },
+    {
+      "source": "/grievance",
+      "destination": "/legal/grievance",
+      "permanent": true
+    },
+    {
+      "source": "/copyright",
+      "destination": "/legal/copyright",
+      "permanent": true
+    }
   ],
   "rewrites": [
     {
@@ -49,6 +121,46 @@
     {
       "source": "/journal/:path*",
       "destination": "/journal/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(self)"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
     }
   ]
 }

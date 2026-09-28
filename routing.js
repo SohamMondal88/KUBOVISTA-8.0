@@ -1,6 +1,6 @@
 const companyPages = new Set(['about','contact','careers','partnerships','sponsors','stays','camping','enquiry-inbox']);
 const legalPages = new Set(['privacy','terms','cookies','cancellation','disclaimer','accessibility','grievance','copyright']);
-const accountPages = new Set(['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','booking','confirmation','thank-you','payments','payment','checkout','cancellation-request','notifications','settings','security','saved','admin','support']);
+const accountPages = new Set(['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','booking','confirmation','thank-you','payments','payment','checkout','cancellation-request','notifications','settings','security','saved','admin','support','case','documents','document','team']);
 const journalTools = new Set(['write','my-stories','journal-review']);
 
 export function canonicalPath(value = '/') {

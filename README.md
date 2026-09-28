@@ -70,3 +70,5 @@ Do not leave forwarding files in `api/` for those four URLs: each would add anot
 ## Firebase
 
 Firebase Authentication verifies sign-in and Firestore stores profiles/settings. PostgreSQL owns identities and roles, trip requests, quotes, payment/refund history, notifications, and push device registration; it also serves journal, companion-matching and business-enquiry features. Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [payments release and recovery](docs/PAYMENTS_RELEASE.md) before deployment. AdSense publisher ca-pub-3851312120061760 is included; approval and consent/dashboard configuration remain owner tasks.
+
+For package, CRM, supplier, document, App Check, email, security and ad launch gates, see [commercial P1 release](docs/COMMERCIAL_P1_RELEASE.md).

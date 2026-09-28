@@ -1,0 +1,19 @@
+# Commercial operations P1 release
+
+## What the application now supports
+
+- Ten public package concept pages and detail routes with destinations, duration and consultation CTA. These are planning concepts: pricing, availability, stays, permits and inclusions are only in a personal quotation.
+- Traveler account: trips, payment history, notifications, support cases, document list and printable invoice/voucher snapshots. Staff can reply to cases; internal notes stay staff-only.
+- Admin operations: supplier review and approval, supplier confirmation for a confirmed booking, support queue and document issuance. Final invoices require captured full payment and verified seller/tax flags. A voucher requires a confirmed booking and approved supplier with written confirmation reference. Document numbers are immutable; do not edit issued snapshots in the database.
+- PostgreSQL email outbox with stable event keys and scheduled retry. Configure a verified Resend sending domain, `RESEND_API_KEY`, `AUTH_EMAIL_FROM`, and a 32+ character `EMAIL_DISPATCH_SECRET`. Event handlers enqueue quote, payment, confirmation, document and support messages. Configure a scheduled POST to `/api/config?service=mail-dispatch` using `Authorization: Bearer <EMAIL_DISPATCH_SECRET>` at least every few minutes; check failed delivery rows and domain status. Do not send sales emails through this transactional channel.
+
+## Required activation tasks
+
+1. Apply `009_commercial_operations.sql` through `npm run db:migrate` after the P0 migration. Back up the database first. Confirm the deploy uses the same database and the P0 data import/reconciliation is complete.
+2. Verify the business legal name, full address, grievance contact, and tax disclosure, and obtain qualified review before enabling final invoice issuance. Check actual tax amounts, supplier documents and invoice formatting for the operating entity. The print button uses the browser's Print/Save PDF feature; no statutory approval is implied.
+3. Register the production and preview domains in Firebase Authentication and App Check. Register the web app's reCAPTCHA v3 provider in Firebase Console, supply its **public** `FIREBASE_APP_CHECK_SITE_KEY` at build time, monitor App Check metrics, then enable `APP_CHECK_ENFORCED=true` only after authorized browsers consistently pass. Existing identity checks stay required; App Check does not identify the customer. Run `npm run test:firestore` and deploy the tested `firestore.rules` through Firebase CLI after review.
+4. Run the support/supplier/document end-to-end paths with two users and a staff account; confirm private cases/documents deny the other user and internal notes stay hidden. Test the final-invoice and voucher preconditions, duplicate issue requests, email retry, and small/mobile printing.
+5. In AdSense, verify domain ownership, publisher/slot, ads.txt, policy status and site readiness in the dashboard. Configure and publish a Google-certified CMP integrated with IAB TCF for EEA/UK/Switzerland where required. Confirm the consent messages and consent mode in a real browser. Only then set `ADSENSE_CONSENT_READY`, `ADSENSE_CMP_VERIFIED`, `ADSENSE_DASHBOARD_VERIFIED` and `ADSENSE_ENABLED` to true. Code cannot assert AdSense dashboard approval or activate a CMP on the owner's behalf. Ads remain out of checkout, account, support, documents and user-generated content.
+6. Test Vercel security headers and payment popups on the actual preview URL. `same-origin-allow-popups` permits the external checkout flow. Check Core Web Vitals and images in the deployed build. Leaflet assets now load only when a map is requested; the hero image is preloaded.
+
+This code is a reviewable release candidate, not evidence that a live merchant, supplier or CMP dashboard has passed external verification.
