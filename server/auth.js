@@ -37,6 +37,7 @@ export async function requireSession(req, res) {
     if (!session) { json(res,401,{error:'Please sign in to continue.'}); return null; }
     return session;
   } catch(error) {
+    console.error('Account session unavailable', {code:error.code || 'account-session',status:error.status || 503});
     json(res, error.status || 503, {error: error.status ? error.message : 'Account service is unavailable. Please try again.'});
     return null;
   }

@@ -55,3 +55,30 @@ test('dispatcher secrets and device inputs fail closed; push content is generic'
   const payload = privatePushPayload({ token: 'abc', notification_id: 'id', message: 'secret', title: 'secret' }, 'https://kubo.example');
   assert.equal(JSON.stringify(payload).includes('secret'), false);
 });
+
+test('explicit Firebase mapping preserves legacy account ownership and role', async () => {
+  const db = await database();
+  try {
+    await db.query(`INSERT INTO "user" (id,firebase_uid,name,email,role) VALUES ('legacy','firebase-new','Traveler','old@example.com','operator')`);
+    const user = await resolveFirebaseUser({uid:'firebase-new',email:'new@example.com',email_verified:true}, db);
+    assert.equal(user.id, 'legacy');
+    assert.equal(user.role, 'operator');
+    assert.equal((await db.query('SELECT * FROM "user"')).rows.length, 1);
+  } finally { await db.close(); }
+});
+
+test('matching email cannot silently claim a legacy account', async () => {
+  const db = await database();
+  try {
+    await db.query(`INSERT INTO "user" (id,name,email) VALUES ('legacy','Traveler','same@example.com')`);
+    await assert.rejects(resolveFirebaseUser({uid:'other',email:'same@example.com',email_verified:true}, db), {status:409});
+    assert.equal((await db.query('SELECT firebase_uid FROM "user"')).rows[0].firebase_uid, null);
+  } finally { await db.close(); }
+});
+
+test('checkout migration can run again without blocking later migrations', async () => {
+  const db = await database();
+  try {
+    await db.exec(await readFile(new URL('../db/migrations/008_checkout_integrity.sql', import.meta.url),'utf8'));
+  } finally { await db.close(); }
+});

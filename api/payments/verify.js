@@ -15,9 +15,10 @@ export default async function handler(req, res) {
     const orderId = cleanText(body.razorpay_order_id, 100);
     const paymentId = cleanText(body.razorpay_payment_id, 100);
     const signature = cleanText(body.razorpay_signature, 256);
-    if (!orderId || !paymentId || !signature || !verifyCheckoutSignature({ orderId, paymentId, signature })) return json(res, 400, { error: 'Payment verification failed.' });
+    if (!orderId || !paymentId || !signature) return json(res, 400, { error: 'Payment verification failed.' });
     const local = await query(`SELECT p.*,b.destination_name FROM payments p JOIN bookings b ON b.id=p.booking_id WHERE p.razorpay_order_id=$1 AND p.user_id=$2`, [orderId, session.user.id]);
     if (!local.rows[0]) return json(res, 404, { error: 'Payment record not found.' });
+    if (!verifyCheckoutSignature({orderId:local.rows[0].razorpay_order_id,paymentId,signature})) return json(res,400,{error:'Payment verification failed.'});
     const remote = await getRazorpay().payments.fetch(paymentId);
     if (remote.order_id !== orderId || Number(remote.amount) !== Number(local.rows[0].amount_paise) || remote.currency !== local.rows[0].currency || !['authorized','captured'].includes(remote.status)) return json(res, 400, { error: 'Payment details do not match the order.' });
     const state = remote.status === 'captured' ? 'captured' : 'authorized';

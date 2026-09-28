@@ -25,5 +25,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
  created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS audit_logs_created_idx ON audit_logs(created_at DESC);
-ALTER TABLE "user" ADD CONSTRAINT user_role_check CHECK (role IN ('traveler','support','operator','admin'));
+DO $$ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='user_role_check' AND conrelid='"user"'::regclass) THEN
+  ALTER TABLE "user" ADD CONSTRAINT user_role_check CHECK (role IN ('traveler','support','operator','admin'));
+ END IF;
+END $$;
 COMMIT;

@@ -29,6 +29,7 @@ export default async function handler(req, res) {
       if(Number(quote.total_paise)!==Number(booking.quote_total_paise)||new Date(quote.expires_at).getTime()!==new Date(booking.quote_expires_at).getTime())return {status:409,error:'Quotation details changed. Contact support.'};
       const split=splitTotal(booking.quote_total_paise);
       const amount = booking.payment_policy_version===2?split[purpose]:Math.round(Number(booking.quote_total_paise)*Number(booking.advance_percent)/100);
+      if (!Number.isSafeInteger(amount) || amount < 100) return {status:400,error:'The payable amount must be at least 100 paise. Request an updated quotation.'};
       const previous = await client.query(`SELECT * FROM payments WHERE booking_id=$1 AND purpose=$2 ORDER BY created_at DESC LIMIT 1`, [booking.id,purpose]);
       if (previous.rows[0] && previous.rows[0].quote_id!==quote.id)return {status:409,error:'A previous quotation has a payment record. Contact support.'};
       if (previous.rows[0] && previous.rows[0].status==='failed')return {status:409,error:'A failed attempt needs provider reconciliation before retry. Contact support.'};
