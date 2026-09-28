@@ -115,6 +115,10 @@
       "destination": "/api/account?resource=notifications"
     },
     {
+      "source": "/stories/:path*",
+      "destination": "/stories/index.html"
+    },
+    {
       "source": "/account/:path*",
       "destination": "/account/login/index.html"
     },

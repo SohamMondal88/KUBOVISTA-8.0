@@ -40,6 +40,12 @@ export default async function operations(req,res) {
         if(!staff)return json(res,403,{error:'Staff access required.'});
         return json(res,200,{suppliers:(await query('SELECT * FROM suppliers ORDER BY updated_at DESC LIMIT 100')).rows});
       }
+      if(action==='assignments') {
+        if(!staff)return json(res,403,{error:'Staff access required.'});
+        const rows=await query(`SELECT bs.booking_id,bs.supplier_id,bs.confirmation_reference,bs.supplier_response,bs.supplier_response_at,s.name AS supplier_name,b.destination_name
+          FROM booking_suppliers bs JOIN suppliers s ON s.id=bs.supplier_id JOIN bookings b ON b.id=bs.booking_id ORDER BY bs.confirmed_at DESC LIMIT 100`);
+        return json(res,200,{assignments:rows.rows});
+      }
       if(action==='documents') {
         const where=uuid(input.bookingId)?'AND booking_id=$2':'';
         const args=uuid(input.bookingId)?[session.user.id,input.bookingId]:[session.user.id];
@@ -122,9 +128,9 @@ export default async function operations(req,res) {
         const captured=(await client.query(`SELECT COALESCE(sum(p.amount_paise),0)-COALESCE(sum(COALESCE(r.processed,0)),0) AS total
           FROM payments p LEFT JOIN (SELECT payment_id,sum(amount_paise) AS processed FROM payment_refunds WHERE status='processed' GROUP BY payment_id) r ON r.payment_id=p.id
           WHERE p.booking_id=$1 AND p.captured_at IS NOT NULL AND p.status IN ('captured','refund_pending','refunded')`,[booking.id])).rows[0].total;
-        const suppliers=(await client.query(`SELECT s.name,s.kind,s.location,bs.confirmation_reference FROM booking_suppliers bs JOIN suppliers s ON s.id=bs.supplier_id WHERE bs.booking_id=$1 AND s.status='approved'`,[booking.id])).rows;
+        const suppliers=(await client.query(`SELECT s.name,s.kind,s.location,bs.confirmation_reference FROM booking_suppliers bs JOIN suppliers s ON s.id=bs.supplier_id WHERE bs.booking_id=$1 AND s.status='approved' AND bs.supplier_response='accepted'`,[booking.id])).rows;
         if(input.kind==='invoice'&&(process.env.BUSINESS_DETAILS_VERIFIED!=='true'||process.env.LEGAL_TAX_APPROVED!=='true'||!process.env.PUBLIC_LEGAL_NAME?.trim()||!process.env.PUBLIC_BUSINESS_ADDRESS?.trim()||!process.env.PUBLIC_TAX_DISCLOSURE?.trim()||booking.quote_total_paise==null||Number(captured)<Number(booking.quote_total_paise)))return fail(409,'Full payment and approved seller/tax details are required for invoice issuance.');
-        if(input.kind==='voucher'&&!suppliers.length)return fail(409,'Assign an approved supplier with confirmation first.');
+        if(input.kind==='voucher'&&!suppliers.length)return fail(409,'An approved supplier must accept the recorded confirmation first.');
         const snapshot={seller:process.env.PUBLIC_LEGAL_NAME||'',address:process.env.PUBLIC_BUSINESS_ADDRESS||'',taxDisclosure:process.env.PUBLIC_TAX_DISCLOSURE||'',traveler:booking.name,email:booking.email,bookingId:booking.id,destination:booking.destination_name,travelers:booking.travelers,days:booking.days,checkinAt:booking.checkin_at,totalPaise:Number(booking.quote_total_paise),paidPaise:Number(captured),suppliers};
         const serial=(await client.query("SELECT nextval('commercial_document_number_seq') AS n")).rows[0].n;
         const number=`KV-${input.kind==='invoice'?'INV':'VCH'}-${new Date().getUTCFullYear()}-${String(serial).padStart(6,'0')}`;
