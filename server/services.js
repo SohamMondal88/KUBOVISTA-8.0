@@ -17,7 +17,8 @@ export default async function services(req,res){
  }
  if(service==='contact-info'){
   if(req.method!=='GET')return methodNotAllowed(res,['GET']);
-  return json(res,200,{enquiries:databaseConfigured()&&process.env.ENQUIRIES_ENABLED==='true',email:process.env.PUBLIC_CONTACT_EMAIL||null,phone:process.env.PUBLIC_CONTACT_PHONE||null,address:process.env.PUBLIC_BUSINESS_ADDRESS||null});
+  return json(res,200,{enquiries:databaseConfigured()&&process.env.ENQUIRIES_ENABLED==='true',email:process.env.PUBLIC_CONTACT_EMAIL||null,phone:process.env.PUBLIC_CONTACT_PHONE||null,address:process.env.PUBLIC_BUSINESS_ADDRESS||null,
+    business:process.env.BUSINESS_DETAILS_VERIFIED==='true'?{name:process.env.PUBLIC_LEGAL_NAME||null,grievanceEmail:process.env.PUBLIC_GRIEVANCE_EMAIL||null,tax:process.env.PUBLIC_TAX_DISCLOSURE||null}:null});
  }
  if(service!=='enquiries')return json(res,404,{error:'Service not found.'});
  try{
