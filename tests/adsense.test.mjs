@@ -23,20 +23,21 @@ test('AMP Auto ads and the supplied display unit honor the activation and consen
   const disabled = adsenseConfig();
   assert.equal(disabled.ampScripts, '');
   assert.equal(disabled.ampBody, '');
-  const enabled = adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' });
+  const enabled = adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true', ADSENSE_CMP_VERIFIED: 'true', ADSENSE_DASHBOARD_VERIFIED: 'true' });
   assert.match(enabled.ampScripts, /custom-element="amp-auto-ads"/);
   assert.match(enabled.ampScripts, /custom-element="amp-ad"/);
   assert.match(enabled.ampBody, /<amp-auto-ads type="adsense" data-ad-client="ca-pub-3851312120061760">/);
   assert.match(enabled.ampBody, /data-ad-slot="8921763854"/);
   assert.match(enabled.ampBody, /data-auto-format="mcrspv"/);
   assert.match(enabled.ampBody, /width="100vw" height="320"/);
-  assert.equal(adsenseConfig({ ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' }).ampBody.includes('ca-pub-1234567890123456'), true);
+  assert.equal(adsenseConfig({ ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true', ADSENSE_CMP_VERIFIED: 'true', ADSENSE_DASHBOARD_VERIFIED: 'true' }).ampBody.includes('ca-pub-1234567890123456'), true);
 });
 test('invalid IDs and incomplete activation fail closed', () => {
   assert.throws(() => adsenseConfig({ ADSENSE_PUBLISHER_ID: '"><script>' }));
   assert.throws(() => adsenseConfig({ ADSENSE_ENABLED: 'true' }));
+  assert.throws(() => adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' }));
   assert.throws(() => adsenseConfig({ ADSENSE_SLOT_ID: 'bad' }));
-  assert.match(adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_CONSENT_READY: 'true' }).head, /content="1234567890"/);
+  assert.match(adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_CONSENT_READY: 'true', ADSENSE_CMP_VERIFIED: 'true', ADSENSE_DASHBOARD_VERIFIED: 'true' }).head, /content="1234567890"/);
 });
 test('manual placements cover public content and known guides, but skip destination details', () => {
   for (const path of ['/', '/destinations', '/journeys', '/membership', '/company/about', '/travel-date', '/company/contact', '/company/careers', '/guides/slow-travel', '/guides/mountain-packing']) {

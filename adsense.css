@@ -1,6 +1,4 @@
-.travel-ad { margin-block: 2rem; padding: 1.25rem; border: 1px solid #d7ded8; border-radius: 16px; text-align: center; min-width: 0; }
-.travel-ad > p { font-size: .8rem; line-height: 1.6; opacity: .75; }
-.travel-ad > a { display: inline-block; margin-top: .8rem; font-size: .8rem; }
-.travel-ad .adsbygoogle { width: 100%; min-height: 100px; }
-.travel-ad:has(.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
-@media (max-width: 480px) { .travel-ad { padding: .75rem; border-radius: 10px; } }
+/* Reserved placements keep their dimensions while ads load. */
+.travel-ad{display:grid;align-content:center;justify-items:center;gap:.5rem;min-width:0;min-height:160px;margin-block:clamp(32px,5vw,70px);padding:24px;border:1px solid var(--line);border-radius:16px;background:#eeeae0;text-align:center;overflow:hidden}
+.travel-ad>p{color:var(--muted);font-size:.75rem;line-height:1.6}.travel-ad>a{color:var(--accent-dark);font-size:.8rem;text-decoration:underline;text-underline-offset:.25em}.travel-ad .adsbygoogle{display:block;width:100%;min-height:100px}.travel-ad:has(.adsbygoogle[data-ad-status="unfilled"]){visibility:hidden}
+@media(max-width:480px){.travel-ad{min-height:130px;padding:16px}}

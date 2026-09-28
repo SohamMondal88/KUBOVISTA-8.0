@@ -19,7 +19,7 @@ test('SEO route metadata is unique and private pages are noindex',()=>{
   assert.equal(new Set(publicSeoRoutes.map(page=>page.path)).size,publicSeoRoutes.length);
   assert.equal(new Set(publicSeoRoutes.map(page=>page.title)).size,publicSeoRoutes.length);
   assert.ok(publicSeoRoutes.every(page=>page.index&&page.description.length>=50));
-  assert.ok(privateSeoRoutes.every(page=>!page.index&&(/^(\/account\/|\/journal\/|\/company\/enquiry-inbox$)/.test(page.path)||page.path==='/planner')));
+  assert.ok(privateSeoRoutes.every(page=>!page.index&&(/^(\/account\/|\/journal\/|\/company\/enquiry-inbox$)/.test(page.path)||['/planner','/search'].includes(page.path))));
 });
 
 test('article routes expose publication metadata and substantial original copy',()=>{

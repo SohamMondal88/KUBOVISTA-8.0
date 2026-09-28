@@ -1,6 +1,7 @@
 import { getRazorpay } from './razorpay.js';
 import { transaction } from './db.js';
 import { syncRefund } from './refund-state.js';
+import { enqueueEmail, flushEmailSafely } from './transactional-email.js';
 
 export async function reconcileBooking(bookingId, actorId) {
   const local = await transaction(async client => {
@@ -36,10 +37,12 @@ export async function reconcileBooking(bookingId, actorId) {
           booked_at=CASE WHEN $2='deposit' THEN COALESCE(booked_at,now()) ELSE booked_at END,
           balance_paid_at=CASE WHEN $2='balance' THEN COALESCE(balance_paid_at,now()) ELSE balance_paid_at END,updated_at=now() WHERE id=$1`, [bookingId, payment.purpose]);
         await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,'Trip payment received','Your payment has been reconciled with the provider.','payment')", [payment.user_id]);
+        await enqueueEmail(client,payment.user_id,`capture:${payment.id}`,'payment_captured','Your KuboVistas payment was captured',{path:'/account/payments'});
       }
       for (const refund of refunds.items || []) if (refund.payment_id === remote.id && ['pending','processed','failed'].includes(refund.status)) await syncRefund(client, refund, { ...locked, razorpay_payment_id: remote.id }, actorId);
       await client.query("INSERT INTO audit_logs(actor_id,action,subject_type,subject_id) VALUES($1,'payment.reconciled','payment',$2)", [actorId, payment.id]);
     });
   }
+  await flushEmailSafely();
   return { reconciled: local.length };
 }

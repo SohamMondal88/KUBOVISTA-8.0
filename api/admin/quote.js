@@ -1,4 +1,5 @@
 import {flushPushSafely} from '../../server/firebase-push.js';
+import { enqueueEmail, flushEmailSafely } from '../../server/transactional-email.js';
 import {validateCancellationPolicy} from '../../server/booking-policy.js';
 import { isAdmin, requireSession } from '../../server/auth.js';
 import { query, transaction } from '../../server/db.js';
@@ -27,10 +28,12 @@ export default async function handler(req, res) {
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[body.bookingId,updated.rows[0].current_quote_version,total,advancePercent,cleanText(body.notes,1200),cancellationPolicy,checkin.toISOString(),expiry.toISOString(),session.user.id]);
       await client.query(`INSERT INTO audit_logs(actor_id,action,subject_type,subject_id,details) VALUES($1,'quote.issued','booking',$2,$3)`,[session.user.id,body.bookingId,JSON.stringify({version:updated.rows[0].current_quote_version,total_paise:total})]);
       await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,'Your quotation is ready',$2,'payment')`, [updated.rows[0].user_id, `Review the ${updated.rows[0].destination_name} quotation and pay the ${advancePercent}% booking deposit before it expires.`]);
+      await enqueueEmail(client,updated.rows[0].user_id,`quote:${body.bookingId}:${updated.rows[0].current_quote_version}`,'quote_ready','Your KuboVistas quotation is ready',{path:'/account/bookings'});
       return updated.rows[0];
     });
     if (!booking) return json(res, 404, { error: 'Trip request not found.' });
     await flushPushSafely(booking.user_id);
+    await flushEmailSafely();
     return json(res, 200, { booking });
   } catch (error) {
     const failure = publicError(error);

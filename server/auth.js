@@ -1,3 +1,4 @@
+import { checkAppToken } from './app-check.js';
 import { getAuth as firebaseAuth } from 'firebase-admin/auth';
 import { getFirebaseAdmin } from './firebase-admin.js';
 import { firestoreConfigured } from './firestore.js';
@@ -31,6 +32,7 @@ export const getSession=req=>readFirebaseSession(req);
 export async function requireSession(req, res) {
   if (!['GET','HEAD'].includes(req.method) && !originAllowed(req)) { json(res,403,{error:'Request origin is not allowed.'}); return null; }
   try {
+    if (!['GET','HEAD'].includes(req.method) && !await checkAppToken(req)) { json(res,403,{error:'App verification failed. Please reload and try again.'}); return null; }
     const session = await getSession(req);
     if (!session) { json(res,401,{error:'Please sign in to continue.'}); return null; }
     return session;

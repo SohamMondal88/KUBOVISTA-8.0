@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, confirmPasswordReset, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, GoogleAuthProvider, signInWithPopup, signInWithCredential, signOut, browserLocalPersistence, browserSessionPersistence, setPersistence, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { app, requestPushToken, disablePush, listenForPush } from './firebase.js';
+import { app, appCheckToken, requestPushToken, disablePush, listenForPush } from './firebase.js';
 import { googleClientId } from './firebase-config.js';
 export const auth=getAuth(app);
 let phoneConfirmation;
@@ -24,6 +24,7 @@ export async function apiFetch(path,options={}) {
   if(url.origin===location.origin && url.pathname.startsWith('/api/')) {
     await ready;
     if(auth.currentUser)headers.set('Authorization','Bearer '+await auth.currentUser.getIdToken());
+    if(!['GET','HEAD'].includes((options.method||'GET').toUpperCase())){const token=await appCheckToken();if(token)headers.set('X-Firebase-AppCheck',token);}
   }
   return fetch(path,{...options,headers});
 }

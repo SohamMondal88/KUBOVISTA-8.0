@@ -659,3 +659,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
 		print-color-adjust: exact;
 		}
 	}
+
+/* KuboVistas visual skin. Vendor positioning, pane, tile and drag rules above are untouched. */
+.leaflet-container{background:#dce6df;color:#17332e;font-family:Inter,'Segoe UI',Arial,sans-serif}
+.leaflet-bar{border:1px solid #27463d40!important;border-radius:12px;box-shadow:0 8px 26px #173c3a24}
+.leaflet-bar a,.leaflet-bar a:hover{background:#fffdf8;color:#173c3a;border-bottom-color:#27463d26;min-width:36px;min-height:36px;line-height:36px}
+.leaflet-bar a:first-child{border-radius:11px 11px 0 0}.leaflet-bar a:last-child{border-radius:0 0 11px 11px}.leaflet-bar a:focus-visible,.leaflet-popup-close-button:focus-visible{outline:3px solid #a34a31;outline-offset:2px}
+.leaflet-popup-content-wrapper{background:#fffdf8;color:#17332e;border:1px solid #27463d35;border-radius:14px;box-shadow:0 16px 40px #173c3a38}.leaflet-popup-tip{background:#fffdf8}.leaflet-popup-content{font:14px/1.6 Inter,'Segoe UI',Arial,sans-serif}.leaflet-popup-content a{color:#8b3a2a;text-decoration:underline;text-underline-offset:3px}.leaflet-popup-close-button{color:#17332e!important;min-width:32px;min-height:32px}
+.leaflet-control-attribution{background:#fffdf8e8!important;color:#354f49!important;font:11px/1.5 Inter,'Segoe UI',Arial,sans-serif!important}.leaflet-control-attribution a{color:#70402f!important;text-decoration:underline}
+@media(max-width:600px){.leaflet-control-attribution{max-width:calc(100vw - 20px);white-space:normal}.leaflet-control-container .leaflet-top{top:8px}.leaflet-control-container .leaflet-left{left:8px}}
+.leaflet-bar a,.leaflet-bar a:hover{min-width:44px;min-height:44px;line-height:44px}

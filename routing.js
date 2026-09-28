@@ -1,6 +1,6 @@
 const companyPages = new Set(['about','contact','careers','partnerships','sponsors','stays','camping','enquiry-inbox']);
 const legalPages = new Set(['privacy','terms','cookies','cancellation','disclaimer','accessibility','grievance','copyright']);
-const accountPages = new Set(['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','booking','confirmation','thank-you','payments','payment','checkout','cancellation-request','notifications','settings','security','saved','admin','support']);
+const accountPages = new Set(['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','booking','confirmation','thank-you','payments','payment','checkout','cancellation-request','notifications','settings','security','saved','admin','support','case','documents','document','team','growth','review','supplier-portal','membership-interest']);
 const journalTools = new Set(['write','my-stories','journal-review']);
 
 export function canonicalPath(value = '/') {
@@ -25,6 +25,8 @@ export function canonicalPath(value = '/') {
 
 export function routeParts(pathname = location.pathname) {
   const parts = String(pathname || '/').split('/').filter(Boolean);
+  if (parts[0] === 'regions' && parts[1]) return ['regions',parts[1]];
+  if (parts[0] === 'stories' && parts[1]) return ['stories',parts[1]];
   if (parts[0] === 'destinations' && parts[1]) return ['destination', parts[1]];
   if (parts[0] === 'guides') return ['guide', parts[1]].filter(Boolean);
   if (parts[0] === 'journal' && parts[1]) return journalTools.has(parts[1]) ? [parts[1],parts[2]].filter(Boolean) : ['story',parts[1]];
