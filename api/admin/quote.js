@@ -21,8 +21,11 @@ export default async function handler(req, res) {
     const expiry = new Date(body.expiresAt);
     if (Number.isNaN(expiry.getTime()) || expiry <= new Date() || expiry > checkin) return json(res, 400, { error: 'Provide a future quotation expiry no later than check-in.' });
     const booking = await transaction(async client => {
-      const updated = await client.query(`UPDATE bookings SET quote_total_paise=$1,advance_percent=$2,quote_notes=$3,quote_expires_at=$4,status='quotation_ready',payment_policy_version=2,cancellation_policy=$6,checkin_at=$7,updated_at=now() WHERE id=$5 AND status IN ('consultation_requested','consultation_scheduled','quotation_ready') AND NOT EXISTS (SELECT 1 FROM payments WHERE booking_id=bookings.id) RETURNING *`, [total, advancePercent, cleanText(body.notes, 1200), expiry.toISOString(), body.bookingId, cancellationPolicy, checkin.toISOString()]);
+      const updated = await client.query(`UPDATE bookings SET quote_total_paise=$1,advance_percent=$2,quote_notes=$3,quote_expires_at=$4,status='quotation_ready',payment_policy_version=2,cancellation_policy=$6,checkin_at=$7,current_quote_version=current_quote_version+1,updated_at=now() WHERE id=$5 AND status IN ('consultation_requested','consultation_scheduled','quotation_ready') AND NOT EXISTS (SELECT 1 FROM payments WHERE booking_id=bookings.id) RETURNING *`, [total, advancePercent, cleanText(body.notes, 1200), expiry.toISOString(), body.bookingId, cancellationPolicy, checkin.toISOString()]);
       if (!updated.rows[0]) return null;
+      await client.query(`INSERT INTO booking_quotes(booking_id,version,total_paise,advance_percent,notes,cancellation_policy,checkin_at,expires_at,issued_by)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[body.bookingId,updated.rows[0].current_quote_version,total,advancePercent,cleanText(body.notes,1200),cancellationPolicy,checkin.toISOString(),expiry.toISOString(),session.user.id]);
+      await client.query(`INSERT INTO audit_logs(actor_id,action,subject_type,subject_id,details) VALUES($1,'quote.issued','booking',$2,$3)`,[session.user.id,body.bookingId,JSON.stringify({version:updated.rows[0].current_quote_version,total_paise:total})]);
       await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,'Your quotation is ready',$2,'payment')`, [updated.rows[0].user_id, `Review the ${updated.rows[0].destination_name} quotation and pay the ${advancePercent}% booking deposit before it expires.`]);
       return updated.rows[0];
     });

@@ -43,3 +43,6 @@ export function isAdmin(session) {
   const configured=(process.env.ADMIN_EMAILS||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);
   return session?.user?.emailVerified === true && (session?.user?.role === 'admin' || configured.includes(session?.user?.email?.toLowerCase()));
 }
+export function isOperator(session) {
+  return session?.user?.emailVerified === true && (isAdmin(session) || session.user.role === 'operator');
+}

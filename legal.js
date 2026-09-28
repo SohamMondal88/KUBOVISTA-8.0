@@ -44,8 +44,8 @@ export const legalPages = {
       {
         "title": "3. Hosting and technical records",
         "paragraphs": [
-          "Accounts store a name, email, password hash and session metadata. Optional profile fields, settings, submitted trip requests, quotations and transaction references are stored in the service database. Hosting providers may process request logs to operate and secure the service.",
-          "Transactional email is sent through the configured email provider. Optional Google sign-in shares identity information from Google. Razorpay processes checkout payment instruments; KuboVistas receives payment references and status, not card numbers, banking passwords or UPI PINs."
+          "Firebase Authentication stores sign-in credentials; KuboVistas stores the Firebase account ID, verified email, name and account role in PostgreSQL. Optional profile fields, settings, submitted trip requests, quotations and transaction references are stored in the service database. Hosting providers may process request logs to operate and secure the service.",
+          "Firebase handles account verification and password recovery. Optional Google sign-in shares identity information from Google. Razorpay processes checkout payment instruments; KuboVistas receives payment references and status, not card numbers, banking passwords or UPI PINs."
         ]
       },
       {

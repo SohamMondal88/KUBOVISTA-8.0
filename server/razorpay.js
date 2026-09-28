@@ -4,7 +4,10 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 let instance;
 
 export function paymentsConfigured() {
-  return Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_WEBHOOK_SECRET);
+  return process.env.PAYMENTS_ENABLED === 'true' && process.env.BUSINESS_DETAILS_VERIFIED === 'true' && process.env.LEGAL_TAX_APPROVED === 'true'
+    && Boolean(process.env.DATABASE_URL && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_WEBHOOK_SECRET
+      && process.env.PUBLIC_LEGAL_NAME && process.env.PUBLIC_BUSINESS_ADDRESS && process.env.PUBLIC_CONTACT_EMAIL
+      && process.env.PUBLIC_GRIEVANCE_EMAIL && process.env.PUBLIC_TAX_DISCLOSURE);
 }
 
 export function getRazorpay() {

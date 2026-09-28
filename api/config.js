@@ -1,6 +1,7 @@
 import services from '../server/services.js';
 import { authConfigured } from '../server/auth.js';
 import { firestoreConfigured } from '../server/firestore.js';
+import { databaseConfigured } from '../server/db.js';
 import { paymentsConfigured } from '../server/razorpay.js';
 import { json, methodNotAllowed } from '../server/http.js';
 
@@ -9,7 +10,7 @@ export default function handler(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
   return json(res, 200, {
     auth: authConfigured(),
-    database: firestoreConfigured(),
+    database: databaseConfigured(),
     emailVerification: true,
     authProvider: 'firebase',
     google: authConfigured() && process.env.FIREBASE_GOOGLE_ENABLED === 'true',

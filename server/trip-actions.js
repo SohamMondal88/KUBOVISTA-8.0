@@ -1,5 +1,5 @@
 import {flushPushSafely} from './firebase-push.js';
-import {requireSession,isAdmin} from './auth.js';
+import {requireSession,isOperator} from './auth.js';
 import {transaction} from './db.js';
 import {json,parseBody,cleanText,methodNotAllowed} from './http.js';
 import {cancellationEstimate} from './booking-policy.js';
@@ -11,7 +11,7 @@ export default async function tripActions(req,res){
  try{
   const result=await transaction(async client=>{
    const result=await client.query('SELECT * FROM bookings WHERE id=$1 FOR UPDATE',[id]);const b=result.rows[0];
-   if(!b||b.user_id!==session.user.id&&!isAdmin(session))return {status:404,error:'Booking not found.'};
+   if(!b||b.user_id!==session.user.id&&!isOperator(session))return {status:404,error:'Booking not found.'};
    const {rows:payments}=await client.query('SELECT * FROM payments WHERE booking_id=$1',[id]);
    const deposit=payments.find(p=>p.purpose==='deposit'&&p.status==='captured');
    if(req.method==='GET'){
@@ -20,10 +20,11 @@ export default async function tripActions(req,res){
     return {status:200,cancellation:cancellationEstimate(b,Number(deposit?.amount_paise||0)),booking:b};
    }
    if(['confirm','checkin'].includes(body.action)){
-    if(!isAdmin(session))return {status:403,error:'Only a verified operator can confirm a booking or check-in.'};
+    if(!isOperator(session))return {status:403,error:'Only a verified operator can confirm a booking or check-in.'};
     if(!deposit||b.cancellation_requested_at||b.status==='cancelled')return {status:409,error:'A captured deposit and an active booking are required.'};
     if(body.action==='checkin'&&(!b.confirmed_at||!b.checkin_at||Date.parse(b.checkin_at)>Date.now()))return {status:409,error:'Confirm the booking first; check-in cannot be recorded before its scheduled time.'};
     await client.query(body.action==='confirm'?"UPDATE bookings SET status='confirmed',confirmed_at=COALESCE(confirmed_at,now()),updated_at=now() WHERE id=$1":"UPDATE bookings SET checked_in_at=COALESCE(checked_in_at,now()),updated_at=now() WHERE id=$1",[id]);
+    await client.query("INSERT INTO audit_logs(actor_id,action,subject_type,subject_id) VALUES($1,$2,'booking',$3)",[session.user.id,'booking.'+body.action,id]);
     if(body.action==='confirm'&&!b.confirmed_at||body.action==='checkin'&&!b.checked_in_at)await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,$2,$3,'booking')",[b.user_id,body.action==='confirm'?'Booking confirmed':'Check-in recorded',body.action==='confirm'?'The operator has confirmed your booking. Review the details in your account.':'Your operator recorded check-in. You can review the remaining balance in your account.']);
     return {status:200,updated:true};
    }
@@ -33,6 +34,7 @@ export default async function tripActions(req,res){
    const estimate=cancellationEstimate(b,Number(deposit?.amount_paise||0));
    if(body.accept!==true||body.expectedFee!==estimate.deduction)return {status:409,error:'Review the latest cancellation calculation before confirming.'};
    await client.query("UPDATE bookings SET status='cancelled',cancellation_requested_at=now(),cancellation_fee_paise=$2,cancellation_refund_paise=$3,cancellation_reason=$4,updated_at=now() WHERE id=$1",[id,estimate.deduction,estimate.refund,cleanText(body.reason,1000)]);
+   await client.query("INSERT INTO audit_logs(actor_id,action,subject_type,subject_id,details) VALUES($1,'booking.cancelled','booking',$2,$3)",[session.user.id,id,JSON.stringify({fee_paise:estimate.deduction,refund_paise:estimate.refund})]);
    await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,'Cancellation recorded',$2,'booking')",[b.user_id,'Your cancellation deduction and refundable remainder are recorded. Any refund is pending operator reconciliation and processing.']);
    return {status:200,cancellation:{...estimate,recorded:true}};
   });

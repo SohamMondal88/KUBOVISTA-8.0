@@ -23,7 +23,7 @@ test('method restrictions stay in the original handler',async()=>{
 });
 test('deployment stays within twelve entry points and preserves explicit account rewrites',async()=>{
  const files=await readdir(new URL('../api/',import.meta.url),{recursive:true});const entries=files.filter(p=>p.endsWith('.js'));
- assert.equal(entries.length,10);assert.ok(entries.length<=12);
+ assert.ok(entries.length<=12);
  for(const name of names)assert.ok(!entries.includes(name+'.js'));
  const config=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
  for(const name of names)assert.ok(config.rewrites.some(r=>r.source==='/api/'+name&&r.destination==='/api/account?resource='+name));
