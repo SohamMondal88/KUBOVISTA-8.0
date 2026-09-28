@@ -1,1 +1,155 @@
-.ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:24px 0}.ops-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:16px;margin:10px 0;background:#eff4e9;border:1px solid #d7e1d1;border-radius:10px;color:#173b29;text-decoration:none}.ops-row small{margin-left:auto}.ops-messages{margin:24px 0}.ops-message{border-left:3px solid #547e4a;padding:12px 20px;margin:10px 0;background:#f4f7f0;overflow-wrap:anywhere}.ops-quick{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.ops-quick a{padding:12px 18px;background:#dfeacb;color:#173b29;border-radius:8px}.ops-document{background:white;color:#152c20;padding:clamp(20px,5vw,56px);max-width:800px;margin:25px auto;border:1px solid #ccd8c8;overflow-wrap:anywhere}.ops-document dl div{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:12px 0;gap:20px}.ops-document dd{text-align:right;margin:0}@media(max-width:700px){.ops-grid{grid-template-columns:1fr}.ops-document dl div{flex-direction:column;gap:3px}.ops-document dd{text-align:left}}@media print{body>*:not(#main){display:none!important}#main>*:not(.account-page){display:none!important}.account-nav,.account-hero,.ops-document button{display:none!important}.ops-document{border:0;margin:0;padding:0;max-width:none;color:black}.account-page{padding:0!important}}
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0;
+}
+.ops-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin: 10px 0;
+  background: #eff4e9;
+  border: 1px solid #d7e1d1;
+  border-radius: 10px;
+  color: #173b29;
+  text-decoration: none;
+}
+.ops-row small {
+  margin-left: auto;
+}
+.ops-messages {
+  margin: 24px 0;
+}
+.ops-message {
+  border-left: 3px solid #547e4a;
+  padding: 12px 20px;
+  margin: 10px 0;
+  background: #f4f7f0;
+  overflow-wrap: anywhere;
+}
+.ops-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.ops-quick a {
+  padding: 12px 18px;
+  background: #dfeacb;
+  color: #173b29;
+  border-radius: 8px;
+}
+.ops-document {
+  background: white;
+  color: #152c20;
+  padding: clamp(20px, 5vw, 56px);
+  max-width: 800px;
+  margin: 25px auto;
+  border: 1px solid #ccd8c8;
+  overflow-wrap: anywhere;
+}
+.ops-document dl div {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+  gap: 20px;
+}
+.ops-document dd {
+  text-align: right;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .ops-grid {
+    grid-template-columns: 1fr;
+  }
+  .ops-document dl div {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ops-document dd {
+    text-align: left;
+  }
+}
+@media print {
+  body > *:not(#main) {
+    display: none !important;
+  }
+  #main > *:not(.account-page) {
+    display: none !important;
+  }
+  .account-nav,
+  .account-hero,
+  .ops-document button {
+    display: none !important;
+  }
+  .ops-document {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    color: black;
+  }
+  .account-page {
+    padding: 0 !important;
+  }
+}
+.ops-grid {
+  gap: clamp(14px, 2vw, 24px);
+}
+.ops-row,
+.ops-document,
+.ops-message {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.ops-row small,
+.ops-document dd,
+.ops-message p {
+  color: var(--muted);
+}
+.ops-quick a {
+  background: var(--sage);
+  color: var(--forest);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.ops-document {
+  box-shadow: 0 10px 30px #1e3c310d;
+}
+.ops-document dl div {
+  border-color: var(--line);
+}
+@media (max-width: 700px) {
+  .ops-grid {
+    grid-template-columns: 1fr;
+  }
+  .ops-document {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+@media print {
+  .ops-row,
+  .ops-document,
+  .ops-message {
+    background: white;
+    color: #111;
+    box-shadow: none;
+    border-color: #aaa;
+  }
+  .ops-document dd {
+    color: #333;
+  }
+  .ops-quick {
+    display: none;
+  }
+}

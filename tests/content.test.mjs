@@ -35,7 +35,8 @@ test('responsive navigation and motion controls are present',async()=>{
   readFile(new URL('../app.js',import.meta.url),'utf8')
  ]);
  for(const id of ['scroll-progress-bar','nav-backdrop','mobile-saved','back-to-top'])assert.match(html,new RegExp(`id="${id}"`));
- for(const query of ['min-width:701px','max-width:950px','max-width:700px','max-width:390px','hover:none','prefers-reduced-motion:reduce'])assert.ok(css.includes(query),`missing responsive rule ${query}`);
+ const compactCss=css.replace(/\s+/g,'');
+ for(const query of ['min-width:701px','max-width:950px','max-width:700px','max-width:390px','hover:none','prefers-reduced-motion:reduce'])assert.ok(compactCss.includes(query),`missing responsive rule ${query}`);
  assert.match(app,/function closeMenu\(/);
  assert.match(app,/function updateDock\(/);
  assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,'CSS braces should be balanced');
