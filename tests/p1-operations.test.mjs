@@ -39,7 +39,7 @@ test('staff records and private mail are relational with stable event IDs',async
  }finally{await db.close();}
 });
 test('ad and mail launch gates require verified external settings',()=>{
- assert.throws(()=>adsenseConfig({ADSENSE_ENABLED:'true',ADSENSE_CONSENT_READY:'true'}));
+ assert.equal(adsenseConfig({ADSENSE_ENABLED:'true',ADSENSE_CONSENT_READY:'true'}).enabled,false);
  assert.equal(emailDispatchAuthorized('Bearer '+'a'.repeat(32),'a'.repeat(32)),true);
  assert.equal(emailDispatchAuthorized('Bearer wrong','a'.repeat(32)),false);
  const headers=JSON.parse(requireFile());

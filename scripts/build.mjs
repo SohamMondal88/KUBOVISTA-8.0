@@ -7,6 +7,7 @@ import { buildSeo } from './seo.mjs';
 import { mkdir, copyFile, cp, rm, readFile, writeFile } from 'node:fs/promises';
 const offers = validateAffiliateOffers(process.env.AFFILIATE_OFFERS_JSON ? JSON.parse(process.env.AFFILIATE_OFFERS_JSON) : affiliateOffers);
 const ads = adsenseConfig(process.env);
+if(process.env.ADSENSE_ENABLED==='true'&&!ads.enabled) console.warn('AdSense disabled for this build: publisher, slot, consent, certified CMP and dashboard verification are required.');
 const root = new URL('../',import.meta.url);
 const output = new URL('dist/',root);
 await rm(output,{recursive:true,force:true});

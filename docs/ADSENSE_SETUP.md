@@ -27,11 +27,13 @@ After the site is approved and consent has been configured and checked, set thes
 | `ADSENSE_PUBLISHER_ID` | `ca-pub-3851312120061760` |
 | `ADSENSE_SLOT_ID` | `8921763854` |
 | `ADSENSE_CONSENT_READY` | `true` after consent setup is validated |
+| `ADSENSE_CMP_VERIFIED` | `true` only after checking the certified CMP on the live site |
+| `ADSENSE_DASHBOARD_VERIFIED` | `true` only after checking site approval in AdSense |
 | `ADSENSE_ENABLED` | `true` |
 
 The build places a manual ad region on eligible public content routes, including the home page, destination directory, journeys, guides, company information and legal information. Individual destination pages (`/destinations/<slug>`) are excluded. Account, checkout, planner, matching, user-submitted story, admin and unknown routes are also excluded. The separate `/amp.html` page includes AMP Auto ads and the supplied responsive AMP display unit (`width=100vw`, `height=320`) when ads are enabled.
 
-These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. The regular-page and AMP ad markup are both omitted from the built AMP page unless `ADSENSE_ENABLED=true`, the publisher and slot IDs are valid, and `ADSENSE_CONSENT_READY=true`. This is a build-time gate; it does not replace a visitor-facing consent platform where required.
+These route exclusions are enforced by the app code; do not turn on site-wide Auto ads in AdSense for the non-AMP app. Regular-page and AMP ad placements activate only when `ADSENSE_ENABLED=true`, the publisher and slot IDs are valid, and all three consent, CMP and dashboard verification flags are `true`. If activation is requested without those flags, the build warns and leaves ads disabled while keeping publisher verification metadata and `ads.txt`. Invalid IDs still fail the build. This gate does not replace a visitor-facing consent platform where required.
 
 ## Behaviour and checks
 
