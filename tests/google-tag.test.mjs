@@ -6,14 +6,14 @@ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../client/firebase.js',import.meta.url),'utf8');
 function context(){
  const stored=new Map();
- const ctx={location:{origin:'https://kubo.example',pathname:'/destinations',search:'?email=private@example.com'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{title:'KuboVistas destinations',getElementById:()=>null},addEventListener(){},Event,console};ctx.window=ctx;
+ const ctx={location:{origin:'https://kubo.example',pathname:'/destinations',search:'?email=private@example.com'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{title:'KuboVistas destinations',getElementById:()=>null,querySelector:()=>null},addEventListener(){},Event,console};ctx.window=ctx;
  vm.createContext(ctx);vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],ctx);
  vm.runInContext(source.replace(/^import .*$/gm,'').replace(/^export const app =.*$/m,'').replace(/\bexport /g,''),ctx);
  return ctx;
 }
-test('head contains one Google tag and one supplied AdSense publisher script',()=>{
+test('head contains one Google tag and no preload of advertising services',()=>{
  assert.equal((html.match(/src="https:\/\/www.googletagmanager.com\/gtag\/js\?id=G-MMP3139QSB"/g)||[]).length,1);
- assert.equal((html.match(/src="https:\/\/pagead2.googlesyndication.com\/pagead\/js\/adsbygoogle.js\?client=ca-pub-3851312120061760"/g)||[]).length,1);
+ assert.equal((html.match(/src="https:\/\/pagead2.googlesyndication.com\/pagead\/js\/adsbygoogle.js\?client=ca-pub-3851312120061760"/g)||[]).length,0);
  assert.equal(source.includes("import('firebase/analytics')"),false);
  assert.equal(html.includes('G-C0ZK56K9YQ'),false);
 });

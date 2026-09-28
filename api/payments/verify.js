@@ -1,4 +1,5 @@
 import {flushPushSafely} from '../../server/firebase-push.js';
+import { enqueueEmail, flushEmailSafely } from '../../server/transactional-email.js';
 import { shouldApplyCapture } from '../../server/payment-state.js';
 import { requireSession } from '../../server/auth.js';
 import { query, transaction } from '../../server/db.js';
@@ -28,10 +29,12 @@ export default async function handler(req, res) {
       if (shouldApplyCapture(previous.status, state)) {
         await client.query(`UPDATE bookings SET status=CASE WHEN $2='deposit' AND status='quotation_ready' THEN 'advance_paid' ELSE status END,booked_at=CASE WHEN $2='deposit' THEN COALESCE(booked_at,now()) ELSE booked_at END,balance_paid_at=CASE WHEN $2='balance' THEN COALESCE(balance_paid_at,now()) ELSE balance_paid_at END,updated_at=now() WHERE id=$1`, [updated.rows[0].booking_id,updated.rows[0].purpose]);
         await client.query(`INSERT INTO user_notifications (user_id,title,message,kind) VALUES ($1,'Trip payment received',$2,'payment')`, [session.user.id, `Your ${local.rows[0].destination_name} ${updated.rows[0].purpose} payment has been captured. We will share confirmation details after final checks.`]);
+        await enqueueEmail(client,session.user.id,`capture:${updated.rows[0].id}`,'payment_captured','Your KuboVistas payment was captured',{path:'/account/payments'});
       }
       return updated.rows[0];
     });
     await flushPushSafely(session.user.id);
+    await flushEmailSafely();
     return json(res, 200, { payment, captured: payment.status === 'captured' });
   } catch (error) {
     const failure = publicError(error);

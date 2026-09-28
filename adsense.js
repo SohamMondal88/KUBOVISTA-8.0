@@ -37,7 +37,7 @@ export function mountAd(main) {
   const path = eligibleAdPath(location.pathname);
   const publisher = document.querySelector('meta[name="google-adsense-account"]')?.content;
   const slot = document.querySelector('meta[name="kubovistas-ad-slot"]')?.content;
-  if (!path || requested.has(path) || !/^ca-pub-\d{16}$/.test(publisher || '') || !/^\d+$/.test(slot || '')) return;
+  if (document.querySelector('meta[name="kubovistas-ads-ready"]')?.content!=='true' || !path || requested.has(path) || !/^ca-pub-\d{16}$/.test(publisher || '') || !/^\d+$/.test(slot || '')) return;
   const region = document.createElement('aside');
   region.className = 'travel-ad wrap';
   region.setAttribute('aria-label', 'Advertisement');

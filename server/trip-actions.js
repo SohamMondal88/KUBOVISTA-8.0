@@ -1,4 +1,5 @@
 import {flushPushSafely} from './firebase-push.js';
+import { enqueueEmail, flushEmailSafely } from './transactional-email.js';
 import {requireSession,isOperator} from './auth.js';
 import {transaction} from './db.js';
 import {json,parseBody,cleanText,methodNotAllowed} from './http.js';
@@ -26,6 +27,7 @@ export default async function tripActions(req,res){
     await client.query(body.action==='confirm'?"UPDATE bookings SET status='confirmed',confirmed_at=COALESCE(confirmed_at,now()),updated_at=now() WHERE id=$1":"UPDATE bookings SET checked_in_at=COALESCE(checked_in_at,now()),updated_at=now() WHERE id=$1",[id]);
     await client.query("INSERT INTO audit_logs(actor_id,action,subject_type,subject_id) VALUES($1,$2,'booking',$3)",[session.user.id,'booking.'+body.action,id]);
     if(body.action==='confirm'&&!b.confirmed_at||body.action==='checkin'&&!b.checked_in_at)await client.query("INSERT INTO user_notifications(user_id,title,message,kind) VALUES($1,$2,$3,'booking')",[b.user_id,body.action==='confirm'?'Booking confirmed':'Check-in recorded',body.action==='confirm'?'The operator has confirmed your booking. Review the details in your account.':'Your operator recorded check-in. You can review the remaining balance in your account.']);
+    if(body.action==='confirm'&&!b.confirmed_at)await enqueueEmail(client,b.user_id,`confirmed:${id}`,'booking_confirmed','Your KuboVistas booking is confirmed',{path:'/account/bookings'});
     return {status:200,updated:true};
    }
    if(body.action!=='cancel'||b.user_id!==session.user.id)return {status:403,error:'Only the traveler can request this cancellation.'};
@@ -39,6 +41,7 @@ export default async function tripActions(req,res){
    return {status:200,cancellation:{...estimate,recorded:true}};
   });
   if(req.method==='POST'&&result.status===200)await flushPushSafely();
+  if(req.method==='POST'&&result.status===200)await flushEmailSafely();
   return json(res,result.status,result);
  }catch(error){return json(res,409,{error:error.message?.startsWith('This booking')||error.message?.startsWith('After check-in')||error.message?.startsWith('Cancellation requires')?error.message:'This request needs support review. No new cancellation has been recorded.'});}
 }

@@ -4,8 +4,8 @@ export function adsenseConfig(env = {}) {
   const enabled = env.ADSENSE_ENABLED === 'true';
   if (publisher && !/^ca-pub-\d{16}$/.test(publisher)) throw new Error('ADSENSE_PUBLISHER_ID must be ca-pub- followed by 16 digits');
   if (slot && !/^\d+$/.test(slot)) throw new Error('ADSENSE_SLOT_ID must contain digits only');
-  if (enabled && (!publisher || !slot || env.ADSENSE_CONSENT_READY !== 'true')) {
-    throw new Error('Enabling ads requires publisher ID, slot ID and ADSENSE_CONSENT_READY=true after consent setup');
+  if (enabled && (!publisher || !slot || env.ADSENSE_CONSENT_READY !== 'true' || env.ADSENSE_CMP_VERIFIED !== 'true' || env.ADSENSE_DASHBOARD_VERIFIED !== 'true')) {
+    throw new Error('Enabling ads requires publisher, slot, consent, certified CMP and dashboard verification flags');
   }
   const ampAccount = publisher ? '<meta name="google-adsense-account" content="' + publisher + '">' : '';
   const ampScripts = enabled ? [
@@ -17,7 +17,7 @@ export function adsenseConfig(env = {}) {
     '<amp-ad width="100vw" height="320" type="adsense" data-ad-client="' + publisher + '" data-ad-slot="' + slot + '" data-auto-format="mcrspv" data-full-width=""><div overflow=""></div></amp-ad>'
   ].join('\n') : '';
   return {
-    head: publisher ? '<meta name="google-adsense-account" content="' + publisher + '">\n<meta name="kubovistas-ad-slot" content="' + (enabled ? slot : '') + '">' : '',
+    head: publisher ? '<meta name="google-adsense-account" content="' + publisher + '">\n<meta name="kubovistas-ad-slot" content="' + (enabled ? slot : '') + '">\n<meta name="kubovistas-ads-ready" content="' + (enabled ? 'true' : 'false') + '">' : '',
     adsTxt: publisher ? 'google.com, ' + publisher.slice(3) + ', DIRECT, f08c47fec0942fa0\n' : '# AdSense is not configured.\n',
     ampAccount,
     ampScripts,

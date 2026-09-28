@@ -1,6 +1,14 @@
 import { initializeApp, getApps } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaV3Provider, getToken as getAppCheckToken } from 'firebase/app-check';
 import { firebaseConfig, vapidKey } from './firebase-config.js';
 export const app = getApps().find(app => app.name === 'kubovistas-web') || initializeApp(firebaseConfig, 'kubovistas-web');
+const appCheckKey=document.querySelector('meta[name="kubovistas-app-check-key"]')?.content;
+let appCheck;
+export async function appCheckToken(){
+  if(!appCheckKey)return null;
+  appCheck ||= initializeAppCheck(app,{provider:new ReCaptchaV3Provider(appCheckKey),isTokenAutoRefreshEnabled:true});
+  return (await getAppCheckToken(appCheck)).token;
+}
 const consentKey = 'kubovistas.analytics-consent.v1';
 const measurementId = 'G-MMP3139QSB';
 let messaging;
