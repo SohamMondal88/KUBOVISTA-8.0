@@ -4,7 +4,7 @@ const plans = [
  {id:'circle',name:'Travel Circle',label:'BRING YOUR PEOPLE',price:2499,audience:'Proposed for frequent travellers, families and adult group organisers.',description:'Make more room for shared adventures.',features:['Everything in Explorer','Proposed: four itinerary reviews per year, including groups','Proposed: one revision per reviewed itinerary','Proposed: shared budget and room-allocation planning'],cta:'Register interest',reviews:4}
 ];
 const money=value=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(value);
-function enquiry(plan){return '/contact?kind=contact&subject='+encodeURIComponent(`Membership interest — ${plan.name}. I would like to learn about the proposed ${money(plan.price)}/year plan, final price including any taxes, benefits and launch availability. This is an enquiry, not a purchase.`);}
+function enquiry(plan){return '/account/membership-interest?plan='+encodeURIComponent(plan.id);}
 const rows=[
  ['Destination guides, planner and saved places','Included','Included','Included'],
  ['Travel Date companion community','When available · 18+','Same access','Same access'],
@@ -16,7 +16,7 @@ const rows=[
  ['Current plan status','Free tools','Coming soon','Coming soon']
 ];
 const faqs=[
- ['Can I buy a membership now?','Paid memberships are not on sale yet. Registering interest sends you to our enquiry page; it does not activate a membership, reserve a price or create a payment obligation. Our team will confirm whether and when a plan launches.'],
+ ['Can I buy a membership now?','Paid memberships are not on sale yet. Registering interest saves your preference in your account; it does not activate a membership, reserve a price or create a payment obligation. Our team will confirm whether and when a plan launches.'],
  ['Do I need to pay to use KuboVistas?','No. You can explore destinations, use the trip planner and read public guides for free. Account-based features require configured account services. Travel Date has its own availability, verified-email and adult-participation requirements.'],
  ['What would an itinerary review include?','The proposed service reviews a single trip brief: route, day-by-day pacing, estimated budget and practical preparation. One revision means one round of changes to that same brief. Supplier bookings, on-trip guiding and emergency support are separate. The final scope must be confirmed before a plan is sold.'],
  ['Does membership pay for my holiday?','No. Accommodation, transport, meals, permits, activities, equipment and insurance are not included in the proposed membership fee. Any trip requires its own dated quotation and cancellation terms. No discounts or savings are guaranteed.'],

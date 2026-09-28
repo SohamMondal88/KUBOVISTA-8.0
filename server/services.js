@@ -1,4 +1,5 @@
 import kubo from './kubo.js';
+import growth from './growth.js';
 import {socialLinks} from './social-links.js';
 import tripActions from './trip-actions.js';
 import operations from './operations.js';
@@ -11,6 +12,7 @@ const kinds=['contact','career','sponsor','partnership','stay','equipment'];
 export default async function services(req,res){
  const service=req.query?.service;
  if(service==='kubo')return kubo(req,res);
+ if(service==='growth')return growth(req,res);
  if(service==='social-links'){if(req.method!=='GET')return methodNotAllowed(res,['GET']);return json(res,200,{links:socialLinks()});}
  if(service==='trip-actions')return tripActions(req,res);
  if(service==='operations')return operations(req,res);

@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { destinations, notes } from '../data.js';
 import { packages } from '../packages.js';
+import {regions} from '../search-catalog.js';
 import { legalPages, legalOrder } from '../legal.js';
 
 const origin = 'https://kubovista.com';
@@ -15,6 +16,11 @@ export const publicSeoRoutes = [
   route('/journeys','India Tour Itineraries & Slow Journeys | KuboVistas','Explore flexible India tour itineraries for Himalayan hills, Sikkim and Goa, designed with realistic travel time and room to wander.','Flexible India tour itineraries.'),
   route('/packages','Signature India Tour Packages | KuboVistas','Explore ten flexible India tour concepts with personal quotations and clear inclusions.','Signature trip ideas across India.'),
   ...packages.map(p=>route('/packages/'+p.id,p.name+' | KuboVistas',p.intro,p.name,p.intro)),
+  route('/regions','Explore India by Region | KuboVistas','Find region travel hubs, destinations and flexible trip concepts.','Explore India by region.'),
+  ...regions.map(r=>route('/regions/'+r.id,r.name+' Travel Guide | KuboVistas',r.intro,r.name+' travel ideas',r.intro)),
+  route('/resources','Affiliate Travel Resources | KuboVistas','Find approved travel resources with clear affiliate disclosures.','Travel resources.'),
+  route('/reviews','Traveler Reviews | KuboVistas','Read moderated feedback from verified trip participants.','Traveler reviews.'),
+  route('/stories','Travel Editorial | KuboVistas','Explore published travel stories and transparent sponsored content.','Travel stories.'),
   route('/guides','India Travel Tips & Practical Guides | KuboVistas','Read practical India travel guides covering slow itineraries, mountain packing and respectful local travel.','Practical travel advice for India.'),
   ...notes.map(n=>route(`/guides/${n.id}`,`${n.title} | KuboVistas`,n.intro,n.title,n.body.join(' '),{type:'Article',article:n})),
   route('/journal','India Travel Journal & Traveler Stories | KuboVistas','Read KuboVistas field notes and reviewed traveler stories from journeys across India.','India travel stories and field notes.'),
@@ -32,9 +38,9 @@ export const publicSeoRoutes = [
 ];
 
 export const privateSeoRoutes = [
-  '/planner','/journal/write','/journal/my-stories','/journal/journal-review',
+  '/search','/planner','/journal/write','/journal/my-stories','/journal/journal-review',
   '/company/enquiry-inbox',
-  ...['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','payments','notifications','settings','security','saved','admin','support','case','documents','document','team'].map(x=>`/account/${x}`)
+  ...['login','signup','verify-email','forgot-password','reset-password','welcome','dashboard','profile','bookings','payments','notifications','settings','security','saved','admin','support','case','documents','document','team','growth','review','supplier-portal','membership-interest'].map(x=>`/account/${x}`)
 ].map(path=>route(path,'KuboVistas Account','Secure KuboVistas account and trip-planning page.','Your KuboVistas account.','Sign in to continue.',{index:false}));
 
 function jsonLd(page) {
