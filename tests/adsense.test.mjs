@@ -34,8 +34,14 @@ test('AMP Auto ads and the supplied display unit honor the activation and consen
 });
 test('invalid IDs and incomplete activation fail closed', () => {
   assert.throws(() => adsenseConfig({ ADSENSE_PUBLISHER_ID: '"><script>' }));
-  assert.throws(() => adsenseConfig({ ADSENSE_ENABLED: 'true' }));
-  assert.throws(() => adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_CONSENT_READY: 'true' }));
+  for(const env of [{ADSENSE_ENABLED:'true'},{ADSENSE_ENABLED:'true',ADSENSE_CONSENT_READY:'true'}]) {
+    const disabled=adsenseConfig(env);
+    assert.equal(disabled.enabled,false);
+    assert.match(disabled.head,/kubovistas-ads-ready" content="false"/);
+    assert.match(disabled.head,/kubovistas-ad-slot" content=""/);
+    assert.equal(disabled.ampScripts,'');
+    assert.equal(disabled.ampBody,'');
+  }
   assert.throws(() => adsenseConfig({ ADSENSE_SLOT_ID: 'bad' }));
   assert.match(adsenseConfig({ ADSENSE_ENABLED: 'true', ADSENSE_PUBLISHER_ID: 'ca-pub-1234567890123456', ADSENSE_SLOT_ID: '1234567890', ADSENSE_CONSENT_READY: 'true', ADSENSE_CMP_VERIFIED: 'true', ADSENSE_DASHBOARD_VERIFIED: 'true' }).head, /content="1234567890"/);
 });
