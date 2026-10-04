@@ -1,7 +1,7 @@
 import {json,parseBody,methodNotAllowed} from './http.js';
 import {requireSession,authConfigured} from './auth.js';
 import {query} from './db.js';
-import {publicKnowledge,guideAnswer,relatedDestinations} from '../kubo-knowledge.js';
+import {guideAnswer,relatedDestinations} from '../kubo-knowledge.js';
 import {weatherFor} from './weather.js';
 import {groundedKnowledge} from '../grounded-knowledge.js';
 export const kuboEnabled=()=>Boolean(process.env.KUBO_AI_ENABLED==='true'&&process.env.OPENAI_API_KEY&&process.env.OPENAI_MODEL&&authConfigured());

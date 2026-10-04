@@ -31,3 +31,18 @@ test('invalid dates and past dates are rejected before PostgreSQL insertion', ()
     assert.throws(() => validateDepartureDate(value, '2026-09-24'), /departure date/);
   }
 });
+
+test('P2 route and authentication regressions stay removed', async () => {
+  const [app,auth,build,html]=await Promise.all([
+    readFile(new URL('../app.js',import.meta.url),'utf8'),
+    readFile(new URL('../client/firebase-auth.js',import.meta.url),'utf8'),
+    readFile(new URL('../scripts/build-firebase.mjs',import.meta.url),'utf8'),
+    readFile(new URL('../index.html',import.meta.url),'utf8')
+  ]);
+  assert.doesNotMatch(app,/ACCOUNT SERVICE/);
+  assert.match(app,/data-retry-route/);
+  for(const module of ['account','growth-ui','packages-ui','membership','travel-date','journal','company'])assert.match(app,new RegExp(`import\\(["']\\./${module}\\.js["']\\)`));
+  assert.doesNotMatch(auth,/RecaptchaVerifier|signInWithPhoneNumber|startPhoneSignIn|confirmPhoneSignIn/);
+  assert.doesNotMatch(build,/firebase-firestore-client|client\/firestore\.js/);
+  assert.doesNotMatch(html,/accounts\.google\.com\/gsi\/client|googletagmanager\.com\/gtag\/js/);
+});

@@ -37,7 +37,7 @@ export async function renderGrowthPublic(route,id,main){
   main.innerHTML=intro(t.reviews,'Reviews are submitted only for checked-in or completed trips, then moderated before publication.')+`<section class="wrap growth-grid">${reviews.map(r=>`<article class="growth-card"><span class="eyebrow green">${'★'.repeat(r.rating)} · ${esc(r.destination_name)}</span><h2>${esc(r.title)}</h2><p>${esc(r.body)}</p><small>Verified traveler · ${new Date(r.published_at).toLocaleDateString('en-IN')}</small></article>`).join('')||`<p>${esc(t.empty)} We never publish sample ratings as traveler feedback.</p>`}</section><p class="wrap"><a class="button" href="/account/review">Review your trip ↗</a></p>`;
  }
 }
-export async function renderGrowthPrivate(route,main,session){
+export async function renderGrowthPrivate(route,main,_session){
  const heading=title=>intro(title,'Your account access is checked on every request.');
  if(route==='membership-interest'){
   const plan=new URLSearchParams(location.search).get('plan');const {interests}=await api('membership');

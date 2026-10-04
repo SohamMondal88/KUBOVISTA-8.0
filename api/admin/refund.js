@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { isAdmin, requireSession } from '../../server/auth.js';
-import { query, transaction } from '../../server/db.js';
-import { json, methodNotAllowed, parseBody, publicError } from '../../server/http.js';
+import { transaction } from '../../server/db.js';
+import { json, methodNotAllowed, parseBody } from '../../server/http.js';
 import { issueRefund, remotePayment } from '../../server/refunds.js';
 import { syncRefund } from '../../server/refund-state.js';
 import { reconcileBooking } from '../../server/reconcile.js';

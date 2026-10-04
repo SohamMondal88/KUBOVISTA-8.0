@@ -1,3 +1,12 @@
-// Vercel Speed Insights integration for KuboVistas
-// Re-exports the Speed Insights injection function from @vercel/speed-insights
-export { injectSpeedInsights } from '@vercel/speed-insights';
+let injected = false;
+
+export function injectSpeedInsights() {
+  if (injected || typeof document === "undefined") return;
+  injected = true;
+
+  const script = document.createElement("script");
+  script.src = "/_vercel/speed-insights/script.js";
+  script.defer = true;
+  script.dataset.sdkn = "@vercel/speed-insights";
+  document.head.append(script);
+}
