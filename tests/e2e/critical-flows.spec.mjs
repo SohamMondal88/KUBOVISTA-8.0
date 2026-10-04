@@ -27,7 +27,9 @@ test("public pages have no serious accessibility violations", async ({
   page,
 }) => {
   for (const path of ["/", "/destinations"]) {
-    await page.goto(path);
+    await page.goto("/");
+    if (path !== "/")
+      await page.locator(`a[href="${path}"]:visible`).first().click();
     await expect(page.locator("main")).not.toBeEmpty();
     const results = await new AxeBuilder({ page })
       .exclude("#india-map")
