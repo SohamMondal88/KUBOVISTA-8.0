@@ -3,11 +3,22 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 let instance;
 
+export function paymentReadiness(env = process.env) {
+  const key = String(env.RAZORPAY_KEY_ID || '');
+  const test = key.startsWith('rzp_test_');
+  const live = key.startsWith('rzp_live_');
+  const common = Boolean(env.DATABASE_URL && key && env.RAZORPAY_KEY_SECRET && env.RAZORPAY_WEBHOOK_SECRET);
+  const previewTest = test && env.PAYMENTS_TEST_MODE === 'true' && env.VERCEL_ENV !== 'production'
+    && (Boolean(env.VERCEL_ENV) || env.NODE_ENV !== 'production');
+  const approvedLive = live && env.BUSINESS_DETAILS_VERIFIED === 'true' && env.LEGAL_TAX_APPROVED === 'true'
+    && Boolean(env.PUBLIC_LEGAL_NAME && env.PUBLIC_BUSINESS_ADDRESS && env.PUBLIC_CONTACT_EMAIL
+      && env.PUBLIC_GRIEVANCE_EMAIL && env.PUBLIC_TAX_DISCLOSURE);
+  const enabled = env.PAYMENTS_ENABLED === 'true' && common && (previewTest || approvedLive);
+  return { enabled, mode: previewTest ? 'test' : approvedLive ? 'live' : 'unavailable' };
+}
+
 export function paymentsConfigured() {
-  return process.env.PAYMENTS_ENABLED === 'true' && process.env.BUSINESS_DETAILS_VERIFIED === 'true' && process.env.LEGAL_TAX_APPROVED === 'true'
-    && Boolean(process.env.DATABASE_URL && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_WEBHOOK_SECRET
-      && process.env.PUBLIC_LEGAL_NAME && process.env.PUBLIC_BUSINESS_ADDRESS && process.env.PUBLIC_CONTACT_EMAIL
-      && process.env.PUBLIC_GRIEVANCE_EMAIL && process.env.PUBLIC_TAX_DISCLOSURE);
+  return paymentReadiness().enabled;
 }
 
 export function getRazorpay() {

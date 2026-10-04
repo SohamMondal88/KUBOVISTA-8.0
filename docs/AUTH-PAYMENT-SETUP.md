@@ -29,6 +29,8 @@ Amounts come from an accepted server quotation, never a client price.
 
 Local setup: npm ci, create an ignored .env, then npm run dev.
 The supplied test keys are local only; .env is never deployed by Git.
+Committing or editing .env.example does not configure Vercel. It is a names-only
+template and must never contain a real key, password, database URL or private key.
 
 In the Vercel environment being tested, configure:
 - DATABASE_URL and Firebase authentication settings
@@ -43,6 +45,11 @@ Redeploy after changing environment variables. Do not set readiness flags just
 to bypass validation. Use a separate test database/deployment for test keys so
 test captures cannot be confused with real booking payments. Rotate any secret
 shared in chat before reuse. Never expose the secret in public build variables.
+
+For a Preview deployment only, test keys may be used with PAYMENTS_ENABLED=true
+and PAYMENTS_TEST_MODE=true. The server rejects that test mode when VERCEL_ENV is
+production. Production requires an rzp_live_ key and the verified business,
+legal, tax, seller and webhook settings listed above.
 
 Create a test trip and issue a current quotation with the operator tools.
 Accept terms in checkout and pay with Razorpay's test methods.
