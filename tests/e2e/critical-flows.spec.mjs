@@ -10,10 +10,7 @@ test("home, navigation, consent and destination discovery remain usable", async 
   await expect(
     page.getByRole("heading", { name: /Somewhere worth slowing down/i }),
   ).toBeVisible();
-  await page
-    .getByRole("link", { name: "Destinations", exact: true })
-    .first()
-    .click();
+  await page.locator('a[href="/destinations"]:visible').first().click();
   await expect(
     page.getByRole("heading", { name: /Find your somewhere/i }),
   ).toBeVisible();

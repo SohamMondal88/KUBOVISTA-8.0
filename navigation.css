@@ -395,7 +395,7 @@
   color: #173c3a;
 }
 .vista-footer .brand-lockup small {
-  color: #6b846d;
+  color: #425c49;
 }
 .vista-footer .footer-top p {
   max-width: 290px;
@@ -411,7 +411,8 @@
 }
 .vista-footer .footer-social > span {
   display: block;
-  color: #667d6b;
+  color: #425c49;
+  opacity: 1;
   font-size: 10px;
   letter-spacing: .17em;
 }
@@ -439,7 +440,8 @@
   color: #fff;
 }
 .vista-footer .social-pending {
-  color: #61776b;
+  color: #445e50;
+  opacity: 1;
 }
 .vista-footer .footer-links {
   display: grid;
@@ -508,7 +510,7 @@
   margin: auto;
   padding: 25px 0 170px;
   border-top: 1px solid #1d402335;
-  color: #65796a;
+  color: #4a5f51;
   font-size: 11px;
 }
 .vista-footer .footer-bottom > div {
