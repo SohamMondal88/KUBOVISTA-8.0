@@ -36,6 +36,19 @@ const ready = new Promise((resolve) => {
 });
 let pushToken;
 let pushListener;
+function reportClientSignal(event) {
+  try {
+    const body = JSON.stringify({
+      event,
+      path: location.pathname.slice(0, 120),
+    });
+    if (navigator.sendBeacon)
+      navigator.sendBeacon(
+        "/api/config?service=client-signal",
+        new Blob([body], { type: "application/json" }),
+      );
+  } catch {}
+}
 export async function apiFetch(path, options = {}) {
   const url = new URL(path, location.origin);
   const headers = new Headers(options.headers || {});
@@ -47,8 +60,17 @@ export async function apiFetch(path, options = {}) {
         "Bearer " + (await auth.currentUser.getIdToken()),
       );
     if (!["GET", "HEAD"].includes((options.method || "GET").toUpperCase())) {
-      const token = await appCheckToken();
-      if (token) headers.set("X-Firebase-AppCheck", token);
+      try {
+        const token = await appCheckToken();
+        if (token) headers.set("X-Firebase-AppCheck", token);
+      } catch (error) {
+        reportClientSignal("app-check-token-failed");
+        const failure = Error(
+          "App verification failed after a refresh attempt. Reload the page, disable privacy extensions for this site if needed, and try again.",
+        );
+        failure.code = error?.code || "app-check/token-unavailable";
+        throw failure;
+      }
     }
   }
   return fetch(path, { ...options, headers });

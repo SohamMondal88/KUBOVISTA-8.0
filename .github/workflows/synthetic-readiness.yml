@@ -1,0 +1,27 @@
+name: Production readiness probe
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-readiness
+  cancel-in-progress: true
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/synthetic-readiness.mjs | tee readiness.json
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-readiness-${{ github.run_id }}
+          path: readiness.json
+          retention-days: 30

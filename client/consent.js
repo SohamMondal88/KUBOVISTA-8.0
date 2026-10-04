@@ -2,10 +2,6 @@ const consentKey = "kubovistas.analytics-consent.v1";
 const measurementId = "G-MMP3139QSB";
 let analyticsPromise;
 
-window.dataLayer ||= [];
-window.gtag ||= function gtag() {
-  window.dataLayer.push(arguments);
-};
 window["ga-disable-" + measurementId] = true;
 
 export function analyticsAllowed() {
@@ -19,6 +15,10 @@ export function analyticsAllowed() {
 function loadAnalytics() {
   if (window.google_tag_manager) return Promise.resolve();
   if (analyticsPromise) return analyticsPromise;
+  window.dataLayer ||= [];
+  window.gtag ||= function gtag() {
+    window.dataLayer.push(arguments);
+  };
   analyticsPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;

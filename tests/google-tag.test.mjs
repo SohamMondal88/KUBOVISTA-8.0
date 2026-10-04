@@ -74,8 +74,9 @@ test("Google Identity remains configured and is loaded by the authentication mod
 
 test("Analytics loads only after opt-in and sends sanitized public events", async () => {
   const ctx = context();
-  const events = () => ctx.dataLayer.filter((v) => v[0] === "event");
+  const events = () => (ctx.dataLayer || []).filter((v) => v[0] === "event");
   assert.equal(ctx.scripts.length, 0);
+  assert.equal(ctx.gtag, undefined);
   assert.equal(events().length, 0);
   await ctx.setAnalyticsConsent(true);
   assert.equal(ctx.scripts.length, 1);
