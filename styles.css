@@ -6282,7 +6282,8 @@ dialog::backdrop {
   font-size: 12px;
   line-height: 1.7;
   margin: 12px 0;
-  opacity: .75;
+  color: #43584b;
+  opacity: 1;
 }
 .map-destination-list {
   max-height: 550px;
