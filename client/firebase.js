@@ -18,7 +18,20 @@ export async function appCheckToken() {
     provider: new ReCaptchaV3Provider(appCheckKey),
     isTokenAutoRefreshEnabled: true,
   });
-  return (await getAppCheckToken(appCheck)).token;
+  let firstError;
+  for (const forceRefresh of [false, true]) {
+    try {
+      return (await getAppCheckToken(appCheck, forceRefresh)).token;
+    } catch (error) {
+      firstError ||= error;
+    }
+  }
+  const failure = new Error(
+    "App verification could not refresh. Check your connection, reload this page and try again.",
+  );
+  failure.code = "app-check/token-unavailable";
+  failure.cause = firstError;
+  throw failure;
 }
 let messaging;
 let messagingSDK;

@@ -6,9 +6,9 @@ Travel Date is an adult travel-companion finder, not romantic matchmaking or a c
 
 1. Configure the existing PostgreSQL and Firebase Authentication services (see FIREBASE_SETUP.md).
 2. Run `npm run db:migrate` with the production database connection from a trusted environment. This adds migration 006; it does not alter existing booking/payment tables.
-3. Assign real moderators through the existing verified-admin role or `ADMIN_EMAILS`. Publish functioning business contact channels for coordination and support.
+3. Assign real moderators through the audited PostgreSQL role workflow. Administrator sessions require verified email and Firebase MFA; environment email allowlists are not accepted. Publish functioning business contact channels for coordination and support.
 4. Set `TRAVEL_DATE_ENABLED=true` on the backend and redeploy only when someone can review posts and reports. With the flag off or core services missing, writes return 503 and no matching data is available.
-5. Visit `/travel-date` using separate verified organiser, traveller and administrator accounts. Test moderation, join, accept/decline, withdrawal, close, report, block and account deletion in staging before launch.
+5. Visit `/travel-date` using separate verified organiser, traveller and administrator accounts. Test moderation, join, accept/decline, withdrawal, close, report, block and support-assisted account closure in staging before launch.
 
 ## Workflow
 
@@ -18,7 +18,7 @@ Travel Date is an adult travel-companion finder, not romantic matchmaking or a c
 - Join requests include an adult attestation and a short introduction. Owners accept or decline from My plans & requests. One request per traveller per trip; withdrawal is final for that request in this release.
 - Acceptance locks the trip row and checks capacity. It is not a paid reservation. Accepted travellers ask the team to coordinate with a trip reference; this release has no direct messaging or automatic disclosure of contact details. The operator must obtain both travellers' agreement before sharing contact details.
 - Closing removes discovery. Past departure dates also stop discovery and new acceptance. Existing request history remains visible with plan status; acceptance does not reopen closed or removed plans.
-- Blocks hide plans/requests both ways and withdraw active requests between the two accounts. They persist until account deletion or support-assisted handling. Public posts can be reported; moderators may remove a published trip and mark a report reviewed. Reports are not emergency support.
+- Blocks hide plans/requests both ways and withdraw active requests between the two accounts. They persist until support-assisted account handling. Public posts can be reported; moderators may remove a published trip and mark a report reviewed. Reports are not emergency support.
 
 ## Controls and limits
 
@@ -30,10 +30,10 @@ School and under-18 trips go through an authorised organiser contacting the agen
 
 ## Data lifecycle
 
-Records are linked to the existing user table. Account deletion cascades the member's trips, requests, blocks and reports; deleting a trip also removes related requests/reports. There is no independent archival retention job. Closed plans remain in account history while the account exists. Document any future retention changes in the privacy notice.
+Records are linked to the PostgreSQL user table. Account closure is support-reviewed so safety reports, blocks, audit history and any legal retention obligations are handled deliberately. The application does not promise immediate cascading deletion. Closed plans remain in account history under the documented retention policy. Record and publish any future retention changes before deployment.
 
 ## Verification and remaining production work
 
 `npm run check` covers syntax, validation, enabled/disabled behaviour, permission gates, query restrictions and full-capacity rejection with injected dependencies. These do not replace a real PostgreSQL integration test. Before enabling, run the two-user/admin workflow against the migrated database and test concurrent acceptance/blocking, provider configuration and contact coordination. Browser validation was attempted but blocked because the Chromium download was unavailable/corrupted in the development environment. Mobile/tablet/desktop visual checks and the full real-account workflow remain required before activation.
 
-This feature adds no paid API, subscription or tracking dependency. AdSense is not enabled on Travel Date. KuboVistas still uses hash routing, so full public-page SEO needs a separate routing/rendering project.
+This feature adds no paid API, subscription or tracking dependency. AdSense is not enabled on Travel Date. Public pages use canonical clean routes; private companion records remain excluded from indexing.

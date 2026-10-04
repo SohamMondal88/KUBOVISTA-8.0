@@ -1,0 +1,24 @@
+name: Verify isolated database restore
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: recovery-drill
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --omit=dev
+      - run: node scripts/verify-restore.mjs | tee restore-verification.json
+        env:
+          RESTORE_DATABASE_URL: ${{ secrets.RESTORE_DATABASE_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: restore-verification-${{ github.run_id }}
+          path: restore-verification.json
+          retention-days: 90
