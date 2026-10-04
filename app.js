@@ -15,9 +15,11 @@ import { destinations, journeys, notes } from './data.js';
 import { legalPages, legalOrder, legalUpdated } from './legal.js';
 import { accountRoutes, createConsultation, renderAccountRoute, syncAccountButton } from './account.js';
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import { installNavigation, navigate, routeParts } from './routing.js';
 
 installNavigation();
+injectSpeedInsights();
 
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
