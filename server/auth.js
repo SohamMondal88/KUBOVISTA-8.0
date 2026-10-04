@@ -3,9 +3,10 @@ import { getAuth as firebaseAuth } from 'firebase-admin/auth';
 import { getFirebaseAdmin } from './firebase-admin.js';
 import { firestoreConfigured } from './firestore.js';
 import { resolveFirebaseUser } from './firebase-identity.js';
+import { databaseConfigured } from './db.js';
 import { json } from './http.js';
 export function authConfigured() {
-  return firestoreConfigured() && Boolean(process.env.APP_URL);
+  return firestoreConfigured() && databaseConfigured() && Boolean(process.env.APP_URL);
 }
 export function getAuth() { return firebaseAuth(getFirebaseAdmin()); }
 export function originAllowed(req) {
