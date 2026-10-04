@@ -1,5 +1,5 @@
 import { requireSession, getAuth } from '../../server/auth.js';
-import { firestore, serverTimestamp } from '../../server/firestore.js';
+import { firestore } from '../../server/firestore.js';
 import { query } from '../../server/db.js';
 import { json, methodNotAllowed } from '../../server/http.js';
 export const config = { api: { bodyParser: false } };

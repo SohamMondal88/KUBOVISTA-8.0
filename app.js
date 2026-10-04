@@ -1,161 +1,1249 @@
-import {affiliateSection} from './affiliates.js';
-import {renderGrowthPublic} from './growth-ui.js';
-import {renderPackages} from './packages-ui.js';
-import {packageById} from './packages.js';
-import {renderMembership} from './membership.js';
-import {renderTravelDate,travelTogetherSection} from './travel-date.js';
-import {mountAd} from './adsense.js';
-import {mountKubo} from './kubo.js';
-import {transportLinks,mountSocialLinks} from './travel-links.js';
-import { companyRoutes, companyPage } from './company.js';
-import { mapMarkup, updateDestinationMap, disposeMap, mountWeather } from './explore.js';
-import { experienceTypes, matchesExperience, metadata, seasonalStatus } from './destination-meta.js';
-import { renderJournal } from './journal.js';
-import { destinations, journeys, notes } from './data.js';
-import { legalPages, legalOrder, legalUpdated } from './legal.js';
-import { accountRoutes, createConsultation, renderAccountRoute, syncAccountButton } from './account.js';
-import { inject } from '@vercel/analytics';
-import { injectSpeedInsights } from '@vercel/speed-insights';
-import { installNavigation, navigate, routeParts } from './routing.js';
+import { packageById } from "./packages.js";
+import { transportLinks, mountSocialLinks } from "./travel-links.js";
+import {
+  mapMarkup,
+  updateDestinationMap,
+  disposeMap,
+  mountWeather,
+} from "./explore.js";
+import {
+  experienceTypes,
+  matchesExperience,
+  metadata,
+  seasonalStatus,
+} from "./destination-meta.js";
+import { destinations, journeys, notes } from "./data.js";
+import { legalPages, legalOrder, legalUpdated } from "./legal.js";
+import { inject } from "@vercel/analytics";
+import { injectSpeedInsights } from "@vercel/speed-insights";
+import { installNavigation, navigate, routeParts } from "./routing.js";
 
 installNavigation();
 injectSpeedInsights();
 
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
-const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
-const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { toast('Your browser could not save this. You can still download your plan.'); return false; } };
-const validIds = new Set(destinations.map(d => d.id));
-const rawSaved = read('kubovista:saved', []);
-let saved = new Set(Array.isArray(rawSaved) ? rawSaved.filter(id => validIds.has(id)) : []);
-let motionOff = read('kubovista:motion', false) === true;
-const mediaMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const rawPlan = read('kubovista:plan', {});
-let plan = {destination:'darjeeling',days:4,travelers:2,style:'Slow & scenic',date:'',budget:15000,...(rawPlan && typeof rawPlan === 'object' && !Array.isArray(rawPlan) ? rawPlan : {})};
-if (!validIds.has(plan.destination)) plan.destination = 'darjeeling';
-plan.days = Math.min(14,Math.max(2,Math.round(Number(plan.days))||4));
-plan.travelers = Math.min(12,Math.max(1,Math.round(Number(plan.travelers))||2));
-plan.budget = Math.min(100000,Math.max(3000,Number(plan.budget)||15000));
-plan.date = /^\d{4}-\d{2}-\d{2}$/.test(String(plan.date)) ? plan.date : '';
-if(!['Slow & scenic','Culture & connection','Nature & walking','Friends & adventure','Family time'].includes(plan.style))plan.style='Slow & scenic';
+const escapeHTML = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const read = (key, fallback) => {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+const write = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    toast(
+      "Your browser could not save this. You can still download your plan.",
+    );
+    return false;
+  }
+};
+const validIds = new Set(destinations.map((d) => d.id));
+const rawSaved = read("kubovista:saved", []);
+let saved = new Set(
+  Array.isArray(rawSaved) ? rawSaved.filter((id) => validIds.has(id)) : [],
+);
+let motionOff = read("kubovista:motion", false) === true;
+const mediaMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const rawPlan = read("kubovista:plan", {});
+let plan = {
+  destination: "darjeeling",
+  days: 4,
+  travelers: 2,
+  style: "Slow & scenic",
+  date: "",
+  budget: 15000,
+  ...(rawPlan && typeof rawPlan === "object" && !Array.isArray(rawPlan)
+    ? rawPlan
+    : {}),
+};
+if (!validIds.has(plan.destination)) plan.destination = "darjeeling";
+plan.days = Math.min(14, Math.max(2, Math.round(Number(plan.days)) || 4));
+plan.travelers = Math.min(
+  12,
+  Math.max(1, Math.round(Number(plan.travelers)) || 2),
+);
+plan.budget = Math.min(100000, Math.max(3000, Number(plan.budget) || 15000));
+plan.date = /^\d{4}-\d{2}-\d{2}$/.test(String(plan.date)) ? plan.date : "";
+if (
+  ![
+    "Slow & scenic",
+    "Culture & connection",
+    "Nature & walking",
+    "Friends & adventure",
+    "Family time",
+  ].includes(plan.style)
+)
+  plan.style = "Slow & scenic";
 let plannerStep = 1;
 let toastTimer;
 let observer;
-const main = $('#main');
-let routeVersion=0;
+const main = $("#main");
+let routeVersion = 0;
+const companyRoutes = new Set([
+  "careers",
+  "sponsors",
+  "partnerships",
+  "stays",
+  "camping",
+  "contact",
+  "enquiry-inbox",
+]);
+const accountRoutes = new Set([
+  "login",
+  "signup",
+  "forgot-password",
+  "reset-password",
+  "verify-email",
+  "welcome",
+  "dashboard",
+  "profile",
+  "settings",
+  "security",
+  "bookings",
+  "booking",
+  "payments",
+  "notifications",
+  "checkout",
+  "payment",
+  "confirmation",
+  "thank-you",
+  "cancellation-request",
+  "admin",
+  "saved",
+  "support",
+  "case",
+  "documents",
+  "document",
+  "team",
+  "growth",
+  "review",
+  "supplier-portal",
+  "membership-interest",
+]);
+const routeStyles = {
+  home: ["travel-date.css"],
+  packages: ["packages.css"],
+  regions: ["growth.css"],
+  search: ["growth.css"],
+  stories: ["growth.css"],
+  reviews: ["growth.css"],
+  resources: ["growth.css"],
+  membership: ["membership.css"],
+  "travel-date": ["travel-date.css"],
+  guide: ["affiliates.css"],
+  journal: ["growth.css"],
+  story: ["growth.css"],
+  write: ["growth.css"],
+  "my-stories": ["growth.css"],
+  "journal-review": ["growth.css"],
+};
+const loadedStyles = new Map();
+function loadStylesForRoute(name = "home") {
+  const files = [...(routeStyles[name] || [])];
+  if (accountRoutes.has(name)) files.push("operations.css", "growth.css");
+  if (companyRoutes.has(name)) files.push("operations.css");
+  return Promise.all(
+    [...new Set(files)].map((file) => {
+      if (loadedStyles.has(file)) return loadedStyles.get(file);
+      const promise = new Promise((resolve, reject) => {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "/" + file;
+        link.dataset.routeStyle = file;
+        link.onload = resolve;
+        link.onerror = () =>
+          reject(Error(`The ${file} page styles could not be loaded.`));
+        document.head.append(link);
+      });
+      loadedStyles.set(file, promise);
+      return promise;
+    }),
+  );
+}
+const renderPackages = async (...args) =>
+  (await import("./packages-ui.js")).renderPackages(...args);
+const renderGrowthPublic = async (...args) =>
+  (await import("./growth-ui.js")).renderGrowthPublic(...args);
+const renderMembership = async (...args) =>
+  (await import("./membership.js")).renderMembership(...args);
+const renderTravelDate = async (...args) =>
+  (await import("./travel-date.js")).renderTravelDate(...args);
+const renderJournal = async (...args) =>
+  (await import("./journal.js")).renderJournal(...args);
+const companyPage = async (...args) =>
+  (await import("./company.js")).companyPage(...args);
+const renderAccountRoute = async (...args) =>
+  (await import("./account.js")).renderAccountRoute(...args);
+const syncAccountButton = async () =>
+  (await import("./account.js")).syncAccountButton();
+const createConsultation = async (...args) =>
+  (await import("./account.js")).createConsultation(...args);
+const mountAd = async (...args) =>
+  (await import("./adsense.js")).mountAd(...args);
+
+const errorCopy = {
+  destinations: ["DESTINATION GUIDE", "The guide paused for a moment."],
+  destination: ["DESTINATION GUIDE", "This destination could not be opened."],
+  packages: [
+    "PACKAGE COLLECTION",
+    "The package details are temporarily unavailable.",
+  ],
+  journal: ["TRAVEL JOURNAL", "The journal could not be opened."],
+  story: ["TRAVEL JOURNAL", "This story could not be opened."],
+  planner: ["TRIP PLANNER", "Your planner needs another moment."],
+  checkout: ["SECURE CHECKOUT", "Checkout could not be prepared."],
+  payment: ["PAYMENT HISTORY", "Payment details could not be loaded."],
+};
+function renderRouteError(routeName, error) {
+  const requestId = crypto.randomUUID?.().slice(0, 12) || `${Date.now()}`;
+  const [kicker, heading] = accountRoutes.has(routeName)
+    ? routeName === "checkout"
+      ? errorCopy.checkout
+      : routeName === "payment" || routeName === "payments"
+        ? errorCopy.payment
+        : ["YOUR ACCOUNT", "Your account could not be loaded."]
+    : errorCopy[routeName] || ["KUBOVISTAS", "This page could not be loaded."];
+  console.error("Route render failed", {
+    requestId,
+    route: routeName || "home",
+    name: error?.name || "Error",
+    message: error?.message || "Unknown error",
+  });
+  main.innerHTML =
+    pageIntro(
+      kicker,
+      `${escapeHTML(heading)}<br><em>Please try again.</em>`,
+      "Your information has not been changed. Retry this page, or return home if the problem continues.",
+    ) +
+    `<div class="wrap section top-tight route-error-actions"><button class="button" type="button" data-retry-route>Retry page ↻</button><a class="button outline" href="/">Return home ↗</a><p class="small-copy">Support reference: ${escapeHTML(requestId)}</p></div>`;
+}
 const arrow = '<span aria-hidden="true">↗</span>';
-const bookmark = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
-const imageFor = d => d.region === 'Goa' || d.region === 'Coastal Bengal' ? '/assets/goa.jpg' : '/assets/himalaya.jpg';
-const money = n => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n);
-function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(()=>$('#toast').classList.remove('visible'),3200); }
-function updateSaved() { $('#saved-count').textContent = saved.size; $$('[data-save]').forEach(b=>{ const active=saved.has(b.dataset.save); b.classList.toggle('is-saved',active); b.setAttribute('aria-pressed',String(active)); b.setAttribute('aria-label',`${active?'Unsave':'Save'} ${destinations.find(d=>d.id===b.dataset.save)?.name}`); }); }
-function saveDestination(id) { saved.has(id)?saved.delete(id):saved.add(id); write('kubovista:saved',[...saved]); updateSaved(); toast(saved.has(id)?'Added to your saved places.':'Removed from your saved places.'); if(location.search.includes('saved=true')) renderDirectory(); }
-function card(d, i=0, image=true) { return `<article class="destination-card ${image?'photo-card':'compact-card'} reveal" style="--delay:${i%4*65}ms" data-tilt><a href="/destinations/${d.id}" class="card-link">${image?`<img src="${imageFor(d)}" alt="${imageFor(d).includes('goa')?'Goa coastline — coastal inspiration':'Kanchenjunga from Darjeeling — Himalayan inspiration'}" loading="lazy" width="700" height="900">`:''}<div class="card-top"><span class="pill">${d.type}</span>${!image?`<span class="card-number">${String(destinations.indexOf(d)+1).padStart(2,'0')}</span>`:''}</div><div class="card-copy"><span class="eyebrow">${d.region}</span><h3>${d.name}</h3><p>${d.tagline}</p><div class="card-meta"><span>${d.duration} · Suggested</span><span class="circle-arrow">↗</span></div></div></a><button class="save-card" data-save="${d.id}" aria-label="Save ${d.name}" aria-pressed="${saved.has(d.id)}">${bookmark}</button></article>`; }
-function sectionHeading(kicker,title,link='',label='Explore all destinations') { return `<div class="section-heading reveal"><div><span class="eyebrow green">${kicker}</span><h2>${title}</h2></div>${link?`<a class="underlined" href="${link}">${label} ↗</a>`:''}</div>`; }
-function noteCards() { return notes.map((n,i)=>`<a class="note-card reveal" href="/guides/${n.id}"><div class="note-top"><span class="eyebrow">${n.category}</span><span>${String(i+1).padStart(2,'0')}</span></div><h3>${n.title}</h3><p>${n.intro}</p><div class="note-bottom"><span>${n.time}</span>${arrow}</div></a>`).join(''); }
-function home() {
- main.innerHTML = `<section class="hero"><img class="hero-image" src="/assets/himalaya.jpg" alt="Snow-covered Kanchenjunga above the forested hills of Darjeeling" fetchpriority="high" width="2000" height="1333"><div class="hero-shade"></div><div class="hero-grain" aria-hidden="true"></div><div class="hero-content"><div class="eyebrow hero-kicker"><span class="line"></span> FOR THE WILDLY CURIOUS</div><h1>Somewhere worth<br><em>slowing down.</em></h1><p>From Himalayan hideaways to sunlit shores.<br>Find a place that feels a little more like you.</p><div class="hero-buttons"><a class="button" href="/destinations">Find your escape ${arrow}</a><a class="hero-text-link" href="/journeys">Explore our journeys <span>↗</span></a></div><div class="hero-proof" aria-label="KuboVistas guide highlights"><span><strong>28</strong> handpicked places</span><span><strong>06</strong> travel regions</span><span><strong>∞</strong> room to wander</span></div></div><div class="hero-coordinate"><span>27°42′ N / 88°08′ E</span><span>KANCHENJUNGA · EASTERN HIMALAYAS</span></div><a class="floating-note" data-tilt href="/destinations/darjeeling"><span class="eyebrow">A POSTCARD FROM</span><span class="postcard-title">The Himalayas.</span><span>Big views. A slower point of view. ↗</span></a><div class="hero-bottom"><span>SCROLL TO WANDER <span>↓</span></span><span>01 <span class="slide-track"></span> THE MOUNTAIN EDIT</span></div></section>
+const bookmark =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+const regionArtwork = {
+  "North Bengal": "/assets/north-bengal.svg",
+  Sikkim: "/assets/sikkim.svg",
+  "Arunachal Pradesh": "/assets/arunachal.svg",
+  Arunachal: "/assets/arunachal.svg",
+  Goa: "/assets/goa-editorial.svg",
+  "Coastal Bengal": "/assets/coastal-bengal.svg",
+  "Western Bengal": "/assets/western-bengal.svg",
+};
+const imageFor = (d) => regionArtwork[d.region] || "/assets/north-bengal.svg";
+const imageAlt = (d) =>
+  `Original editorial landscape illustration for ${d.region}`;
+function enhanceResponsiveImages(root = document) {
+  const sets = {
+    himalaya:
+      "/assets/himalaya-640.webp 640w, /assets/himalaya-1200.webp 1200w, /assets/himalaya-2000.webp 2000w",
+    goa: "/assets/goa-640.webp 640w, /assets/goa-1200.webp 1200w, /assets/goa-2000.webp 2000w",
+  };
+  root.querySelectorAll("img").forEach((image) => {
+    const source = image.getAttribute("src") || "";
+    const key =
+      source.includes("/himalaya.") || source.endsWith("/himalaya.jpg")
+        ? "himalaya"
+        : source.includes("/goa.") || source.endsWith("/goa.jpg")
+          ? "goa"
+          : null;
+    if (!key) return;
+    image.srcset = sets[key];
+    image.sizes = image.classList.contains("hero-image")
+      ? "100vw"
+      : "(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 900px";
+  });
+}
+const money = (n) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+function toast(message) {
+  $("#toast").textContent = message;
+  $("#toast").classList.add("visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("#toast").classList.remove("visible"), 3200);
+}
+function updateSaved() {
+  $("#saved-count").textContent = saved.size;
+  $$("[data-save]").forEach((b) => {
+    const active = saved.has(b.dataset.save);
+    b.classList.toggle("is-saved", active);
+    b.setAttribute("aria-pressed", String(active));
+    b.setAttribute(
+      "aria-label",
+      `${active ? "Unsave" : "Save"} ${destinations.find((d) => d.id === b.dataset.save)?.name}`,
+    );
+  });
+}
+function saveDestination(id) {
+  saved.has(id) ? saved.delete(id) : saved.add(id);
+  write("kubovista:saved", [...saved]);
+  updateSaved();
+  toast(
+    saved.has(id)
+      ? "Added to your saved places."
+      : "Removed from your saved places.",
+  );
+  if (location.search.includes("saved=true")) renderDirectory();
+}
+function card(d, i = 0, image = true) {
+  return `<article class="destination-card ${image ? "photo-card" : "compact-card"} reveal" style="--delay:${(i % 4) * 65}ms" data-tilt><a href="/destinations/${d.id}" class="card-link">${image ? `<img src="${imageFor(d)}" alt="${imageAlt(d)}" loading="lazy" width="700" height="900">` : ""}<div class="card-top"><span class="pill">${d.type}</span>${!image ? `<span class="card-number">${String(destinations.indexOf(d) + 1).padStart(2, "0")}</span>` : ""}</div><div class="card-copy"><span class="eyebrow">${d.region}</span><h3>${d.name}</h3><p>${d.tagline}</p><div class="card-meta"><span>${d.duration} · Suggested</span><span class="circle-arrow">↗</span></div></div></a><button class="save-card" data-save="${d.id}" aria-label="Save ${d.name}" aria-pressed="${saved.has(d.id)}">${bookmark}</button></article>`;
+}
+function sectionHeading(
+  kicker,
+  title,
+  link = "",
+  label = "Explore all destinations",
+) {
+  return `<div class="section-heading reveal"><div><span class="eyebrow green">${kicker}</span><h2>${title}</h2></div>${link ? `<a class="underlined" href="${link}">${label} ↗</a>` : ""}</div>`;
+}
+function noteCards() {
+  return notes
+    .map(
+      (n, i) =>
+        `<a class="note-card reveal" href="/guides/${n.id}"><div class="note-top"><span class="eyebrow">${n.category}</span><span>${String(i + 1).padStart(2, "0")}</span></div><h3>${n.title}</h3><p>${n.intro}</p><div class="note-bottom"><span>${n.time}</span>${arrow}</div></a>`,
+    )
+    .join("");
+}
+async function home() {
+  main.innerHTML = `<section class="hero"><img class="hero-image" src="/assets/himalaya.jpg" alt="Snow-covered Kanchenjunga above the forested hills of Darjeeling" fetchpriority="high" width="2000" height="1333"><div class="hero-shade"></div><div class="hero-grain" aria-hidden="true"></div><div class="hero-content"><div class="eyebrow hero-kicker"><span class="line"></span> FOR THE WILDLY CURIOUS</div><h1>Somewhere worth<br><em>slowing down.</em></h1><p>From Himalayan hideaways to sunlit shores.<br>Find a place that feels a little more like you.</p><div class="hero-buttons"><a class="button" href="/destinations">Find your escape ${arrow}</a><a class="hero-text-link" href="/journeys">Explore our journeys <span>↗</span></a></div><div class="hero-proof" aria-label="KuboVistas guide highlights"><span><strong>28</strong> handpicked places</span><span><strong>06</strong> travel regions</span><span><strong>∞</strong> room to wander</span></div></div><div class="hero-coordinate"><span>27°42′ N / 88°08′ E</span><span>KANCHENJUNGA · EASTERN HIMALAYAS</span></div><a class="floating-note" data-tilt href="/destinations/darjeeling"><span class="eyebrow">A POSTCARD FROM</span><span class="postcard-title">The Himalayas.</span><span>Big views. A slower point of view. ↗</span></a><div class="hero-bottom"><span>SCROLL TO WANDER <span>↓</span></span><span>01 <span class="slide-track"></span> THE MOUNTAIN EDIT</span></div></section>
  <section class="search-section wrap"><form id="hero-search" class="search-bar"><label><span>YOUR NEXT CHAPTER</span><select name="region" aria-label="Choose a region"><option value="">Where would you like to go?</option><option>North Bengal</option><option>Sikkim</option><option>Arunachal</option><option>Goa</option><option>Coastal Bengal</option><option>Western Bengal</option></select></label><label><span>MAKE IT YOURS</span><select name="type" aria-label="Travel style"><option value="">What’s your kind of escape?</option><option>Mountains</option><option>Forest</option><option>Coast</option><option>Offbeat</option><option>Riverside</option></select></label><button class="button dark" type="submit">Let’s explore ${arrow}</button></form><div class="search-foot"><span>28 places. Countless possibilities.</span><span>Thoughtful guides <b>✦</b> Travel at your own pace</span></div></section>
  <section class="experience-rail" aria-label="Ways to travel"><div class="experience-track"><span>STAY A LITTLE LONGER</span><i>✦</i><span>FOLLOW THE MOUNTAIN ROAD</span><i>✦</i><span>MEET THE PLACE SLOWLY</span><i>✦</i><span>LEAVE ROOM FOR WONDER</span><i>✦</i><span aria-hidden="true">STAY A LITTLE LONGER</span><i aria-hidden="true">✦</i><span aria-hidden="true">FOLLOW THE MOUNTAIN ROAD</span><i aria-hidden="true">✦</i></div></section>
- <section class="wrap section">${sectionHeading('01 / PLACES WITH A LITTLE SOUL','Your next <em>somewhere.</em>','/destinations')}<div class="featured-grid">${['darjeeling','pelling','goa'].map((id,i)=>card(destinations.find(d=>d.id===id),i)).join('')}</div><p class="image-caption">Imagery: Himalayan and coastal inspiration. Explore each guide for destination details.</p></section>
+ <section class="wrap section">${sectionHeading("01 / PLACES WITH A LITTLE SOUL", "Your next <em>somewhere.</em>", "/destinations")}<div class="featured-grid">${[
+   "darjeeling",
+   "pelling",
+   "goa",
+ ]
+   .map((id, i) =>
+     card(
+       destinations.find((d) => d.id === id),
+       i,
+     ),
+   )
+   .join(
+     "",
+   )}</div><p class="image-caption">Imagery: Himalayan and coastal inspiration. Explore each guide for destination details.</p></section>
  <section class="philosophy wrap reveal"><div class="philosophy-mark">↗</div><div><span class="eyebrow green">LESS CHECKLIST. MORE CONNECTION.</span><h2>Travel isn’t about how far.<br>It’s about <em>how it feels.</em></h2></div><div class="philosophy-copy"><p>A misty morning. A conversation with a local. A road you didn’t plan to take. We make room for the moments that stay with you.</p><a class="underlined" href="/company/about">The KuboVistas way ↗</a></div></section>
- <section class="journey-section"><div class="wrap">${sectionHeading('02 / GOOD DAYS, THOUGHTFULLY STRUNG TOGETHER','Made for the <em>long way round.</em>','/journeys','View the journeys')}<div class="journey-grid">${journeys.map(j=>journeyCard(j)).join('')}</div></div></section>
- <section class="wrap section">${sectionHeading('03 / NOTES FROM THE ROAD','A little knowledge.<br><em>A better adventure.</em>','/journal','Open the journal')}<div class="notes-grid">${noteCards()}</div></section>
+ <section class="journey-section"><div class="wrap">${sectionHeading("02 / GOOD DAYS, THOUGHTFULLY STRUNG TOGETHER", "Made for the <em>long way round.</em>", "/journeys", "View the journeys")}<div class="journey-grid">${journeys.map((j) => journeyCard(j)).join("")}</div></div></section>
+ <section class="wrap section">${sectionHeading("03 / NOTES FROM THE ROAD", "A little knowledge.<br><em>A better adventure.</em>", "/journal", "Open the journal")}<div class="notes-grid">${noteCards()}</div></section>
  <section class="cta wrap reveal"><span class="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h2>Go where you<br><em>feel something.</em></h2><a class="button" href="/planner">Let’s plan your escape ${arrow}</a><span class="cta-bottom">YOUR PACE. YOUR PEOPLE. YOUR KIND OF TRIP.</span></section>`;
- main.insertAdjacentHTML('beforeend',travelTogetherSection());
- $('#hero-search').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget);navigate('/destinations?'+new URLSearchParams({region:f.get('region'),type:f.get('type')}));});
+  const { travelTogetherSection } = await import("./travel-date.js");
+  main.insertAdjacentHTML("beforeend", travelTogetherSection());
+  $("#hero-search").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    navigate(
+      "/destinations?" +
+        new URLSearchParams({ region: f.get("region"), type: f.get("type") }),
+    );
+  });
 }
-function journeyCard(j) { return `<article class="journey-card reveal"><div class="journey-image" data-tilt><img src="${j.region==='Goa'?'/assets/goa.jpg':'/assets/himalaya.jpg'}" alt="${j.region==='Goa'?'Goa coastal scenery':'Eastern Himalayan scenery'}" loading="lazy" width="700" height="450"><span class="pill">${j.days} DAYS · FLEXIBLE</span></div><div class="journey-text"><span class="eyebrow green">${j.type}</span><h3>${j.name}</h3><p>${j.description}</p><div class="journey-bottom"><span>Sample itinerary · Quote on request</span><button class="icon-button" data-journey="${j.id}" aria-label="View ${j.name}">↗</button></div></div></article>`; }
-function pageIntro(kicker,title,desc) { return `<section class="page-intro wrap"><a class="back-link" href="/">← Back to the beginning</a><span class="eyebrow green">${kicker}</span><h1>${title}</h1><p>${desc}</p></section>`; }
+function journeyCard(j) {
+  return `<article class="journey-card reveal"><div class="journey-image" data-tilt><img src="${j.region === "Goa" ? "/assets/goa.jpg" : "/assets/himalaya.jpg"}" alt="${j.region === "Goa" ? "Goa coastal scenery" : "Eastern Himalayan scenery"}" loading="lazy" width="700" height="450"><span class="pill">${j.days} DAYS · FLEXIBLE</span></div><div class="journey-text"><span class="eyebrow green">${j.type}</span><h3>${j.name}</h3><p>${j.description}</p><div class="journey-bottom"><span>Sample itinerary · Quote on request</span><button class="icon-button" data-journey="${j.id}" aria-label="View ${j.name}">↗</button></div></div></article>`;
+}
+function pageIntro(kicker, title, desc) {
+  return `<section class="page-intro wrap"><a class="back-link" href="/">← Back to the beginning</a><span class="eyebrow green">${kicker}</span><h1>${title}</h1><p>${desc}</p></section>`;
+}
 let directoryFilters = {};
 function directory() {
- const params=new URLSearchParams(location.search); directoryFilters={q:'',region:params.get('region')||'',type:params.get('type')||'',saved:params.get('saved')==='true'};
- main.innerHTML=pageIntro('THE DESTINATION COLLECTION','Find your <em>somewhere.</em>',`${destinations.length} places to inspire your next chapter. Find a season, a landscape or a quieter way to travel.`)+`<section class="wrap directory">${mapMarkup()}<div class="filter-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="destination-search" type="search" placeholder="Search a destination or region" aria-label="Search destinations"></label><label class="sr-only" for="region-filter">Filter by region</label><select id="region-filter"><option value="">Every region</option>${[...new Set(destinations.map(d=>d.region))].map(r=>`<option ${directoryFilters.region===r?'selected':''}>${r}</option>`).join('')}</select><button class="filter-saved ${directoryFilters.saved?'active':''}" id="filter-saved" aria-pressed="${directoryFilters.saved}">${bookmark} Saved places</button></div><div class="chips" role="group" aria-label="Filter by travel style">${experienceTypes.map(t=>`<button data-type="${t==='All'?'':t}" class="chip ${(directoryFilters.type||'All')===t?'active':''}" aria-pressed="${(directoryFilters.type||'All')===t}">${t}</button>`).join('')}</div><label class="directory-sort">Sort destinations<select id="destination-sort"><option value="featured">Featured order</option><option value="name">Name A–Z</option><option value="season">Seasonal suitability</option></select></label><div class="results-meta"><span id="result-count" role="status"></span><button class="text-button" id="reset-filters">Reset filters ↺</button></div><div class="directory-grid" id="destination-results"></div></section>`;
- $('#touring-month').addEventListener('change',renderDirectory);$('#destination-sort').addEventListener('change',renderDirectory);
- $('#destination-search').addEventListener('input',e=>{directoryFilters.q=e.target.value;renderDirectory();});
- $('#region-filter').addEventListener('change',e=>{directoryFilters.region=e.target.value;renderDirectory();});
- $('#filter-saved').addEventListener('click',e=>{directoryFilters.saved=!directoryFilters.saved;e.currentTarget.classList.toggle('active',directoryFilters.saved);e.currentTarget.setAttribute('aria-pressed',directoryFilters.saved);renderDirectory();});
- $$('[data-type]').forEach(b=>b.addEventListener('click',()=>{directoryFilters.type=b.dataset.type;$$('[data-type]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b);});renderDirectory();}));
- $('#reset-filters').addEventListener('click',()=>{directoryFilters={q:'',region:'',type:'',saved:false};$('#destination-search').value='';$('#destination-sort').value='featured';$('#region-filter').value='';$('#filter-saved').classList.remove('active');$('#filter-saved').setAttribute('aria-pressed','false');$$('[data-type]').forEach(x=>{x.classList.toggle('active',!x.dataset.type);x.setAttribute('aria-pressed',!x.dataset.type);});renderDirectory();});renderDirectory();
+  const params = new URLSearchParams(location.search);
+  directoryFilters = {
+    q: "",
+    region: params.get("region") || "",
+    type: params.get("type") || "",
+    saved: params.get("saved") === "true",
+  };
+  main.innerHTML =
+    pageIntro(
+      "THE DESTINATION COLLECTION",
+      "Find your <em>somewhere.</em>",
+      `${destinations.length} places to inspire your next chapter. Find a season, a landscape or a quieter way to travel.`,
+    ) +
+    `<section class="wrap directory">${mapMarkup()}<div class="filter-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="destination-search" type="search" placeholder="Search a destination or region" aria-label="Search destinations"></label><label class="sr-only" for="region-filter">Filter by region</label><select id="region-filter"><option value="">Every region</option>${[...new Set(destinations.map((d) => d.region))].map((r) => `<option ${directoryFilters.region === r ? "selected" : ""}>${r}</option>`).join("")}</select><button class="filter-saved ${directoryFilters.saved ? "active" : ""}" id="filter-saved" aria-pressed="${directoryFilters.saved}">${bookmark} Saved places</button></div><div class="chips" role="group" aria-label="Filter by travel style">${experienceTypes.map((t) => `<button data-type="${t === "All" ? "" : t}" class="chip ${(directoryFilters.type || "All") === t ? "active" : ""}" aria-pressed="${(directoryFilters.type || "All") === t}">${t}</button>`).join("")}</div><label class="directory-sort">Sort destinations<select id="destination-sort"><option value="featured">Featured order</option><option value="name">Name A–Z</option><option value="season">Seasonal suitability</option></select></label><div class="results-meta"><span id="result-count" role="status"></span><button class="text-button" id="reset-filters">Reset filters ↺</button></div><div class="directory-grid" id="destination-results"></div></section>`;
+  $("#touring-month").addEventListener("change", renderDirectory);
+  $("#destination-sort").addEventListener("change", renderDirectory);
+  $("#destination-search").addEventListener("input", (e) => {
+    directoryFilters.q = e.target.value;
+    renderDirectory();
+  });
+  $("#region-filter").addEventListener("change", (e) => {
+    directoryFilters.region = e.target.value;
+    renderDirectory();
+  });
+  $("#filter-saved").addEventListener("click", (e) => {
+    directoryFilters.saved = !directoryFilters.saved;
+    e.currentTarget.classList.toggle("active", directoryFilters.saved);
+    e.currentTarget.setAttribute("aria-pressed", directoryFilters.saved);
+    renderDirectory();
+  });
+  $$("[data-type]").forEach((b) =>
+    b.addEventListener("click", () => {
+      directoryFilters.type = b.dataset.type;
+      $$("[data-type]").forEach((x) => {
+        x.classList.toggle("active", x === b);
+        x.setAttribute("aria-pressed", x === b);
+      });
+      renderDirectory();
+    }),
+  );
+  $("#reset-filters").addEventListener("click", () => {
+    directoryFilters = { q: "", region: "", type: "", saved: false };
+    $("#destination-search").value = "";
+    $("#destination-sort").value = "featured";
+    $("#region-filter").value = "";
+    $("#filter-saved").classList.remove("active");
+    $("#filter-saved").setAttribute("aria-pressed", "false");
+    $$("[data-type]").forEach((x) => {
+      x.classList.toggle("active", !x.dataset.type);
+      x.setAttribute("aria-pressed", !x.dataset.type);
+    });
+    renderDirectory();
+  });
+  renderDirectory();
 }
 function renderDirectory() {
- if(!$('#destination-results'))return;
- const aliases={kureseong:'kurseong',bhakhali:'bakkhali','bel pahari':'belpahari',shittong:'sittong',chataktur:'chatakpur',shamsu:'samsu'};
- const q=directoryFilters.q.toLowerCase().trim();const term=aliases[q]||q;
- const results=destinations.filter(d=>(!term||`${d.name} ${d.region} ${d.type} ${metadata(d).tags.join(' ')}`.toLowerCase().includes(term))&&(!directoryFilters.region||d.region===directoryFilters.region)&&matchesExperience(d,directoryFilters.type)&&(!directoryFilters.saved||saved.has(d.id)));
- const month=Number($('#touring-month').value);const sort=$('#destination-sort').value;if(sort==='name')results.sort((a,b)=>a.name.localeCompare(b.name));if(sort==='season'){const rank={green:0,yellow:1,red:2};results.sort((a,b)=>rank[seasonalStatus(a,month).color]-rank[seasonalStatus(b,month).color]||a.name.localeCompare(b.name));}updateDestinationMap(results,month);
- $('#result-count').textContent=`${results.length} ${results.length===1?'place':'places'} to discover`;
- $('#destination-results').innerHTML=results.length?results.map((d,i)=>card(d,i,false)).join(''):`<div class="empty-state"><span>⌕</span><h2>No places found. Yet.</h2><p>Try another name or reset your filters to see the full collection.</p></div>`;updateSaved();setupMotion();
+  if (!$("#destination-results")) return;
+  const aliases = {
+    kureseong: "kurseong",
+    bhakhali: "bakkhali",
+    "bel pahari": "belpahari",
+    shittong: "sittong",
+    chataktur: "chatakpur",
+    shamsu: "samsu",
+  };
+  const q = directoryFilters.q.toLowerCase().trim();
+  const term = aliases[q] || q;
+  const results = destinations.filter(
+    (d) =>
+      (!term ||
+        `${d.name} ${d.region} ${d.type} ${metadata(d).tags.join(" ")}`
+          .toLowerCase()
+          .includes(term)) &&
+      (!directoryFilters.region || d.region === directoryFilters.region) &&
+      matchesExperience(d, directoryFilters.type) &&
+      (!directoryFilters.saved || saved.has(d.id)),
+  );
+  const month = Number($("#touring-month").value);
+  const sort = $("#destination-sort").value;
+  if (sort === "name") results.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === "season") {
+    const rank = { green: 0, yellow: 1, red: 2 };
+    results.sort(
+      (a, b) =>
+        rank[seasonalStatus(a, month).color] -
+          rank[seasonalStatus(b, month).color] || a.name.localeCompare(b.name),
+    );
+  }
+  updateDestinationMap(results, month);
+  $("#result-count").textContent =
+    `${results.length} ${results.length === 1 ? "place" : "places"} to discover`;
+  $("#destination-results").innerHTML = results.length
+    ? results.map((d, i) => card(d, i, false)).join("")
+    : `<div class="empty-state"><span>⌕</span><h2>No places found. Yet.</h2><p>Try another name or reset your filters to see the full collection.</p></div>`;
+  updateSaved();
+  setupMotion();
 }
 function destinationPage(id) {
- const d=destinations.find(d=>d.id===id);if(!d)return notFound();
- document.title=`${d.name} Travel Guide — KuboVistas`;
- main.innerHTML=`<section class="destination-hero"><img src="${imageFor(d)}" alt="${d.type==='Coast'?'Coastal inspiration from Goa':'Himalayan inspiration from Darjeeling'}"><div class="wrap"><a class="back-link" href="/destinations">← All destinations</a><span class="eyebrow">${d.region} / ${d.type}</span><h1>${d.name}</h1><p>${d.tagline}</p><span class="photo-credit">${d.type==='Coast'?'Coastal':'Himalayan'} inspiration photograph</span></div></section><section class="wrap detail-layout"><article><div class="detail-facts"><div><span>SUGGESTED STAY</span><strong>${d.duration}</strong></div><div><span>YOUR KIND OF TRIP</span><strong>${d.type}</strong></div><div><span>TRAVEL STYLE</span><strong>At your pace</strong></div></div><span class="eyebrow green">GET TO KNOW THE PLACE</span><h2>A little further<br><em>from the everyday.</em></h2><p class="lead">${d.description}</p><h3>Make time for</h3><div class="highlight-grid">${d.highlights.map((h,i)=>`<div><span>0${i+1}</span><strong>${h}</strong></div>`).join('')}</div><div id="destination-weather"></div><h3>Before you go</h3><details open><summary>Getting there & getting around</summary><p>Confirm your arrival point and onward transfers with your accommodation or local operator. Leave room for delays and avoid scheduling a major activity immediately after a long transfer.</p></details><details><summary>Season, weather & access</summary><p>Choose dates around the experience you want. Check the forecast and current local road or entry conditions close to departure. Scenic views and seasonal activities cannot be guaranteed.</p></details><details><summary>Budget & accommodation</summary><p>Compare accommodation, meals, transfers and activities separately. Ask for a dated quotation with occupancy, inclusions and cancellation terms. KuboVistas does not display unverified live prices or room availability.</p></details><details><summary>Permits & travel documents</summary><p>Requirements depend on the exact route and traveler nationality. Confirm current requirements with the relevant authority before paying for a restricted-area itinerary.</p><a href="https://www.sikkimtourism.gov.in/" target="_blank" rel="noopener noreferrer">Sikkim Tourism ↗</a> · <a href="https://www.eilp.arunachal.gov.in/" target="_blank" rel="noopener noreferrer">Arunachal eILP ↗</a></details></article><aside class="planning-card"><span class="eyebrow green">LET’S MAKE IT YOURS</span><h3>Your ${d.name}<br>chapter.</h3><p>Pick your dates, your people and your pace. Build a trip brief you can take with you.</p><a class="button" href="/planner?destination=${d.id}">Start planning ${arrow}</a><button class="button outline" data-save="${d.id}">${bookmark} Save this place</button><small>No payment required. Your plan stays on this device.</small></aside></section><section class="wrap section">${sectionHeading('KEEP WANDERING','Another place. <em>Another possibility.</em>')}<div class="featured-grid">${destinations.filter(x=>x.id!==d.id&&x.region===d.region).concat(destinations.filter(x=>x.region!==d.region)).slice(0,3).map((x,i)=>card(x,i,false)).join('')}</div></section>`;
- mountWeather($('#destination-weather'),d.id);
+  const d = destinations.find((d) => d.id === id);
+  if (!d) return notFound();
+  document.title = `${d.name} Travel Guide — KuboVistas`;
+  main.innerHTML = `<section class="destination-hero"><img src="${imageFor(d)}" alt="${d.type === "Coast" ? "Coastal inspiration from Goa" : "Himalayan inspiration from Darjeeling"}"><div class="wrap"><a class="back-link" href="/destinations">← All destinations</a><span class="eyebrow">${d.region} / ${d.type}</span><h1>${d.name}</h1><p>${d.tagline}</p><span class="photo-credit">${d.type === "Coast" ? "Coastal" : "Himalayan"} inspiration photograph</span></div></section><section class="wrap detail-layout"><article><div class="detail-facts"><div><span>SUGGESTED STAY</span><strong>${d.duration}</strong></div><div><span>YOUR KIND OF TRIP</span><strong>${d.type}</strong></div><div><span>TRAVEL STYLE</span><strong>At your pace</strong></div></div><span class="eyebrow green">GET TO KNOW THE PLACE</span><h2>A little further<br><em>from the everyday.</em></h2><p class="lead">${d.description}</p><h3>Make time for</h3><div class="highlight-grid">${d.highlights.map((h, i) => `<div><span>0${i + 1}</span><strong>${h}</strong></div>`).join("")}</div><div id="destination-weather"></div><h3>Before you go</h3><details open><summary>Getting there & getting around</summary><p>Confirm your arrival point and onward transfers with your accommodation or local operator. Leave room for delays and avoid scheduling a major activity immediately after a long transfer.</p></details><details><summary>Season, weather & access</summary><p>Choose dates around the experience you want. Check the forecast and current local road or entry conditions close to departure. Scenic views and seasonal activities cannot be guaranteed.</p></details><details><summary>Budget & accommodation</summary><p>Compare accommodation, meals, transfers and activities separately. Ask for a dated quotation with occupancy, inclusions and cancellation terms. KuboVistas does not display unverified live prices or room availability.</p></details><details><summary>Permits & travel documents</summary><p>Requirements depend on the exact route and traveler nationality. Confirm current requirements with the relevant authority before paying for a restricted-area itinerary.</p><a href="https://www.sikkimtourism.gov.in/" target="_blank" rel="noopener noreferrer">Sikkim Tourism ↗</a> · <a href="https://www.eilp.arunachal.gov.in/" target="_blank" rel="noopener noreferrer">Arunachal eILP ↗</a></details></article><aside class="planning-card"><span class="eyebrow green">LET’S MAKE IT YOURS</span><h3>Your ${d.name}<br>chapter.</h3><p>Pick your dates, your people and your pace. Build a trip brief you can take with you.</p><a class="button" href="/planner?destination=${d.id}">Start planning ${arrow}</a><button class="button outline" data-save="${d.id}">${bookmark} Save this place</button><small>No payment required. Your plan stays on this device.</small></aside></section><section class="wrap section">${sectionHeading("KEEP WANDERING", "Another place. <em>Another possibility.</em>")}<div class="featured-grid">${destinations
+    .filter((x) => x.id !== d.id && x.region === d.region)
+    .concat(destinations.filter((x) => x.region !== d.region))
+    .slice(0, 3)
+    .map((x, i) => card(x, i, false))
+    .join("")}</div></section>`;
+  main.querySelector(".destination-hero img").alt = imageAlt(d);
+  main.querySelector(".photo-credit").textContent =
+    "Original KuboVistas regional editorial illustration";
+  mountWeather($("#destination-weather"), d.id);
 }
-function journeyModal(id) { const j=journeys.find(j=>j.id===id);if(!j)return;$('#dialog-body').innerHTML=`<span class="eyebrow green">${j.type} / ${j.days} DAYS</span><h2 id="dialog-title">${j.name}</h2><p>${j.description}</p><ol class="itinerary">${j.schedule.map((s,i)=>`<li><span>DAY ${i+1}</span><label class="itinerary-editor">Your plan for day ${i+1}<textarea data-itinerary-day="${i}" maxlength="600" rows="3">${escapeHTML(s)}</textarea></label></li>`).join('')}</ol><p class="notice">Sample itinerary for inspiration. Transfers, access, accommodation and pricing need confirmation for your dates.</p><a class="button" id="customize-journey" href="/planner?destination=${j.stops[0]}&days=${j.days}">Make this journey yours ↗</a>`;$('#detail-dialog').showModal();$('#customize-journey').addEventListener('click',()=>{plan.destination=j.stops[0];plan.days=j.days;plan.itinerary=$$('[data-itinerary-day]',$('#dialog-body')).map(input=>input.value);$('#detail-dialog').close();}); }
-function journeysPage() {main.innerHTML=pageIntro('THE JOURNEY COLLECTION','Take the <em>long way round.</em>','Thoughtful starting points for a trip that’s entirely your own. Each itinerary is flexible and ready to personalize.')+`<section class="wrap section top-tight"><div class="journey-grid">${journeys.map(journeyCard).join('')}</div><div class="notice">These are sample routes, not bookable packages. Final travel plans require confirmed supplier availability, route access and a dated quotation.</div></section>`;}
-function guidePage(id) {if(id){const n=notes.find(n=>n.id===id);if(!n)return notFound();main.innerHTML=pageIntro(n.category,n.title,n.intro)+`<article class="wrap article-body"><div class="article-meta"><span>By <a href="/company/about">KuboVistas Editorial Team</a></span><span>Published ${n.published}</span><span>Reviewed ${n.updated}</span><span>${n.time} · ${n.wordCount} words</span></div>${n.sections.map((section,i)=>`<section class="article-section"><span>${String(i+1).padStart(2,'0')}</span><div><h2>${section.heading}</h2>${section.paragraphs.map(p=>`<p>${p}</p>`).join('')}</div></section>`).join('')}<aside class="article-sources"><h2>Official planning resources</h2><p>Rules, access and conditions can change. Recheck these official sources for your dates:</p><ul>${n.sources.map(source=>`<li><a href="${source.href}" target="_blank" rel="noopener noreferrer">${source.label} ↗</a></li>`).join('')}</ul></aside><a class="button" href="/guides">Back to travel guides ↗</a></article>`+affiliateSection('guide:'+n.id);}else{main.innerHTML=pageIntro('FIELD NOTES','A little more <em>in the know.</em>','Original, practical India travel guides researched and reviewed by the KuboVistas editorial team.')+`<section class="wrap section top-tight"><div class="notes-grid">${noteCards()}</div><div class="guide-banner"><h2>Heading into the mountains?</h2><p>Check current access and permit guidance for your route before you travel.</p><a class="underlined" href="https://www.sikkimtourism.gov.in/" target="_blank" rel="noopener noreferrer">Sikkim Tourism ↗</a><a class="underlined" href="https://www.eilp.arunachal.gov.in/" target="_blank" rel="noopener noreferrer">Arunachal eILP ↗</a></div></section>`;}}
-function about() {main.innerHTML=pageIntro('THE KuboVistas PHILOSOPHY','Go fewer places.<br><em>Feel a little more.</em>','A tours and travel agency built around curiosity: solo escapes, couple getaways, family holidays, group adventures and budget trips for students.')+`<section class="wrap about-layout"><img src="/assets/himalaya.jpg" alt="Kanchenjunga above forested hills" width="900" height="1000"><div><span class="eyebrow green">OUR POINT OF VIEW</span><h2>Not every good moment<br>is on <em>the itinerary.</em></h2><p>We’re building KuboVistas to grow a passion for travelling and help people get to know India through its landscapes, communities and everyday life. Travel Date brings adult travellers together around shared dates and destinations.</p><p>Start with our destination collection, explore a sample journey, and turn your favorite places into a personal trip brief. From North Bengal and Sikkim to Arunachal Pradesh and the coast, curiosity comes first.</p><div class="values"><div><strong>01 / Thoughtful over hurried</strong><p>Fewer stops. More time to experience them.</p></div><div><strong>02 / Local over ordinary</strong><p>Meet the place through its people and everyday rhythms.</p></div><div><strong>03 / Honest over impressive</strong><p>Clear information, flexible plans and no invented availability.</p></div></div><a class="button" href="/destinations">Find your somewhere ↗</a></div></section><section class="wrap section top-tight"><div class="company-grid"><article class="company-card"><span class="eyebrow green">01 / EXPLORE</span><h2>Start with curiosity.</h2><p>Use the destination map, seasonal guidance and Journal to shape your shortlist.</p></article><article class="company-card"><span class="eyebrow green">02 / PLAN</span><h2>Make room for your pace.</h2><p>Create a trip brief, then request a consultation when your dates and preferences take shape.</p></article><article class="company-card"><span class="eyebrow green">03 / CONFIRM</span><h2>Know what is included.</h2><p>Review the quotation, supplier details and cancellation terms before any advance payment.</p></article></div><div class="company-banner"><div><span class="eyebrow green">OUR EDITORIAL STANDARD</span><h2>Useful before impressive.</h2><p>KuboVistas guides are written for a real planning decision, reviewed with visible dates and linked to official sources where rules or conditions can change. We do not copy supplier descriptions, invent first-hand experience or update dates without reviewing the article. Readers can report a correction through our contact page.</p></div><a class="button" href="/guides">Read travel guides ↗</a></div><div class="company-banner"><div><h2>Build something thoughtful with us.</h2><p>Explore careers, stay partnerships and responsible collaborations.</p></div><a class="button" href="/company/contact">Talk to KuboVistas ↗</a></div><div class="journal-actions"><a class="underlined" href="/company/careers">Careers ↗</a><a class="underlined" href="/company/partnerships">Partner with us ↗</a><a class="underlined" href="/company/sponsors">Sponsorship ↗</a></div></section>`;}
+function journeyModal(id) {
+  const j = journeys.find((j) => j.id === id);
+  if (!j) return;
+  $("#dialog-body").innerHTML =
+    `<span class="eyebrow green">${j.type} / ${j.days} DAYS</span><h2 id="dialog-title">${j.name}</h2><p>${j.description}</p><ol class="itinerary">${j.schedule.map((s, i) => `<li><span>DAY ${i + 1}</span><label class="itinerary-editor">Your plan for day ${i + 1}<textarea data-itinerary-day="${i}" maxlength="600" rows="3">${escapeHTML(s)}</textarea></label></li>`).join("")}</ol><p class="notice">Sample itinerary for inspiration. Transfers, access, accommodation and pricing need confirmation for your dates.</p><a class="button" id="customize-journey" href="/planner?destination=${j.stops[0]}&days=${j.days}">Make this journey yours ↗</a>`;
+  $("#detail-dialog").showModal();
+  $("#customize-journey").addEventListener("click", () => {
+    plan.destination = j.stops[0];
+    plan.days = j.days;
+    plan.itinerary = $$("[data-itinerary-day]", $("#dialog-body")).map(
+      (input) => input.value,
+    );
+    $("#detail-dialog").close();
+  });
+}
+function journeysPage() {
+  main.innerHTML =
+    pageIntro(
+      "THE JOURNEY COLLECTION",
+      "Take the <em>long way round.</em>",
+      "Thoughtful starting points for a trip that’s entirely your own. Each itinerary is flexible and ready to personalize.",
+    ) +
+    `<section class="wrap section top-tight"><div class="journey-grid">${journeys.map(journeyCard).join("")}</div><div class="notice">These are sample routes, not bookable packages. Final travel plans require confirmed supplier availability, route access and a dated quotation.</div></section>`;
+}
+async function guidePage(id) {
+  if (id) {
+    const n = notes.find((n) => n.id === id);
+    if (!n) return notFound();
+    const { affiliateSection } = await import("./affiliates.js");
+    main.innerHTML =
+      pageIntro(n.category, n.title, n.intro) +
+      `<article class="wrap article-body"><div class="article-meta"><span>By <a href="/company/about">KuboVistas Editorial Team</a></span><span>Published ${n.published}</span><span>Reviewed ${n.updated}</span><span>${n.time} · ${n.wordCount} words</span></div>${n.sections.map((section, i) => `<section class="article-section"><span>${String(i + 1).padStart(2, "0")}</span><div><h2>${section.heading}</h2>${section.paragraphs.map((p) => `<p>${p}</p>`).join("")}</div></section>`).join("")}<aside class="article-sources"><h2>Official planning resources</h2><p>Rules, access and conditions can change. Recheck these official sources for your dates:</p><ul>${n.sources.map((source) => `<li><a href="${source.href}" target="_blank" rel="noopener noreferrer">${source.label} ↗</a></li>`).join("")}</ul></aside><a class="button" href="/guides">Back to travel guides ↗</a></article>` +
+      affiliateSection("guide:" + n.id);
+  } else {
+    main.innerHTML =
+      pageIntro(
+        "FIELD NOTES",
+        "A little more <em>in the know.</em>",
+        "Original, practical India travel guides researched and reviewed by the KuboVistas editorial team.",
+      ) +
+      `<section class="wrap section top-tight"><div class="notes-grid">${noteCards()}</div><div class="guide-banner"><h2>Heading into the mountains?</h2><p>Check current access and permit guidance for your route before you travel.</p><a class="underlined" href="https://www.sikkimtourism.gov.in/" target="_blank" rel="noopener noreferrer">Sikkim Tourism ↗</a><a class="underlined" href="https://www.eilp.arunachal.gov.in/" target="_blank" rel="noopener noreferrer">Arunachal eILP ↗</a></div></section>`;
+  }
+}
+function about() {
+  main.innerHTML =
+    pageIntro(
+      "THE KuboVistas PHILOSOPHY",
+      "Go fewer places.<br><em>Feel a little more.</em>",
+      "A tours and travel agency built around curiosity: solo escapes, couple getaways, family holidays, group adventures and budget trips for students.",
+    ) +
+    `<section class="wrap about-layout"><img src="/assets/himalaya.jpg" alt="Kanchenjunga above forested hills" width="900" height="1000"><div><span class="eyebrow green">OUR POINT OF VIEW</span><h2>Not every good moment<br>is on <em>the itinerary.</em></h2><p>We’re building KuboVistas to grow a passion for travelling and help people get to know India through its landscapes, communities and everyday life. Travel Date brings adult travellers together around shared dates and destinations.</p><p>Start with our destination collection, explore a sample journey, and turn your favorite places into a personal trip brief. From North Bengal and Sikkim to Arunachal Pradesh and the coast, curiosity comes first.</p><div class="values"><div><strong>01 / Thoughtful over hurried</strong><p>Fewer stops. More time to experience them.</p></div><div><strong>02 / Local over ordinary</strong><p>Meet the place through its people and everyday rhythms.</p></div><div><strong>03 / Honest over impressive</strong><p>Clear information, flexible plans and no invented availability.</p></div></div><a class="button" href="/destinations">Find your somewhere ↗</a></div></section><section class="wrap section top-tight"><div class="company-grid"><article class="company-card"><span class="eyebrow green">01 / EXPLORE</span><h2>Start with curiosity.</h2><p>Use the destination map, seasonal guidance and Journal to shape your shortlist.</p></article><article class="company-card"><span class="eyebrow green">02 / PLAN</span><h2>Make room for your pace.</h2><p>Create a trip brief, then request a consultation when your dates and preferences take shape.</p></article><article class="company-card"><span class="eyebrow green">03 / CONFIRM</span><h2>Know what is included.</h2><p>Review the quotation, supplier details and cancellation terms before any advance payment.</p></article></div><div class="company-banner"><div><span class="eyebrow green">OUR EDITORIAL STANDARD</span><h2>Useful before impressive.</h2><p>KuboVistas guides are written for a real planning decision, reviewed with visible dates and linked to official sources where rules or conditions can change. We do not copy supplier descriptions, invent first-hand experience or update dates without reviewing the article. Readers can report a correction through our contact page.</p></div><a class="button" href="/guides">Read travel guides ↗</a></div><div class="company-banner"><div><h2>Build something thoughtful with us.</h2><p>Explore careers, stay partnerships and responsible collaborations.</p></div><a class="button" href="/company/contact">Talk to KuboVistas ↗</a></div><div class="journal-actions"><a class="underlined" href="/company/careers">Careers ↗</a><a class="underlined" href="/company/partnerships">Partner with us ↗</a><a class="underlined" href="/company/sponsors">Sponsorship ↗</a></div></section>`;
+}
 function applyPlannerParams() {
- const originalDestination=plan.destination,originalDays=plan.days;const p=new URLSearchParams(location.search);if(validIds.has(p.get('destination')))plan.destination=p.get('destination');if(p.get('days'))plan.days=Math.min(14,Math.max(2,Math.round(Number(p.get('days')))||4));if(originalDestination!==plan.destination||originalDays!==plan.days)delete plan.itinerary;
+  const originalDestination = plan.destination,
+    originalDays = plan.days;
+  const p = new URLSearchParams(location.search);
+  if (validIds.has(p.get("destination")))
+    plan.destination = p.get("destination");
+  if (p.get("days"))
+    plan.days = Math.min(
+      14,
+      Math.max(2, Math.round(Number(p.get("days"))) || 4),
+    );
+  if (originalDestination !== plan.destination || originalDays !== plan.days)
+    delete plan.itinerary;
 }
 function planner() {
- main.innerHTML=pageIntro('THE PERSONAL TRIP PLANNER','Your pace.<br><em>Your next chapter.</em>','A few thoughtful choices. A trip brief that’s yours to keep.')+`<section class="wrap planner-layout"><div><div class="steps" aria-label="Planning progress">${['The place','The details','Your trip brief'].map((s,i)=>`<button data-step="${i+1}" class="${plannerStep===i+1?'active':''}" ${plannerStep===i+1?'aria-current="step"':''}><span>0${i+1}</span>${s}</button>`).join('')}</div><div id="planner-form"></div></div><aside class="planner-aside"><span class="eyebrow">A LITTLE LESS PLANNING.<br>A LITTLE MORE POSSIBILITY.</span><h2>Leave room<br>for <em>wonder.</em></h2><img src="/assets/himalaya.jpg" alt="Himalayan mountain peaks" width="600" height="700"><div><span>YOUR PLAN, YOUR DEVICE</span><p>Drafts stay in this browser. Choose Request a consultation to send your brief to your signed-in account for review.</p></div></aside></section>`;
- $$('[data-step]').forEach(b=>b.addEventListener('click',()=>{capturePlan();plannerStep=Number(b.dataset.step);planner();setupMotion();}));renderPlannerStep();
+  main.innerHTML =
+    pageIntro(
+      "THE PERSONAL TRIP PLANNER",
+      "Your pace.<br><em>Your next chapter.</em>",
+      "A few thoughtful choices. A trip brief that’s yours to keep.",
+    ) +
+    `<section class="wrap planner-layout"><div><div class="steps" aria-label="Planning progress">${["The place", "The details", "Your trip brief"].map((s, i) => `<button data-step="${i + 1}" class="${plannerStep === i + 1 ? "active" : ""}" ${plannerStep === i + 1 ? 'aria-current="step"' : ""}><span>0${i + 1}</span>${s}</button>`).join("")}</div><div id="planner-form"></div></div><aside class="planner-aside"><span class="eyebrow">A LITTLE LESS PLANNING.<br>A LITTLE MORE POSSIBILITY.</span><h2>Leave room<br>for <em>wonder.</em></h2><img src="/assets/himalaya.jpg" alt="Himalayan mountain peaks" width="600" height="700"><div><span>YOUR PLAN, YOUR DEVICE</span><p>Drafts stay in this browser. Choose Request a consultation to send your brief to your signed-in account for review.</p></div></aside></section>`;
+  $$("[data-step]").forEach((b) =>
+    b.addEventListener("click", () => {
+      capturePlan();
+      plannerStep = Number(b.dataset.step);
+      planner();
+      setupMotion();
+    }),
+  );
+  renderPlannerStep();
 }
-function capturePlan(){const f=$('#trip-form');if(!f)return;const fd=new FormData(f);if(fd.has('destination')&&(fd.get('destination')!==plan.destination||Number(fd.get('days'))!==plan.days))delete plan.itinerary;for(const key of ['destination','days','travelers','style','date','budget'])if(fd.has(key))plan[key]=['days','travelers','budget'].includes(key)?Number(fd.get(key)):fd.get(key);plan.days=Math.min(14,Math.max(2,Math.round(plan.days)||4));plan.travelers=Math.min(12,Math.max(1,Math.round(plan.travelers)||2));plan.budget=Math.min(100000,Math.max(3000,Number(plan.budget)||15000));}
-function renderPlannerStep(){
- const d=destinations.find(x=>x.id===plan.destination);
- if(plannerStep===1){$('#planner-form').innerHTML=`<form id="trip-form"><h2>Where are you dreaming of?</h2><p>Start with one destination. You can add detail to the brief later.</p><label>Your destination<select name="destination">${destinations.map(x=>`<option value="${x.id}" ${plan.destination===x.id?'selected':''}>${x.name} · ${x.region}</option>`).join('')}</select></label><div class="form-grid"><label>Days away<input name="days" type="number" min="2" max="14" value="${plan.days}" required></label><label>Travelers<input name="travelers" type="number" min="1" max="12" value="${plan.travelers}" required></label></div><button class="button" type="submit">Make it yours ↗</button></form>`;}
- else if(plannerStep===2){$('#planner-form').innerHTML=`<form id="trip-form"><h2>Set your own rhythm.</h2><p>These are your preferences, not confirmed bookings or quoted prices.</p><label>Preferred departure <span class="optional">Optional</span><input name="date" type="date" min="${new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}" value="${escapeHTML(plan.date)}"></label><label>Your travel style<select name="style">${['Slow & scenic','Culture & connection','Nature & walking','Friends & adventure','Family time'].map(s=>`<option ${plan.style===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Target budget per person <output id="budget-output">${money(plan.budget)}</output><input name="budget" type="range" min="3000" max="100000" step="500" value="${plan.budget}"></label><p class="small-copy">Your own budget target for the whole trip. Actual supplier quotations may differ.</p><button class="button" type="submit">Review itinerary & payment steps ↗</button></form>`; $('[name=budget]').addEventListener('input',e=>$('#budget-output').textContent=money(Number(e.target.value)));}
- else {$('#planner-form').innerHTML=`<div class="trip-summary"><span class="eyebrow green">A NEW CHAPTER, READY TO SHAPE</span><h2>${d.name},<br><em>your way.</em></h2><div class="summary-pills"><span>${plan.days} days</span><span>${plan.travelers} ${plan.travelers===1?'traveler':'travelers'}</span><span>${escapeHTML(plan.style)}</span></div><dl><div><dt>Preferred departure</dt><dd>${plan.date?escapeHTML(plan.date):'Flexible dates'}</dd></div><div><dt>Your target per person</dt><dd>${money(plan.budget)}</dd></div><div><dt>Your total group budget</dt><dd>${money(plan.budget*plan.travelers)}</dd></div></dl><section class="deposit-policy"><h3>Your booking payment plan</h3><p>Planning is free. Once your quotation is ready, pay a 20% booking deposit. The remaining 80% is due after operator-verified check-in. Your planning budget is not a payable quotation.</p><p>Review the dated quotation and cancellation deductions before paying.</p></section><h3>Your starting itinerary</h3><ol class="itinerary">${planOutline(d).map((s,i)=>`<li><span>DAY ${i+1}</span><label class="itinerary-editor">Your plan for day ${i+1}<textarea data-itinerary-day="${i}" maxlength="600" rows="3">${escapeHTML(s)}</textarea></label></li>`).join('')}</ol><p class="notice">This is an editable starting point, not a confirmed itinerary or quotation. A consultation request does not create a booking or payment obligation.</p><div class="consultation-cta"><span class="eyebrow">READY FOR A HUMAN TOUCH?</span><h3>Ask a travel expert to shape the details.</h3><p>Sign in, send this brief and receive a reviewed quotation before any payment is requested.</p><button class="button" id="request-consultation">Request a consultation ${arrow}</button><p id="consultation-status" role="status"></p></div><div class="summary-actions"><button class="button outline" id="save-plan">Save on this device</button><button class="button outline" id="download-plan">Download brief ↓</button><button class="text-button" id="edit-plan">Edit my choices</button></div></div>`;plan.itinerary=planOutline(d);$$('[data-itinerary-day]').forEach(input=>input.addEventListener('input',()=>{plan.itinerary[Number(input.dataset.itineraryDay)]=input.value;}));$('#save-plan').addEventListener('click',()=>{if(write('kubovista:plan',plan))toast('Your trip brief is saved on this device.');});const weatherHost=document.createElement('div');$('#planner-form').append(weatherHost);mountWeather(weatherHost,d.id,plan.date);const transportHost=document.createElement('div');transportHost.innerHTML=transportLinks();$('#planner-form').append(transportHost);$('#download-plan').addEventListener('click',downloadPlan);$('#edit-plan').addEventListener('click',()=>{plannerStep=1;planner();});$('#request-consultation').addEventListener('click',async e=>{const status=$('#consultation-status');const requestButton=e.currentTarget;requestButton.disabled=true;status.textContent='Preparing your secure request…';try{write('kubovista:plan',plan);await createConsultation(plan);}catch(error){status.textContent=error.message;requestButton.disabled=false;}});return;}
- $('#trip-form').addEventListener('submit',e=>{e.preventDefault();capturePlan();plannerStep++;planner();$('#planner-form').scrollIntoView({behavior:reducedMotion()?'instant':'smooth',block:'start'});});
+function capturePlan() {
+  const f = $("#trip-form");
+  if (!f) return;
+  const fd = new FormData(f);
+  if (
+    fd.has("destination") &&
+    (fd.get("destination") !== plan.destination ||
+      Number(fd.get("days")) !== plan.days)
+  )
+    delete plan.itinerary;
+  for (const key of [
+    "destination",
+    "days",
+    "travelers",
+    "style",
+    "date",
+    "budget",
+  ])
+    if (fd.has(key))
+      plan[key] = ["days", "travelers", "budget"].includes(key)
+        ? Number(fd.get(key))
+        : fd.get(key);
+  plan.days = Math.min(14, Math.max(2, Math.round(plan.days) || 4));
+  plan.travelers = Math.min(12, Math.max(1, Math.round(plan.travelers) || 2));
+  plan.budget = Math.min(100000, Math.max(3000, Number(plan.budget) || 15000));
 }
-function planOutline(d){if(Array.isArray(plan.itinerary)&&plan.itinerary.length===plan.days)return plan.itinerary.map(x=>String(x).slice(0,600));return Array.from({length:plan.days},(_,i)=>i===0?`Arrive in ${d.name}, settle into your accommodation and keep the evening relaxed.`:i===plan.days-1?'Leave time for breakfast, packing and your confirmed onward transfer.':i%3===0?'Keep a flexible day for local recommendations, rest or weather changes.':`Plan time for ${d.highlights[(i-1)%d.highlights.length].toLowerCase()}. Confirm access and arrangements locally.`);}
-function downloadPlan(){const d=destinations.find(x=>x.id===plan.destination);const content=`KuboVistas — YOUR PERSONAL TRIP BRIEF\n\nDestination: ${d.name}\nDuration: ${plan.days} days\nTravelers: ${plan.travelers}\nStyle: ${plan.style}\nDeparture: ${plan.date||'Flexible'}\nYour budget target per person: ${money(plan.budget)}\nGroup budget target: ${money(plan.budget*plan.travelers)}\n\nSUGGESTED STARTING ITINERARY\n${planOutline(d).map((s,i)=>`Day ${i+1}: ${s}`).join('\n')}\n\nNot a booking or quotation. Confirm accommodation, transfers, permits, access and prices with providers.\nYour brief has not been sent to a travel agent.\n`;const url=URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`KuboVistas-${d.id}-trip-brief.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Your trip brief is ready to download.');}
-function legalHub(){document.title='Legal Centre — KuboVistas';main.innerHTML=pageIntro('LEGAL CENTRE','Straightforward policies.<br><em>Built for trust.</em>','Everything you should know before using KuboVistas to explore or plan a trip.')+`<section class="wrap legal-overview"><div class="legal-status reveal"><span class="eyebrow green">CURRENT SERVICE STATUS</span><h2>Accounts and payments.<br><em>Available when activated.</em></h2><p>KuboVistas includes optional traveler accounts, consultation requests, quotations and secure advance payments. Availability depends on service activation. A consultation request is not a confirmed reservation.</p><span>Policy review · ${legalUpdated}</span></div><div class="legal-grid">${legalOrder.map((id,i)=>{const p=legalPages[id];return `<a class="legal-card reveal" style="--delay:${i%4*55}ms" href="/${id}"><span>${String(i+1).padStart(2,'0')}</span><h2>${p.label}</h2><p>${p.summary}</p><b>Read policy ↗</b></a>`;}).join('')}</div><aside class="legal-readiness reveal"><span aria-hidden="true">!</span><div><strong>Owner action before commercial launch</strong><p>Publish the verified legal entity name, address, private contact email and grievance-officer details before enabling accounts, enquiries, supplier reservations or payments. These details are not invented in this prototype.</p></div></aside></section>`;}
-function clearLocalData(){try{['kubovista:saved','kubovista:plan'].forEach(k=>localStorage.removeItem(k));saved.clear();plan={destination:'darjeeling',days:4,travelers:2,style:'Slow & scenic',date:'',budget:15000};updateSaved();$('#clear-status').textContent='Saved destinations and planner data have been cleared from this browser.';}catch{toast('Your browser did not allow clearing storage.');}}
-async function legalPage(id){const page=legalPages[id];if(!page)return notFound();document.title=`${page.label} — KuboVistas`;const sectionNav=legalOrder.map(key=>`<a href="/${key}" ${key===id?'aria-current="page"':''}>${legalPages[key].label}</a>`).join('');main.innerHTML=pageIntro(page.eyebrow,page.title,page.summary)+`<section class="wrap legal-layout"><nav class="legal-nav" aria-label="Legal policies"><span>LEGAL CENTRE</span>${sectionNav}<a class="legal-all" href="/legal">View all policies ↗</a></nav><article class="legal-document"><div class="legal-meta"><span>Effective ${legalUpdated}</span><span>Version 1.0</span><span>India</span></div>${page.sections.map((section,i)=>`<section class="legal-section reveal"><span class="legal-number">${String(i+1).padStart(2,'0')}</span><div><h2>${section.title}</h2>${(section.paragraphs||[]).map(p=>`<p>${p}</p>`).join('')}${section.bullets?`<ul>${section.bullets.map(item=>`<li>${item}</li>`).join('')}</ul>`:''}${section.links?`<div class="legal-links">${section.links.map(link=>`<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join('')}</div>`:''}</div></section>`).join('')}${page.control==='clear'?`<div class="legal-control"><span class="eyebrow green">YOUR BROWSER DATA</span><h2>Clear what this device remembers.</h2><p>This removes saved destinations and planner data. It does not clear the motion preference or data belonging to external websites.</p><button class="button outline" id="clear-data">Clear saved places & trip plan</button><p id="clear-status" role="status" aria-live="polite"></p></div>`:''}<div class="legal-note"><strong>Important</strong><p>These pages document the current website and are not a substitute for advice from a qualified legal professional. KuboVistas should obtain a formal legal review before launching commercial bookings or collecting personal data.</p></div></article></section>`;$('#clear-data')?.addEventListener('click',clearLocalData);if(['terms','grievance'].includes(id)){const currentUrl=location.href;try{const response=await fetch('/api/config?service=contact-info');const info=await response.json();if(currentUrl!==location.href||!info.business||!main.querySelector('.legal-document'))return;const section=document.createElement('section');section.className='legal-section';section.innerHTML=`<div><h2>Verified business contact</h2><p>Seller: ${escapeHTML(info.business.name||'')}</p><p>Address: ${escapeHTML(info.address||'')}</p><p>Customer care: ${escapeHTML(info.email||'')}</p><p>Grievance contact: ${escapeHTML(info.business.grievanceEmail||'')}</p><p>Tax disclosure: ${escapeHTML(info.business.tax||'')}</p></div>`;main.querySelector('.legal-document').append(section);}catch{}}}
-function notFound(){main.innerHTML=pageIntro('A SMALL DETOUR','This trail <em>ends here.</em>','We couldn’t find that page. There are plenty of other places to discover.')+'<div class="wrap section top-tight"><a class="button" href="/destinations">Explore destinations ↗</a></div>';}
-function reducedMotion(){return motionOff||mediaMotion.matches;}
-function updateMotion(){document.documentElement.classList.toggle('reduce-motion',reducedMotion());$('#motion-toggle').textContent=`Motion: ${reducedMotion()?'off':'on'}`;$('#motion-toggle').setAttribute('aria-pressed',String(reducedMotion()));if(reducedMotion()){$$('.reveal').forEach(e=>e.classList.add('visible'));$$('[data-tilt]').forEach(e=>e.style.transform='');const img=$('.hero-image');if(img)img.style.transform='';}}
-function setupMotion(){if(observer)observer.disconnect();observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:0.07});$$('.reveal').forEach(e=>{if(reducedMotion())e.classList.add('visible');else observer.observe(e);});$$('[data-tilt]').forEach(el=>{el.onpointermove=e=>{if(reducedMotion()||e.pointerType==='touch')return;const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(1000px) rotateX(${-y*5}deg) rotateY(${x*6}deg) translateY(-4px)`;};el.onpointerleave=()=>el.style.transform='';});}
-function closeMenu(){$$('main,footer,.mobile-dock,.kubo-launcher').forEach(el=>el.inert=false);$('#nav-more')?.removeAttribute('open');const nav=$('#nav');nav.classList.remove('open');document.body.classList.remove('menu-open');$('#nav-backdrop').classList.remove('visible');$('#menu-toggle').setAttribute('aria-expanded','false');$('#menu-toggle').textContent='☰';$('#menu-toggle').setAttribute('aria-label','Open navigation');}
-function updateDock(routeName){$$('[data-dock]').forEach(link=>{const active=link.dataset.dock===(routeName||'home')||(routeName==='destination'&&link.dataset.dock==='destinations')||(accountRoutes.has(routeName)&&link.dataset.dock==='dashboard');link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});}
-function updatePageMetadata(parts){
- const name=parts[0],id=parts[1];let title='KuboVistas | Thoughtful India Travel Guides & Tours';let description='Explore thoughtful India travel guides, slow journeys and trip-planning ideas across North Bengal, Sikkim, Arunachal Pradesh and Goa.';
- const d=name==='destination'&&destinations.find(item=>item.id===id);const n=name==='guide'&&notes.find(item=>item.id===id);
- if(name==='packages'&&packageById(routeParts()[1])){const p=packageById(routeParts()[1]);title=p.name+' | KuboVistas';description=p.intro;}
- else if(d){title=`${d.name} Travel Guide & Tour Ideas | KuboVistas`;description=d.description;}
- else if(n){title=`${n.title} | KuboVistas Travel Guide`;description=n.intro;}
- else {const labels={regions:['India Region Travel Hubs | KuboVistas','Explore regional travel guides and routes across India.'],search:['Search Travel Guides | KuboVistas','Search KuboVistas destinations, guides, packages and published stories.'],stories:['Editorial Stories | KuboVistas','Read published travel stories with clear sponsorship labels.'],resources:['Affiliate Travel Resources | KuboVistas','Explore approved affiliate travel resources with clear disclosures.'],reviews:['Traveler Reviews | KuboVistas','Read moderated reviews from verified trip participants.'],destinations:['India Travel Destinations & Tour Guides | KuboVistas','Browse 28 destination guides across the Himalayas, North Bengal, Sikkim, Arunachal Pradesh, Goa and coastal Bengal.'],packages:['Signature India Tour Packages | KuboVistas','Explore flexible tour concepts with personal quotations and transparent inclusions.'],journeys:['India Tour Itineraries & Slow Journeys | KuboVistas','Explore flexible India tour itineraries designed with realistic travel time and room to wander.'],guide:['India Travel Tips & Practical Guides | KuboVistas','Read practical India travel guides covering itineraries, packing and respectful local travel.'],journal:['India Travel Journal & Traveler Stories | KuboVistas','Read KuboVistas field notes and reviewed traveler stories from journeys across India.'],membership:["KuboVistas Traveller’s Circle Membership",'Explore free planning tools and proposed annual travel-planning support.'],'travel-date':['Find India Travel Companions | KuboVistas','Find adults with similar India travel destinations, dates and budgets.'],planner:['Plan an India Trip | KuboVistas','Build a personal India trip brief around your dates, group, budget and preferred travel pace.'],about:['About KuboVistas | Thoughtful India Travel','Meet an India travel company built around slower journeys, clear information and meaningful local experiences.'],contact:['Contact KuboVistas Travel Team','Contact KuboVistas about India trip planning, partnerships, stays or travel questions.'],careers:['Travel Careers at KuboVistas','Explore career and collaboration opportunities with KuboVistas.'],partnerships:['Travel Partnerships | KuboVistas','Partner with KuboVistas as a stay, guide or responsible outdoor operator.'],sponsors:['Travel Sponsorships | KuboVistas','Discuss relevant and transparent travel sponsorship opportunities.'],stays:['India Hotels, Homestays & Hostels | KuboVistas','Explore confirmed accommodation partners and enquire about stays.'],camping:['Camping & Trekking Equipment in India | KuboVistas','Explore responsible camping and trekking support information.'],legal:['KuboVistas Legal Centre','Read KuboVistas travel, privacy, accessibility and website policies.'],login:['Sign in to KuboVistas','Sign in securely to manage your KuboVistas travel plans and quotations.'],signup:['Create a KuboVistas Account','Create your secure KuboVistas traveler account.'],dashboard:['Your KuboVistas Dashboard','Manage private travel plans, quotations and account details.']};if(legalPages[name]){title=`${legalPages[name].label} | KuboVistas`;description=legalPages[name].summary;}else if(labels[name])[title,description]=labels[name];else if(accountRoutes.has(name)){title='Your KuboVistas Account';description='Secure KuboVistas account and trip-planning page.';}}
- const privatePage=name==='search'||accountRoutes.has(name)||['planner','write','my-stories','journal-review','payment','checkout','booking','confirmation','thank-you','cancellation-request'].includes(name);
- document.title=title;document.querySelector('meta[name="description"]')?.setAttribute('content',description);document.querySelector('meta[name="robots"]')?.setAttribute('content',privatePage?'noindex, nofollow, noarchive':'index, follow, max-image-preview:large');document.querySelector('link[rel="canonical"]')?.setAttribute('href',location.origin+location.pathname);
+function renderPlannerStep() {
+  const d = destinations.find((x) => x.id === plan.destination);
+  if (plannerStep === 1) {
+    $("#planner-form").innerHTML =
+      `<form id="trip-form"><h2>Where are you dreaming of?</h2><p>Start with one destination. You can add detail to the brief later.</p><label>Your destination<select name="destination">${destinations.map((x) => `<option value="${x.id}" ${plan.destination === x.id ? "selected" : ""}>${x.name} · ${x.region}</option>`).join("")}</select></label><div class="form-grid"><label>Days away<input name="days" type="number" min="2" max="14" value="${plan.days}" required></label><label>Travelers<input name="travelers" type="number" min="1" max="12" value="${plan.travelers}" required></label></div><button class="button" type="submit">Make it yours ↗</button></form>`;
+  } else if (plannerStep === 2) {
+    $("#planner-form").innerHTML =
+      `<form id="trip-form"><h2>Set your own rhythm.</h2><p>These are your preferences, not confirmed bookings or quoted prices.</p><label>Preferred departure <span class="optional">Optional</span><input name="date" type="date" min="${new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)}" value="${escapeHTML(plan.date)}"></label><label>Your travel style<select name="style">${["Slow & scenic", "Culture & connection", "Nature & walking", "Friends & adventure", "Family time"].map((s) => `<option ${plan.style === s ? "selected" : ""}>${s}</option>`).join("")}</select></label><label>Target budget per person <output id="budget-output">${money(plan.budget)}</output><input name="budget" type="range" min="3000" max="100000" step="500" value="${plan.budget}"></label><p class="small-copy">Your own budget target for the whole trip. Actual supplier quotations may differ.</p><button class="button" type="submit">Review itinerary & payment steps ↗</button></form>`;
+    $("[name=budget]").addEventListener(
+      "input",
+      (e) => ($("#budget-output").textContent = money(Number(e.target.value))),
+    );
+  } else {
+    $("#planner-form").innerHTML =
+      `<div class="trip-summary"><span class="eyebrow green">A NEW CHAPTER, READY TO SHAPE</span><h2>${d.name},<br><em>your way.</em></h2><div class="summary-pills"><span>${plan.days} days</span><span>${plan.travelers} ${plan.travelers === 1 ? "traveler" : "travelers"}</span><span>${escapeHTML(plan.style)}</span></div><dl><div><dt>Preferred departure</dt><dd>${plan.date ? escapeHTML(plan.date) : "Flexible dates"}</dd></div><div><dt>Your target per person</dt><dd>${money(plan.budget)}</dd></div><div><dt>Your total group budget</dt><dd>${money(plan.budget * plan.travelers)}</dd></div></dl><section class="deposit-policy"><h3>Your booking payment plan</h3><p>Planning is free. Once your quotation is ready, pay a 20% booking deposit. The remaining 80% is due after operator-verified check-in. Your planning budget is not a payable quotation.</p><p>Review the dated quotation and cancellation deductions before paying.</p></section><h3>Your starting itinerary</h3><ol class="itinerary">${planOutline(
+        d,
+      )
+        .map(
+          (s, i) =>
+            `<li><span>DAY ${i + 1}</span><label class="itinerary-editor">Your plan for day ${i + 1}<textarea data-itinerary-day="${i}" maxlength="600" rows="3">${escapeHTML(s)}</textarea></label></li>`,
+        )
+        .join(
+          "",
+        )}</ol><p class="notice">This is an editable starting point, not a confirmed itinerary or quotation. A consultation request does not create a booking or payment obligation.</p><div class="consultation-cta"><span class="eyebrow">READY FOR A HUMAN TOUCH?</span><h3>Ask a travel expert to shape the details.</h3><p>Sign in, send this brief and receive a reviewed quotation before any payment is requested.</p><button class="button" id="request-consultation">Request a consultation ${arrow}</button><p id="consultation-status" role="status"></p></div><div class="summary-actions"><button class="button outline" id="save-plan">Save on this device</button><button class="button outline" id="download-plan">Download brief ↓</button><button class="text-button" id="edit-plan">Edit my choices</button></div></div>`;
+    plan.itinerary = planOutline(d);
+    $$("[data-itinerary-day]").forEach((input) =>
+      input.addEventListener("input", () => {
+        plan.itinerary[Number(input.dataset.itineraryDay)] = input.value;
+      }),
+    );
+    $("#save-plan").addEventListener("click", () => {
+      if (write("kubovista:plan", plan))
+        toast("Your trip brief is saved on this device.");
+    });
+    const weatherHost = document.createElement("div");
+    $("#planner-form").append(weatherHost);
+    mountWeather(weatherHost, d.id, plan.date);
+    const transportHost = document.createElement("div");
+    transportHost.innerHTML = transportLinks();
+    $("#planner-form").append(transportHost);
+    $("#download-plan").addEventListener("click", downloadPlan);
+    $("#edit-plan").addEventListener("click", () => {
+      plannerStep = 1;
+      planner();
+    });
+    $("#request-consultation").addEventListener("click", async (e) => {
+      const status = $("#consultation-status");
+      const requestButton = e.currentTarget;
+      requestButton.disabled = true;
+      status.textContent = "Preparing your secure request…";
+      try {
+        write("kubovista:plan", plan);
+        await createConsultation(plan);
+      } catch (error) {
+        status.textContent = error.message;
+        requestButton.disabled = false;
+      }
+    });
+    return;
+  }
+  $("#trip-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    capturePlan();
+    plannerStep++;
+    planner();
+    $("#planner-form").scrollIntoView({
+      behavior: reducedMotion() ? "instant" : "smooth",
+      block: "start",
+    });
+  });
 }
-async function route(){const version=String(++routeVersion);main.dataset.routeVersion=version;disposeMap();if($('#detail-dialog').open)$('#detail-dialog').close();observer?.disconnect();const parts=routeParts();document.title='KuboVistas — Somewhere worth slowing down';closeMenu();document.body.className=document.body.className.replace(/route-[\w-]+/g,'').trim();document.body.classList.add(`route-${parts[0]||'home'}`);document.body.classList.toggle('home-page',!parts.length);$$('#nav a').forEach(a=>{const target=routeParts(new URL(a.href,location.origin).pathname)[0];const current=target===(parts[0]||'');a.classList.toggle('active',current);if(current)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#nav-more').classList.toggle('has-current',!!$('#nav-more a.active'));updateDock(parts[0]);main.classList.remove('route-ready');try{switch(parts[0]){case undefined:home();break;case'destinations':directory();break;case'destination':destinationPage(parts[1]);break;case'journeys':journeysPage();break;case'packages':renderPackages(main,parts[1]);break;case'regions':case'search':case'stories':case'reviews':case'resources':await renderGrowthPublic(parts[0],parts[1],main);break;case'membership':renderMembership(main);break;case'travel-date':await renderTravelDate(main);break;case'journal':case'story':case'write':case'my-stories':case'journal-review':await renderJournal(parts[0],parts[1],main);break;case'guide':guidePage(parts[1]);break;case'planner':plannerStep=1;applyPlannerParams();planner();break;case'about':about();break;case'legal':legalHub();break;case'privacy':case'terms':case'cookies':case'cancellation':case'disclaimer':case'accessibility':case'grievance':case'copyright':await legalPage(parts[0]);break;default:if(companyRoutes.has(parts[0]))await companyPage(parts[0],main);else if(accountRoutes.has(parts[0]))await renderAccountRoute(parts[0],parts[1],main,toast);else notFound();}}catch(error){if(main.dataset.routeVersion!==version)return;main.innerHTML=pageIntro('ACCOUNT SERVICE','A brief pause.<br><em>Your plans are safe.</em>',escapeHTML(error.message||'The account service could not be reached.'))+'<div class="wrap section top-tight"><a class="button" href="/">Return home ↗</a></div>';}if(main.dataset.routeVersion!==version)return;updatePageMetadata(parts);updateSaved();await syncAccountButton();if(main.dataset.routeVersion!==version)return;setupMotion();scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true});requestAnimationFrame(()=>{main.classList.add('route-ready');mountAd(main);});}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-save]');if(b){e.preventDefault();saveDestination(b.dataset.save);}const j=e.target.closest('[data-journey]');if(j)journeyModal(j.dataset.journey);});
-$('.skip').addEventListener('click',event=>{event.preventDefault();main.focus({preventScroll:true});main.scrollIntoView({behavior:'instant'});});
-$('#menu-toggle').addEventListener('click',()=>{const open=!$('#nav').classList.contains('open');closeMenu();if(open&&innerWidth<1180){$('#nav').classList.add('open');document.body.classList.add('menu-open');$$('main,footer,.mobile-dock,.kubo-launcher').forEach(el=>el.inert=true);$('#nav-backdrop').classList.add('visible');$('#menu-toggle').setAttribute('aria-expanded','true');$('#menu-toggle').setAttribute('aria-label','Close navigation');$('#menu-toggle').textContent='✕';}});
-$('#nav-backdrop').addEventListener('click',closeMenu);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){const wasOpen=$('#nav').classList.contains('open');closeMenu();if(wasOpen)$('#menu-toggle').focus();}if(e.key==='Tab'&&$('#nav').classList.contains('open')){const items=$$('a,button,summary', $('#header')).filter(el=>el.getClientRects().length&&!el.disabled);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
-$('#saved-button').addEventListener('click',()=>{if(location.pathname==='/destinations'&&location.search==='?saved=true')directory();else navigate('/destinations?saved=true');});
-$('#mobile-saved').addEventListener('click',()=>{navigate('/destinations?saved=true');});
-$('.dialog-close').addEventListener('click',()=>$('#detail-dialog').close());$('#detail-dialog').addEventListener('click',e=>{if(e.target===$('#detail-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
-$('#motion-toggle').addEventListener('click',()=>{if(mediaMotion.matches){toast('Reduced motion follows your device accessibility setting.');return;}motionOff=!motionOff;write('kubovista:motion',motionOff);updateMotion();});mediaMotion.addEventListener('change',updateMotion);
-let ticking=false;function updateScrollUI(){const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);const progress=Math.min(1,scrollY/max);$('#scroll-progress-bar').style.transform=`scaleX(${progress})`;$('#header').classList.toggle('scrolled',scrollY>30);$('#back-to-top').classList.toggle('visible',scrollY>650);const img=$('.hero-image');if(img&&!reducedMotion()&&innerWidth>800&&scrollY<900)img.style.transform=`translate3d(0,${scrollY*.13}px,0) scale(1.045)`;ticking=false;}addEventListener('scroll',()=>{if(ticking)return;ticking=true;requestAnimationFrame(updateScrollUI);},{passive:true});
-$('#back-to-top').addEventListener('click',()=>scrollTo({top:0,behavior:reducedMotion()?'instant':'smooth'}));
-addEventListener('resize',()=>{if(innerWidth>=1180)closeMenu();});
-$('#year').textContent=new Date().getFullYear();addEventListener('popstate',route);addEventListener('kubovistas:navigate',route);updateMotion();route();
+function planOutline(d) {
+  if (Array.isArray(plan.itinerary) && plan.itinerary.length === plan.days)
+    return plan.itinerary.map((x) => String(x).slice(0, 600));
+  return Array.from({ length: plan.days }, (_, i) =>
+    i === 0
+      ? `Arrive in ${d.name}, settle into your accommodation and keep the evening relaxed.`
+      : i === plan.days - 1
+        ? "Leave time for breakfast, packing and your confirmed onward transfer."
+        : i % 3 === 0
+          ? "Keep a flexible day for local recommendations, rest or weather changes."
+          : `Plan time for ${d.highlights[(i - 1) % d.highlights.length].toLowerCase()}. Confirm access and arrangements locally.`,
+  );
+}
+function downloadPlan() {
+  const d = destinations.find((x) => x.id === plan.destination);
+  const content = `KuboVistas — YOUR PERSONAL TRIP BRIEF\n\nDestination: ${d.name}\nDuration: ${plan.days} days\nTravelers: ${plan.travelers}\nStyle: ${plan.style}\nDeparture: ${plan.date || "Flexible"}\nYour budget target per person: ${money(plan.budget)}\nGroup budget target: ${money(plan.budget * plan.travelers)}\n\nSUGGESTED STARTING ITINERARY\n${planOutline(
+    d,
+  )
+    .map((s, i) => `Day ${i + 1}: ${s}`)
+    .join(
+      "\n",
+    )}\n\nNot a booking or quotation. Confirm accommodation, transfers, permits, access and prices with providers.\nYour brief has not been sent to a travel agent.\n`;
+  const url = URL.createObjectURL(
+    new Blob([content], { type: "text/plain;charset=utf-8" }),
+  );
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `KuboVistas-${d.id}-trip-brief.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Your trip brief is ready to download.");
+}
+function legalHub() {
+  document.title = "Legal Centre — KuboVistas";
+  main.innerHTML =
+    pageIntro(
+      "LEGAL CENTRE",
+      "Straightforward policies.<br><em>Built for trust.</em>",
+      "Everything you should know before using KuboVistas to explore or plan a trip.",
+    ) +
+    `<section class="wrap legal-overview"><div class="legal-status reveal"><span class="eyebrow green">CURRENT SERVICE STATUS</span><h2>Accounts and payments.<br><em>Available when activated.</em></h2><p>KuboVistas includes optional traveler accounts, consultation requests, quotations and secure advance payments. Availability depends on service activation. A consultation request is not a confirmed reservation.</p><span>Policy review · ${legalUpdated}</span></div><div class="legal-grid">${legalOrder
+      .map((id, i) => {
+        const p = legalPages[id];
+        return `<a class="legal-card reveal" style="--delay:${(i % 4) * 55}ms" href="/${id}"><span>${String(i + 1).padStart(2, "0")}</span><h2>${p.label}</h2><p>${p.summary}</p><b>Read policy ↗</b></a>`;
+      })
+      .join(
+        "",
+      )}</div><aside class="legal-readiness reveal"><span aria-hidden="true">!</span><div><strong>Owner action before commercial launch</strong><p>Publish the verified legal entity name, address, private contact email and grievance-officer details before enabling accounts, enquiries, supplier reservations or payments. These details are not invented in this prototype.</p></div></aside></section>`;
+}
+function clearLocalData() {
+  try {
+    ["kubovista:saved", "kubovista:plan"].forEach((k) =>
+      localStorage.removeItem(k),
+    );
+    saved.clear();
+    plan = {
+      destination: "darjeeling",
+      days: 4,
+      travelers: 2,
+      style: "Slow & scenic",
+      date: "",
+      budget: 15000,
+    };
+    updateSaved();
+    $("#clear-status").textContent =
+      "Saved destinations and planner data have been cleared from this browser.";
+  } catch {
+    toast("Your browser did not allow clearing storage.");
+  }
+}
+async function legalPage(id) {
+  const page = legalPages[id];
+  if (!page) return notFound();
+  document.title = `${page.label} — KuboVistas`;
+  const sectionNav = legalOrder
+    .map(
+      (key) =>
+        `<a href="/${key}" ${key === id ? 'aria-current="page"' : ""}>${legalPages[key].label}</a>`,
+    )
+    .join("");
+  main.innerHTML =
+    pageIntro(page.eyebrow, page.title, page.summary) +
+    `<section class="wrap legal-layout"><nav class="legal-nav" aria-label="Legal policies"><span>LEGAL CENTRE</span>${sectionNav}<a class="legal-all" href="/legal">View all policies ↗</a></nav><article class="legal-document"><div class="legal-meta"><span>Effective ${legalUpdated}</span><span>Version 1.0</span><span>India</span></div>${page.sections.map((section, i) => `<section class="legal-section reveal"><span class="legal-number">${String(i + 1).padStart(2, "0")}</span><div><h2>${section.title}</h2>${(section.paragraphs || []).map((p) => `<p>${p}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""}${section.links ? `<div class="legal-links">${section.links.map((link) => `<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join("")}</div>` : ""}</div></section>`).join("")}${page.control === "clear" ? `<div class="legal-control"><span class="eyebrow green">YOUR BROWSER DATA</span><h2>Clear what this device remembers.</h2><p>This removes saved destinations and planner data. It does not clear the motion preference or data belonging to external websites.</p><button class="button outline" id="clear-data">Clear saved places & trip plan</button><p id="clear-status" role="status" aria-live="polite"></p></div>` : ""}<div class="legal-note"><strong>Important</strong><p>These pages document the current website and are not a substitute for advice from a qualified legal professional. KuboVistas should obtain a formal legal review before launching commercial bookings or collecting personal data.</p></div></article></section>`;
+  $("#clear-data")?.addEventListener("click", clearLocalData);
+  if (["terms", "grievance"].includes(id)) {
+    const currentUrl = location.href;
+    try {
+      const response = await fetch("/api/config?service=contact-info");
+      const info = await response.json();
+      if (
+        currentUrl !== location.href ||
+        !info.business ||
+        !main.querySelector(".legal-document")
+      )
+        return;
+      const section = document.createElement("section");
+      section.className = "legal-section";
+      section.innerHTML = `<div><h2>Verified business contact</h2><p>Seller: ${escapeHTML(info.business.name || "")}</p><p>Address: ${escapeHTML(info.address || "")}</p><p>Customer care: ${escapeHTML(info.email || "")}</p><p>Grievance contact: ${escapeHTML(info.business.grievanceEmail || "")}</p><p>Tax disclosure: ${escapeHTML(info.business.tax || "")}</p></div>`;
+      main.querySelector(".legal-document").append(section);
+    } catch {}
+  }
+}
+function notFound() {
+  main.innerHTML =
+    pageIntro(
+      "A SMALL DETOUR",
+      "This trail <em>ends here.</em>",
+      "We couldn’t find that page. There are plenty of other places to discover.",
+    ) +
+    '<div class="wrap section top-tight"><a class="button" href="/destinations">Explore destinations ↗</a></div>';
+}
+function reducedMotion() {
+  return motionOff || mediaMotion.matches;
+}
+function updateMotion() {
+  document.documentElement.classList.toggle("reduce-motion", reducedMotion());
+  $("#motion-toggle").textContent = `Motion: ${reducedMotion() ? "off" : "on"}`;
+  $("#motion-toggle").setAttribute("aria-pressed", String(reducedMotion()));
+  if (reducedMotion()) {
+    $$(".reveal").forEach((e) => e.classList.add("visible"));
+    $$("[data-tilt]").forEach((e) => (e.style.transform = ""));
+    const img = $(".hero-image");
+    if (img) img.style.transform = "";
+  }
+}
+function setupMotion() {
+  if (observer) observer.disconnect();
+  observer = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      }),
+    { threshold: 0.07 },
+  );
+  $$(".reveal").forEach((e) => {
+    if (reducedMotion()) e.classList.add("visible");
+    else observer.observe(e);
+  });
+  $$("[data-tilt]").forEach((el) => {
+    el.onpointermove = (e) => {
+      if (reducedMotion() || e.pointerType === "touch") return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5,
+        y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = `perspective(1000px) rotateX(${-y * 5}deg) rotateY(${x * 6}deg) translateY(-4px)`;
+    };
+    el.onpointerleave = () => (el.style.transform = "");
+  });
+}
+function closeMenu() {
+  $$("main,footer,.mobile-dock,.kubo-launcher").forEach(
+    (el) => (el.inert = false),
+  );
+  $("#nav-more")?.removeAttribute("open");
+  const nav = $("#nav");
+  nav.classList.remove("open");
+  document.body.classList.remove("menu-open");
+  $("#nav-backdrop").classList.remove("visible");
+  $("#menu-toggle").setAttribute("aria-expanded", "false");
+  $("#menu-toggle").textContent = "☰";
+  $("#menu-toggle").setAttribute("aria-label", "Open navigation");
+}
+function updateDock(routeName) {
+  $$("[data-dock]").forEach((link) => {
+    const active =
+      link.dataset.dock === (routeName || "home") ||
+      (routeName === "destination" && link.dataset.dock === "destinations") ||
+      (accountRoutes.has(routeName) && link.dataset.dock === "dashboard");
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+function updatePageMetadata(parts) {
+  const name = parts[0],
+    id = parts[1];
+  let title = "KuboVistas | Thoughtful India Travel Guides & Tours";
+  let description =
+    "Explore thoughtful India travel guides, slow journeys and trip-planning ideas across North Bengal, Sikkim, Arunachal Pradesh and Goa.";
+  const d =
+    name === "destination" && destinations.find((item) => item.id === id);
+  const n = name === "guide" && notes.find((item) => item.id === id);
+  if (name === "packages" && packageById(routeParts()[1])) {
+    const p = packageById(routeParts()[1]);
+    title = p.name + " | KuboVistas";
+    description = p.intro;
+  } else if (d) {
+    title = `${d.name} Travel Guide & Tour Ideas | KuboVistas`;
+    description = d.description;
+  } else if (n) {
+    title = `${n.title} | KuboVistas Travel Guide`;
+    description = n.intro;
+  } else {
+    const labels = {
+      regions: [
+        "India Region Travel Hubs | KuboVistas",
+        "Explore regional travel guides and routes across India.",
+      ],
+      search: [
+        "Search Travel Guides | KuboVistas",
+        "Search KuboVistas destinations, guides, packages and published stories.",
+      ],
+      stories: [
+        "Editorial Stories | KuboVistas",
+        "Read published travel stories with clear sponsorship labels.",
+      ],
+      resources: [
+        "Affiliate Travel Resources | KuboVistas",
+        "Explore approved affiliate travel resources with clear disclosures.",
+      ],
+      reviews: [
+        "Traveler Reviews | KuboVistas",
+        "Read moderated reviews from verified trip participants.",
+      ],
+      destinations: [
+        "India Travel Destinations & Tour Guides | KuboVistas",
+        "Browse 28 destination guides across the Himalayas, North Bengal, Sikkim, Arunachal Pradesh, Goa and coastal Bengal.",
+      ],
+      packages: [
+        "Signature India Tour Packages | KuboVistas",
+        "Explore flexible tour concepts with personal quotations and transparent inclusions.",
+      ],
+      journeys: [
+        "India Tour Itineraries & Slow Journeys | KuboVistas",
+        "Explore flexible India tour itineraries designed with realistic travel time and room to wander.",
+      ],
+      guide: [
+        "India Travel Tips & Practical Guides | KuboVistas",
+        "Read practical India travel guides covering itineraries, packing and respectful local travel.",
+      ],
+      journal: [
+        "India Travel Journal & Traveler Stories | KuboVistas",
+        "Read KuboVistas field notes and reviewed traveler stories from journeys across India.",
+      ],
+      membership: [
+        "KuboVistas Traveller’s Circle Membership",
+        "Explore free planning tools and proposed annual travel-planning support.",
+      ],
+      "travel-date": [
+        "Find India Travel Companions | KuboVistas",
+        "Find adults with similar India travel destinations, dates and budgets.",
+      ],
+      planner: [
+        "Plan an India Trip | KuboVistas",
+        "Build a personal India trip brief around your dates, group, budget and preferred travel pace.",
+      ],
+      about: [
+        "About KuboVistas | Thoughtful India Travel",
+        "Meet an India travel company built around slower journeys, clear information and meaningful local experiences.",
+      ],
+      contact: [
+        "Contact KuboVistas Travel Team",
+        "Contact KuboVistas about India trip planning, partnerships, stays or travel questions.",
+      ],
+      careers: [
+        "Travel Careers at KuboVistas",
+        "Explore career and collaboration opportunities with KuboVistas.",
+      ],
+      partnerships: [
+        "Travel Partnerships | KuboVistas",
+        "Partner with KuboVistas as a stay, guide or responsible outdoor operator.",
+      ],
+      sponsors: [
+        "Travel Sponsorships | KuboVistas",
+        "Discuss relevant and transparent travel sponsorship opportunities.",
+      ],
+      stays: [
+        "India Hotels, Homestays & Hostels | KuboVistas",
+        "Explore confirmed accommodation partners and enquire about stays.",
+      ],
+      camping: [
+        "Camping & Trekking Equipment in India | KuboVistas",
+        "Explore responsible camping and trekking support information.",
+      ],
+      legal: [
+        "KuboVistas Legal Centre",
+        "Read KuboVistas travel, privacy, accessibility and website policies.",
+      ],
+      login: [
+        "Sign in to KuboVistas",
+        "Sign in securely to manage your KuboVistas travel plans and quotations.",
+      ],
+      signup: [
+        "Create a KuboVistas Account",
+        "Create your secure KuboVistas traveler account.",
+      ],
+      dashboard: [
+        "Your KuboVistas Dashboard",
+        "Manage private travel plans, quotations and account details.",
+      ],
+    };
+    if (legalPages[name]) {
+      title = `${legalPages[name].label} | KuboVistas`;
+      description = legalPages[name].summary;
+    } else if (labels[name]) [title, description] = labels[name];
+    else if (accountRoutes.has(name)) {
+      title = "Your KuboVistas Account";
+      description = "Secure KuboVistas account and trip-planning page.";
+    }
+  }
+  const privatePage =
+    name === "search" ||
+    accountRoutes.has(name) ||
+    [
+      "planner",
+      "write",
+      "my-stories",
+      "journal-review",
+      "payment",
+      "checkout",
+      "booking",
+      "confirmation",
+      "thank-you",
+      "cancellation-request",
+    ].includes(name);
+  document.title = title;
+  document
+    .querySelector('meta[name="description"]')
+    ?.setAttribute("content", description);
+  document
+    .querySelector('meta[name="robots"]')
+    ?.setAttribute(
+      "content",
+      privatePage
+        ? "noindex, nofollow, noarchive"
+        : "index, follow, max-image-preview:large",
+    );
+  document
+    .querySelector('link[rel="canonical"]')
+    ?.setAttribute("href", location.origin + location.pathname);
+}
+async function route() {
+  const version = String(++routeVersion);
+  main.dataset.routeVersion = version;
+  disposeMap();
+  if ($("#detail-dialog").open) $("#detail-dialog").close();
+  observer?.disconnect();
+  const parts = routeParts();
+  document.title = "KuboVistas — Somewhere worth slowing down";
+  closeMenu();
+  document.body.className = document.body.className
+    .replace(/route-[\w-]+/g, "")
+    .trim();
+  document.body.classList.add(`route-${parts[0] || "home"}`);
+  document.body.classList.toggle("home-page", !parts.length);
+  $$("#nav a").forEach((a) => {
+    const target = routeParts(new URL(a.href, location.origin).pathname)[0];
+    const current = target === (parts[0] || "");
+    a.classList.toggle("active", current);
+    if (current) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  $("#nav-more").classList.toggle("has-current", !!$("#nav-more a.active"));
+  updateDock(parts[0]);
+  main.classList.remove("route-ready");
+  try {
+    await loadStylesForRoute(parts[0] || "home");
+    switch (parts[0]) {
+      case undefined:
+        await home();
+        break;
+      case "destinations":
+        directory();
+        break;
+      case "destination":
+        destinationPage(parts[1]);
+        break;
+      case "journeys":
+        journeysPage();
+        break;
+      case "packages":
+        await renderPackages(main, parts[1]);
+        break;
+      case "regions":
+      case "search":
+      case "stories":
+      case "reviews":
+      case "resources":
+        await renderGrowthPublic(parts[0], parts[1], main);
+        break;
+      case "membership":
+        await renderMembership(main);
+        break;
+      case "travel-date":
+        await renderTravelDate(main);
+        break;
+      case "journal":
+      case "story":
+      case "write":
+      case "my-stories":
+      case "journal-review":
+        await renderJournal(parts[0], parts[1], main);
+        break;
+      case "guide":
+        await guidePage(parts[1]);
+        break;
+      case "planner":
+        plannerStep = 1;
+        applyPlannerParams();
+        planner();
+        break;
+      case "about":
+        about();
+        break;
+      case "legal":
+        legalHub();
+        break;
+      case "privacy":
+      case "terms":
+      case "cookies":
+      case "cancellation":
+      case "disclaimer":
+      case "accessibility":
+      case "grievance":
+      case "copyright":
+        await legalPage(parts[0]);
+        break;
+      default:
+        if (companyRoutes.has(parts[0])) await companyPage(parts[0], main);
+        else if (accountRoutes.has(parts[0]))
+          await renderAccountRoute(parts[0], parts[1], main, toast);
+        else notFound();
+    }
+  } catch (error) {
+    if (main.dataset.routeVersion !== version) return;
+    renderRouteError(parts[0], error);
+  }
+  if (main.dataset.routeVersion !== version) return;
+  updatePageMetadata(parts);
+  updateSaved();
+  enhanceResponsiveImages(main);
+  if (accountRoutes.has(parts[0])) await syncAccountButton();
+  else {
+    const idle =
+      window.requestIdleCallback || ((callback) => setTimeout(callback, 700));
+    idle(() => void syncAccountButton().catch(() => {}));
+  }
+  if (main.dataset.routeVersion !== version) return;
+  setupMotion();
+  scrollTo({ top: 0, behavior: "instant" });
+  main.focus({ preventScroll: true });
+  requestAnimationFrame(() => {
+    main.classList.add("route-ready");
+    void mountAd(main);
+  });
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-retry-route]")) {
+    route();
+    return;
+  }
+  const b = e.target.closest("[data-save]");
+  if (b) {
+    e.preventDefault();
+    saveDestination(b.dataset.save);
+  }
+  const j = e.target.closest("[data-journey]");
+  if (j) journeyModal(j.dataset.journey);
+});
+$(".skip").addEventListener("click", (event) => {
+  event.preventDefault();
+  main.focus({ preventScroll: true });
+  main.scrollIntoView({ behavior: "instant" });
+});
+$("#menu-toggle").addEventListener("click", () => {
+  const open = !$("#nav").classList.contains("open");
+  closeMenu();
+  if (open && innerWidth < 1180) {
+    $("#nav").classList.add("open");
+    document.body.classList.add("menu-open");
+    $$("main,footer,.mobile-dock,.kubo-launcher").forEach(
+      (el) => (el.inert = true),
+    );
+    $("#nav-backdrop").classList.add("visible");
+    $("#menu-toggle").setAttribute("aria-expanded", "true");
+    $("#menu-toggle").setAttribute("aria-label", "Close navigation");
+    $("#menu-toggle").textContent = "✕";
+  }
+});
+$("#nav-backdrop").addEventListener("click", closeMenu);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const wasOpen = $("#nav").classList.contains("open");
+    closeMenu();
+    if (wasOpen) $("#menu-toggle").focus();
+  }
+  if (e.key === "Tab" && $("#nav").classList.contains("open")) {
+    const items = $$("a,button,summary", $("#header")).filter(
+      (el) => el.getClientRects().length && !el.disabled,
+    );
+    const first = items[0],
+      last = items.at(-1);
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+$("#saved-button").addEventListener("click", () => {
+  if (
+    location.pathname === "/destinations" &&
+    location.search === "?saved=true"
+  )
+    directory();
+  else navigate("/destinations?saved=true");
+});
+$("#mobile-saved").addEventListener("click", () => {
+  navigate("/destinations?saved=true");
+});
+$(".dialog-close").addEventListener("click", () => $("#detail-dialog").close());
+$("#detail-dialog").addEventListener("click", (e) => {
+  if (e.target === $("#detail-dialog")) {
+    const r = e.target.getBoundingClientRect();
+    if (
+      e.clientX < r.left ||
+      e.clientX > r.right ||
+      e.clientY < r.top ||
+      e.clientY > r.bottom
+    )
+      e.target.close();
+  }
+});
+$("#motion-toggle").addEventListener("click", () => {
+  if (mediaMotion.matches) {
+    toast("Reduced motion follows your device accessibility setting.");
+    return;
+  }
+  motionOff = !motionOff;
+  write("kubovista:motion", motionOff);
+  updateMotion();
+});
+mediaMotion.addEventListener("change", updateMotion);
+let ticking = false;
+function updateScrollUI() {
+  const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  const progress = Math.min(1, scrollY / max);
+  $("#scroll-progress-bar").style.transform = `scaleX(${progress})`;
+  $("#header").classList.toggle("scrolled", scrollY > 30);
+  $("#back-to-top").classList.toggle("visible", scrollY > 650);
+  const img = $(".hero-image");
+  if (img && !reducedMotion() && innerWidth > 800 && scrollY < 900)
+    img.style.transform = `translate3d(0,${scrollY * 0.13}px,0) scale(1.045)`;
+  ticking = false;
+}
+addEventListener(
+  "scroll",
+  () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(updateScrollUI);
+  },
+  { passive: true },
+);
+$("#back-to-top").addEventListener("click", () =>
+  scrollTo({ top: 0, behavior: reducedMotion() ? "instant" : "smooth" }),
+);
+addEventListener("resize", () => {
+  if (innerWidth >= 1180) closeMenu();
+});
+$("#year").textContent = new Date().getFullYear();
+addEventListener("popstate", route);
+addEventListener("kubovistas:navigate", route);
+updateMotion();
+route();
 
-document.addEventListener('click',event=>{const more=document.querySelector('#nav-more');if(more?.open&&!more.contains(event.target))more.removeAttribute('open');});
+document.addEventListener("click", (event) => {
+  const more = document.querySelector("#nav-more");
+  if (more?.open && !more.contains(event.target)) more.removeAttribute("open");
+});
 
 mountSocialLinks();
-mountKubo();
-document.addEventListener('kubo:open',closeMenu);
+const startKubo = async () => (await import("./kubo.js")).mountKubo();
+if ("requestIdleCallback" in window)
+  requestIdleCallback(() => void startKubo(), { timeout: 1800 });
+else setTimeout(() => void startKubo(), 500);
+document.addEventListener("kubo:open", closeMenu);
 
-const footerMedia=matchMedia('(min-width:720px)');function syncFooterGroups(){document.querySelectorAll('.footer-group').forEach(group=>group.open=footerMedia.matches);}footerMedia.addEventListener('change',syncFooterGroups);syncFooterGroups();
+const footerMedia = matchMedia("(min-width:720px)");
+function syncFooterGroups() {
+  document
+    .querySelectorAll(".footer-group")
+    .forEach((group) => (group.open = footerMedia.matches));
+}
+footerMedia.addEventListener("change", syncFooterGroups);
+syncFooterGroups();
 
 // Initialize Vercel Web Analytics
 inject();

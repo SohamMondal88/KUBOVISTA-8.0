@@ -677,7 +677,7 @@ main:focus {
 }
 .image-caption {
   font-size: .7rem;
-  color: #8d9b91;
+  color: #53675c;
   margin-top: 14px;
 }
 .philosophy {
@@ -6282,7 +6282,8 @@ dialog::backdrop {
   font-size: 12px;
   line-height: 1.7;
   margin: 12px 0;
-  opacity: .75;
+  color: #43584b;
+  opacity: 1;
 }
 .map-destination-list {
   max-height: 550px;

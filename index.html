@@ -1,19 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Public page views are sent only after analytics opt-in. -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    window['ga-disable-G-MMP3139QSB'] = true;
-    gtag('consent', 'default', {analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
-    gtag('js', new Date());
-    gtag('config', 'G-MMP3139QSB', {send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,page_location:location.origin+'/',page_referrer:'',page_title:'KuboVistas'});
-  </script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MMP3139QSB"></script>
+  <!-- Optional analytics and Google Identity are loaded only after consent or on an authentication page. -->
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-signin-client_id" content="330040271750-e4s9q3gb7b2bnl3crbf5dmmv25bu6456.apps.googleusercontent.com">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- ADSENSE_CONFIG -->
   <!-- APPCHECK_CONFIG -->
   <meta name="theme-color" content="#f7f5ee">
@@ -24,17 +14,11 @@
   <link rel="preload" as="image" href="/assets/himalaya.jpg" fetchpriority="high">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/adsense.css">
-  <link rel="stylesheet" href="/packages.css">
-  <link rel="stylesheet" href="/growth.css">
-  <link rel="stylesheet" href="/operations.css">
   <link rel="stylesheet" href="/navigation.css">
   <link rel="stylesheet" href="/kubo.css">
-  <link rel="stylesheet" href="/travel-date.css">
-  <link rel="stylesheet" href="/membership.css">
-  <link rel="stylesheet" href="/affiliates.css">
   <script type="importmap">{"imports":{"@vercel/analytics":"/vercel-analytics.js","@vercel/speed-insights":"/vercel-speed-insights.js"}}</script>
   <script type="module" src="/app.js"></script>
-  <script type="module" src="/firebase-client.js"></script>
+  <script type="module" src="/consent-client.js"></script>
 </head>
 <body>
   <a href="#main" class="skip">Skip to content</a>
