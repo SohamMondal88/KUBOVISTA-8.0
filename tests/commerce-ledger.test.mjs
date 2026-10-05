@@ -6,7 +6,7 @@ import { syncRefund } from '../server/refund-state.js';
 
 async function database() {
   const db = new PGlite();
-  for (const name of ['001_auth_accounts_payments.sql','004_deposit_lifecycle.sql','007_firebase_identity_push.sql','008_checkout_integrity.sql'])
+  for (const name of ['001_auth_accounts_payments.sql','004_deposit_lifecycle.sql','007_firebase_identity_push.sql','008_checkout_integrity.sql','012_p0_critical_blockers.sql'])
     await db.exec((await readFile(new URL('../db/migrations/'+name,import.meta.url),'utf8')).replace('CREATE EXTENSION IF NOT EXISTS pgcrypto;',''));
   await db.query(`INSERT INTO "user"(id,name,email) VALUES('traveler','Traveler','traveler@example.com'),('admin','Admin','admin@example.com')`);
   const booking=(await db.query(`INSERT INTO bookings(user_id,destination_id,destination_name,days,travelers,travel_style,budget_per_person_paise,status,quote_total_paise,advance_percent,payment_policy_version,current_quote_version)

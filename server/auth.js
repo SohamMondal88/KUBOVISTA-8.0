@@ -4,7 +4,7 @@ import { firebaseAdminConfigured, getFirebaseAdmin } from "./firebase-admin.js";
 import { resolveFirebaseUser } from "./firebase-identity.js";
 import { databaseConfigured } from "./db.js";
 import { json } from "./http.js";
-import { logEvent, safeErrorCode } from "./observability.js";
+import { logEvent, requestId, safeErrorCode } from "./observability.js";
 export function authConfigured() {
   return (
     firebaseAdminConfigured() &&
@@ -15,12 +15,21 @@ export function authConfigured() {
 export function getAuth() {
   return firebaseAuth(getFirebaseAdmin());
 }
-export function originAllowed(req) {
-  try {
-    return req.headers.origin === new URL(process.env.APP_URL).origin;
-  } catch {
-    return false;
+export function allowedOrigins(env = process.env) {
+  const candidates = [env.APP_URL, ...(env.APP_ORIGINS || "").split(",")];
+  const origins = new Set();
+  for (const candidate of candidates) {
+    if (!candidate?.trim() || candidate.includes("*")) continue;
+    try {
+      const url = new URL(candidate.trim());
+      if (url.protocol === "https:" || url.hostname === "localhost")
+        origins.add(url.origin);
+    } catch {}
   }
+  return origins;
+}
+export function originAllowed(req) {
+  return allowedOrigins().has(req.headers.origin);
 }
 export async function readFirebaseSession(
   req,
@@ -72,25 +81,33 @@ export async function readFirebaseSession(
 }
 export const getSession = (req) => readFirebaseSession(req);
 export async function requireSession(req, res) {
+  const id = requestId(req);
   if (!["GET", "HEAD"].includes(req.method) && !originAllowed(req)) {
-    json(res, 403, { error: "Request origin is not allowed." });
+    logEvent("warn", "auth.origin-denied", {
+      requestId: id,
+      route: req.url || "account-mutation",
+      status: 403,
+    });
+    json(res, 403, { error: "Request origin is not allowed.", requestId: id });
     return null;
   }
   try {
     if (!["GET", "HEAD"].includes(req.method) && !(await checkAppToken(req))) {
       json(res, 403, {
         error: "App verification failed. Please reload and try again.",
+        requestId: id,
       });
       return null;
     }
     const session = await getSession(req);
     if (!session) {
-      json(res, 401, { error: "Please sign in to continue." });
+      json(res, 401, { error: "Please sign in to continue.", requestId: id });
       return null;
     }
     return session;
   } catch (error) {
     logEvent("error", "auth.session-unavailable", {
+      requestId: id,
       code: safeErrorCode(error),
       status: error.status || 503,
       provider: "firebase",
@@ -99,6 +116,7 @@ export async function requireSession(req, res) {
       error: error.status
         ? error.message
         : "Account service is unavailable. Please try again.",
+      requestId: id,
     });
     return null;
   }
