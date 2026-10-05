@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 960" role="img" aria-labelledby="title description">
+  <title id="title">Founder portrait pending</title>
+  <desc id="description">A neutral KuboVistas placeholder shown until an approved founder portrait is uploaded.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dce6dc"/>
+      <stop offset="1" stop-color="#b9c9bd"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="960" fill="url(#background)"/>
+  <circle cx="400" cy="348" r="136" fill="#f4efe3"/>
+  <path d="M154 827c24-175 115-274 246-274s222 99 246 274" fill="#315d55"/>
+  <path d="M104 104h592v752H104z" fill="none" stroke="#183a36" stroke-opacity=".28" stroke-width="3"/>
+  <text x="400" y="894" text-anchor="middle" fill="#183a36" font-family="Arial, sans-serif" font-size="24" letter-spacing="4">PORTRAIT TO BE ADDED</text>
+</svg>
