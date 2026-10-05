@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { destinations, journeys, notes } from "../data.js";
 import { legalPages, legalOrder } from "../legal.js";
 test("all 28 requested destinations have unique, route-safe IDs and usable guides", () => {
@@ -78,6 +78,44 @@ test("responsive navigation and motion controls are present", async () => {
     (css.match(/{/g) || []).length,
     (css.match(/}/g) || []).length,
     "CSS braces should be balanced",
+  );
+});
+test("upload-ready image folders and verified founder placeholders are present", async () => {
+  for (const folder of [
+    "destinations",
+    "packages",
+    "about",
+    "logos",
+    "favicons",
+    "general",
+  ])
+    await access(new URL(`../assets/images/${folder}/README.md`, import.meta.url));
+  const [company, shell] = await Promise.all([
+    readFile(new URL("../company.js", import.meta.url), "utf8"),
+    readFile(new URL("../index.html", import.meta.url), "utf8"),
+  ]);
+  for (const founder of ["Soham Mondal", "Soumyadip Tarafdar"])
+    assert.match(company, new RegExp(founder));
+  assert.match(company, /Portrait awaiting founder approval/);
+  assert.match(shell, /assets\/images\/favicons\/favicon\.svg/);
+  assert.match(shell, /assets\/images\/logos\/kubovistas-mark\.svg/);
+});
+test("site shell does not dim small footer text below its accessible color", async () => {
+  const css = await readFile(
+    new URL("../navigation.css", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    css,
+    /\.vista-footer \.social-links \.social-pending \{ opacity: 1; \}/,
+  );
+  assert.match(
+    css,
+    /\.vista-footer \.footer-social > span,[\s\S]*?opacity: 1;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /#header \.brand-lockup small[^}]*color:\s*#6f7874/,
   );
 });
 test("legal centre includes every required policy and route", async () => {

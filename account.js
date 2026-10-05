@@ -136,15 +136,21 @@ export async function syncAccountButton() {
   const button = document.querySelector("#account-button");
   if (!button) return;
   const session = await getAccountSession();
+  const memberActions = document.querySelectorAll(".auth-member-action");
+  const userIcon =
+    '<svg class="account-avatar" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.5-4.2 2.8-6.3 7-6.3s6.5 2.1 7 6.3"/></svg>';
   if (session?.user) {
-    button.href = "/dashboard";
+    memberActions.forEach((action) => (action.hidden = false));
+    button.href = "/account/dashboard";
+    button.dataset.session = "authenticated";
     button.setAttribute("aria-label", "Open your account");
-    button.innerHTML = `<span class="account-avatar">${escapeHTML(initials(session.user.name))}</span><span class="account-label">${escapeHTML(session.user.name.split(" ")[0])}</span>`;
+    button.innerHTML = `${userIcon}<span class="account-label">${escapeHTML(session.user.name.split(" ")[0] || "Profile")}</span>`;
   } else {
-    button.href = "/login";
-    button.setAttribute("aria-label", "Sign in to KuboVistas");
-    button.innerHTML =
-      '<span class="account-avatar" aria-hidden="true">◎</span><span class="account-label">Sign in</span>';
+    memberActions.forEach((action) => (action.hidden = true));
+    button.href = "/account/login";
+    button.dataset.session = "signed-out";
+    button.setAttribute("aria-label", "Login to KuboVistas");
+    button.innerHTML = `${userIcon}<span class="account-label">Login</span>`;
   }
 }
 
@@ -156,6 +162,9 @@ function setupNotice(config) {
 function authLayout(kicker, title, copy, content, config) {
   return `<section class="auth-page"><div class="auth-story"><a class="back-link" href="/">← Back home</a><span class="eyebrow">${kicker}</span><h1>${title}</h1><p>${copy}</p><div class="auth-proof"><span><b>01</b> Your plans, together</span><span><b>02</b> Secure quotation payments</span><span><b>03</b> Support that remembers</span></div></div><div class="auth-panel">${setupNotice(config)}${content}<p class="auth-legal">By continuing, you acknowledge the <a href="/legal/terms">Terms</a> and <a href="/legal/privacy">Privacy Policy</a>.</p></div></section>`;
 }
+
+const authIcon = (kind) =>
+  `<span class="auth-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${kind === "signup" ? '<path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M4.5 21c.5-4.8 3-7.2 7.5-7.2 2 0 3.6.4 4.8 1.4"/><path d="M19 14v6m-3-3h6"/>' : '<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.5-5 3-7.5 7.5-7.5s7 2.5 7.5 7.5"/>'}</svg></span>`;
 
 function field(label, name, type = "text", options = "") {
   return `<label>${label}<input name="${name}" type="${type}" ${options}></label>`;
@@ -203,7 +212,7 @@ async function signInPage(main, config, toast) {
     "WELCOME BACK",
     "Continue your<br><em>next chapter.</em>",
     "Sign in to keep consultation requests, quotations and payments in one calm place.",
-    `<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field("Email address", "email", "email", 'autocomplete="email" required')}${field("Password", "password", "password", 'autocomplete="current-password" minlength="6" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="/account/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? "" : "disabled"}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Continue with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ""}<p class="auth-switch">New to KuboVistas? <a href="/account/signup">Create an account</a></p>`,
+    `${authIcon("login")}<span class="eyebrow green">TRAVELER SIGN IN</span><h2>Good to see you.</h2><form id="login-form" class="account-form">${field("Email address", "email", "email", 'autocomplete="email" required')}${field("Password", "password", "password", 'autocomplete="current-password" minlength="6" required')}<div class="form-between"><label class="check-row"><input name="rememberMe" type="checkbox" checked> Keep me signed in</label><a href="/account/forgot-password">Forgot password?</a></div><button class="button" type="submit" ${config.auth ? "" : "disabled"}>Sign in securely ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Continue with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ""}<p class="auth-switch">New to KuboVistas? <a href="/account/signup">Create an account</a></p>`,
     config,
   );
   const form = document.querySelector("#login-form");
@@ -261,7 +270,7 @@ async function signUpPage(main, config, toast) {
     "CREATE YOUR ACCOUNT",
     "Travel plans.<br><em>One private place.</em>",
     "Build a profile, request a consultation and pay only against a reviewed quotation.",
-    `<span class="eyebrow green">NEW TRAVELER</span><h2>Start somewhere.</h2><form id="signup-form" class="account-form">${field("Full name", "name", "text", 'autocomplete="name" maxlength="80" required')}${field("Email address", "email", "email", 'autocomplete="email" required')}${field("Create password", "password", "password", 'autocomplete="new-password" minlength="10" required')}<div class="password-hint"><span>10+ characters</span><span>Use a unique password</span></div><label class="check-row"><input name="terms" type="checkbox" required> I agree to the Terms and acknowledge the Privacy Policy.</label><button class="button" type="submit" ${config.auth ? "" : "disabled"}>Create my account ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Sign up with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ""}<p class="auth-switch">Already have an account? <a href="/account/login">Sign in</a></p>`,
+    `${authIcon("signup")}<span class="eyebrow green">NEW TRAVELER</span><h2>Start somewhere.</h2><form id="signup-form" class="account-form">${field("Full name", "name", "text", 'autocomplete="name" maxlength="80" required')}${field("Email address", "email", "email", 'autocomplete="email" required')}${field("Create password", "password", "password", 'autocomplete="new-password" minlength="10" required')}<div class="password-hint"><span>10+ characters</span><span>Use a unique password</span></div><label class="check-row"><input name="terms" type="checkbox" required> I agree to the Terms and acknowledge the Privacy Policy.</label><button class="button" type="submit" ${config.auth ? "" : "disabled"}>Create my account ↗</button><p class="form-status" role="status"></p></form>${config.google ? '<div class="google-auth-block"><div id="google-auth" class="google-signin-button" aria-label="Sign up with Google"></div><p id="google-auth-status" class="form-status" role="status"></p></div>' : ""}<p class="auth-switch">Already have an account? <a href="/account/login">Sign in</a></p>`,
     config,
   );
   const form = document.querySelector("#signup-form");
