@@ -50,47 +50,62 @@ export async function checkReadiness({
   if (!databaseConfigured()) return { ready: false, checks };
 
   try {
-    const result = await withTimeout(
-      databaseQuery(
-        `SELECT
-        1 AS connected,
-        EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1) AS migrated,
-        to_regclass('public.user') IS NOT NULL
-          AND to_regclass('public.traveler_profiles') IS NOT NULL
-          AND to_regclass('public.traveler_settings') IS NOT NULL
-          AND to_regclass('public.bookings') IS NOT NULL
-          AND to_regclass('public.booking_quotes') IS NOT NULL
-          AND to_regclass('public.payments') IS NOT NULL
-          AND to_regclass('public.payment_attempts') IS NOT NULL
-          AND to_regclass('public.payment_refunds') IS NOT NULL
-          AND to_regclass('public.user_notifications') IS NOT NULL
-          AND to_regclass('public.audit_logs') IS NOT NULL
-          AND NOT EXISTS (
-            SELECT 1 FROM (VALUES
-              ('user','firebase_uid'), ('user','email_verified'),
-              ('user','role'), ('bookings','current_quote_version'),
-              ('payments','payment_attempt_id'),
-              ('payment_attempts','expires_at'),
-              ('payment_refunds','submission_state'),
-              ('user_notifications','user_id'), ('audit_logs','actor_id')
-            ) AS required(table_name,column_name)
-            WHERE NOT EXISTS (
-              SELECT 1 FROM information_schema.columns actual
-              WHERE actual.table_schema='public'
-                AND actual.table_name=required.table_name
-                AND actual.column_name=required.column_name
-            )
-          ) AS schema_ready`,
-        [EXPECTED_MIGRATION],
-      ),
+    const connected = await withTimeout(
+      databaseQuery("SELECT 1 AS connected"),
       5_000,
       "database-readiness-timeout",
     );
-    checks.database.ready = result.rows[0]?.connected === 1;
-    checks.migrations.ready = result.rows[0]?.migrated === true;
-    checks.schema.ready = result.rows[0]?.schema_ready === true;
+    checks.database.ready = connected.rows[0]?.connected === 1;
   } catch (error) {
     checks.database.code = safeErrorCode(error);
+  }
+
+  if (checks.database.ready) {
+    try {
+      const ledger = await databaseQuery(
+        `SELECT EXISTS(
+          SELECT 1 FROM information_schema.tables
+          WHERE table_schema='public' AND table_name='schema_migrations'
+        ) AS exists`,
+      );
+      if (ledger.rows[0]?.exists === true) {
+        const migration = await databaseQuery(
+          "SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version=$1) AS migrated",
+          [EXPECTED_MIGRATION],
+        );
+        checks.migrations.ready = migration.rows[0]?.migrated === true;
+      } else {
+        checks.migrations.code = "migration-ledger-missing";
+      }
+    } catch (error) {
+      checks.migrations.code = safeErrorCode(error);
+    }
+
+    try {
+      const schema = await databaseQuery(`SELECT
+        NOT EXISTS (
+          SELECT 1 FROM (VALUES
+            ('user','firebase_uid'), ('user','emailVerified'),
+            ('user','role'), ('user','disabled_at'),
+            ('traveler_profiles','user_id'),
+            ('traveler_settings','user_id'),
+            ('bookings','current_quote_version'),
+            ('payments','payment_attempt_id'),
+            ('payment_attempts','expires_at'),
+            ('payment_refunds','submission_state'),
+            ('user_notifications','user_id'), ('audit_logs','actor_id')
+          ) AS required(table_name,column_name)
+          WHERE NOT EXISTS (
+            SELECT 1 FROM information_schema.columns actual
+            WHERE actual.table_schema='public'
+              AND actual.table_name=required.table_name
+              AND actual.column_name=required.column_name
+          )
+        ) AS schema_ready`);
+      checks.schema.ready = schema.rows[0]?.schema_ready === true;
+    } catch (error) {
+      checks.schema.code = safeErrorCode(error);
+    }
   }
 
   try {

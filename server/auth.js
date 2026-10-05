@@ -67,7 +67,7 @@ export async function readFirebaseSession(
     });
     throw Object.assign(
       new Error("Identity verification is temporarily unavailable."),
-      { status: 503 },
+      { status: 503, code: "identity-provider-unavailable" },
     );
   }
   const user = await resolve(decoded);
@@ -116,6 +116,7 @@ export async function requireSession(req, res) {
       error: error.status
         ? error.message
         : "Account service is unavailable. Please try again.",
+      code: error.code || "account-service-unavailable",
       requestId: id,
     });
     return null;

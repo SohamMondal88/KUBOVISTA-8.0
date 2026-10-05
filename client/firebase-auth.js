@@ -93,14 +93,23 @@ async function server(path, options = {}) {
       await response.text();
     } catch {}
   }
-  if (!response.ok)
-    throw Error(
-      data.error ||
-        "Account service is temporarily unavailable. Please try again shortly.",
+  if (!response.ok) {
+    const reference = data.requestId ? ` Reference: ${data.requestId}.` : "";
+    const failure = Error(
+      (data.error ||
+        "Account service is temporarily unavailable. Please try again shortly.") +
+        reference,
     );
+    failure.code = data.code || "account-service-unavailable";
+    failure.status = response.status;
+    failure.source = "account-service";
+    failure.requestId = data.requestId;
+    throw failure;
+  }
   return data;
 }
 function friendly(error) {
+  if (error?.source === "account-service") return error;
   const messages = {
     "auth/invalid-credential":
       "Email or password is incorrect. Migrated accounts must use Forgot password first.",

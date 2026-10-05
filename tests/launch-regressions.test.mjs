@@ -33,11 +33,14 @@ test('invalid dates and past dates are rejected before PostgreSQL insertion', ()
 });
 
 test('P2 route and authentication regressions stay removed', async () => {
-  const [app,auth,build,html]=await Promise.all([
+  const [app,auth,build,html,account,serverAuth,identity]=await Promise.all([
     readFile(new URL('../app.js',import.meta.url),'utf8'),
     readFile(new URL('../client/firebase-auth.js',import.meta.url),'utf8'),
     readFile(new URL('../scripts/build-firebase.mjs',import.meta.url),'utf8'),
-    readFile(new URL('../index.html',import.meta.url),'utf8')
+    readFile(new URL('../index.html',import.meta.url),'utf8'),
+    readFile(new URL('../account.js',import.meta.url),'utf8'),
+    readFile(new URL('../server/auth.js',import.meta.url),'utf8'),
+    readFile(new URL('../server/firebase-identity.js',import.meta.url),'utf8')
   ]);
   assert.doesNotMatch(app,/ACCOUNT SERVICE/);
   assert.match(app,/data-retry-route/);
@@ -45,4 +48,9 @@ test('P2 route and authentication regressions stay removed', async () => {
   assert.doesNotMatch(auth,/RecaptchaVerifier|signInWithPhoneNumber|startPhoneSignIn|confirmPhoneSignIn/);
   assert.doesNotMatch(build,/firebase-firestore-client|client\/firestore\.js/);
   assert.doesNotMatch(html,/accounts\.google\.com\/gsi\/client|googletagmanager\.com\/gtag\/js/);
+  assert.match(account,/location\.origin}\/account\/reset-password/);
+  assert.doesNotMatch(account,/location\.origin}\/\/reset-password/);
+  assert.match(auth,/failure\.code = data\.code \|\| "account-service-unavailable"/);
+  assert.match(serverAuth,/code: error\.code \|\| "account-service-unavailable"/);
+  assert.match(identity,/account-schema-outdated/);
 });

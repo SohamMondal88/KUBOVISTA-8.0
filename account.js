@@ -322,7 +322,7 @@ async function forgotPage(main, config) {
         method: "POST",
         body: JSON.stringify({
           email,
-          redirectTo: `${location.origin}//reset-password`,
+          redirectTo: `${location.origin}/account/reset-password`,
         }),
       });
       status.textContent =
