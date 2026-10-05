@@ -92,6 +92,7 @@ let observer;
 const main = $("#main");
 let routeVersion = 0;
 const companyRoutes = new Set([
+  "about",
   "careers",
   "sponsors",
   "partnerships",
@@ -514,15 +515,6 @@ async function guidePage(id) {
       ) +
       `<section class="wrap section top-tight"><div class="notes-grid">${noteCards()}</div><div class="guide-banner"><h2>Heading into the mountains?</h2><p>Check current access and permit guidance for your route before you travel.</p><a class="underlined" href="https://www.sikkimtourism.gov.in/" target="_blank" rel="noopener noreferrer">Sikkim Tourism ↗</a><a class="underlined" href="https://www.eilp.arunachal.gov.in/" target="_blank" rel="noopener noreferrer">Arunachal eILP ↗</a></div></section>`;
   }
-}
-function about() {
-  main.innerHTML =
-    pageIntro(
-      "THE KuboVistas PHILOSOPHY",
-      "Go fewer places.<br><em>Feel a little more.</em>",
-      "A tours and travel agency built around curiosity: solo escapes, couple getaways, family holidays, group adventures and budget trips for students.",
-    ) +
-    `<section class="wrap about-layout"><img src="/assets/himalaya.jpg" alt="Kanchenjunga above forested hills" width="900" height="1000"><div><span class="eyebrow green">OUR POINT OF VIEW</span><h2>Not every good moment<br>is on <em>the itinerary.</em></h2><p>We’re building KuboVistas to grow a passion for travelling and help people get to know India through its landscapes, communities and everyday life. Travel Date brings adult travellers together around shared dates and destinations.</p><p>Start with our destination collection, explore a sample journey, and turn your favorite places into a personal trip brief. From North Bengal and Sikkim to Arunachal Pradesh and the coast, curiosity comes first.</p><div class="values"><div><strong>01 / Thoughtful over hurried</strong><p>Fewer stops. More time to experience them.</p></div><div><strong>02 / Local over ordinary</strong><p>Meet the place through its people and everyday rhythms.</p></div><div><strong>03 / Honest over impressive</strong><p>Clear information, flexible plans and no invented availability.</p></div></div><a class="button" href="/destinations">Find your somewhere ↗</a></div></section><section class="wrap section top-tight"><div class="company-grid"><article class="company-card"><span class="eyebrow green">01 / EXPLORE</span><h2>Start with curiosity.</h2><p>Use the destination map, seasonal guidance and Journal to shape your shortlist.</p></article><article class="company-card"><span class="eyebrow green">02 / PLAN</span><h2>Make room for your pace.</h2><p>Create a trip brief, then request a consultation when your dates and preferences take shape.</p></article><article class="company-card"><span class="eyebrow green">03 / CONFIRM</span><h2>Know what is included.</h2><p>Review the quotation, supplier details and cancellation terms before any advance payment.</p></article></div><div class="company-banner"><div><span class="eyebrow green">OUR EDITORIAL STANDARD</span><h2>Useful before impressive.</h2><p>KuboVistas guides are written for a real planning decision, reviewed with visible dates and linked to official sources where rules or conditions can change. We do not copy supplier descriptions, invent first-hand experience or update dates without reviewing the article. Readers can report a correction through our contact page.</p></div><a class="button" href="/guides">Read travel guides ↗</a></div><div class="company-banner"><div><h2>Build something thoughtful with us.</h2><p>Explore careers, stay partnerships and responsible collaborations.</p></div><a class="button" href="/company/contact">Talk to KuboVistas ↗</a></div><div class="journal-actions"><a class="underlined" href="/company/careers">Careers ↗</a><a class="underlined" href="/company/partnerships">Partner with us ↗</a><a class="underlined" href="/company/sponsors">Sponsorship ↗</a></div></section>`;
 }
 function applyPlannerParams() {
   const originalDestination = plan.destination,
@@ -1008,7 +1000,7 @@ async function route() {
     if (current) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  $("#nav-more").classList.toggle("has-current", !!$("#nav-more a.active"));
+  $("#nav-more")?.classList.toggle("has-current", !!$("#nav-more a.active"));
   updateDock(parts[0]);
   main.classList.remove("route-ready");
   try {
@@ -1056,9 +1048,6 @@ async function route() {
         plannerStep = 1;
         applyPlannerParams();
         planner();
-        break;
-      case "about":
-        about();
         break;
       case "legal":
         legalHub();

@@ -19,7 +19,14 @@ test('primary routes and footer contact destinations have published page targets
  const links=[...header.matchAll(/<a\s+[^>]*href="(\/[^"?]*)/g),...footer.matchAll(/<a\s+[^>]*href="(\/[^"?]*)/g)].map(x=>x[1]);
  assert.ok(links.length>25);
  for(const path of links)assert.ok(known.has(path),`Missing page target: ${path}`);
- const primary=header.match(/<nav aria-label="Main navigation" id="nav">([\s\S]*?)<details class="nav-more"/)?.[1];
+ const primary=header.match(/<nav aria-label="Main navigation" id="nav">([\s\S]*?)<\/nav>/)?.[1];
  const direct=[...primary.matchAll(/<a href="([^"]+)"/g)].map(x=>x[1]);
- assert.equal(new Set(direct).size,direct.length);
+ assert.deepEqual(direct,[
+  '/destinations',
+  '/packages',
+  '/company/about',
+  '/company/contact',
+  '/travel-date',
+  '/journal',
+ ]);
 });
