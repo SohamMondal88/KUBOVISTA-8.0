@@ -100,6 +100,24 @@ test("upload-ready image folders and verified founder placeholders are present",
   assert.match(shell, /assets\/images\/favicons\/favicon\.svg/);
   assert.match(shell, /assets\/images\/logos\/kubovistas-mark\.svg/);
 });
+test("site shell does not dim small footer text below its accessible color", async () => {
+  const css = await readFile(
+    new URL("../navigation.css", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    css,
+    /\.vista-footer \.social-links \.social-pending \{ opacity: 1; \}/,
+  );
+  assert.match(
+    css,
+    /\.vista-footer \.footer-social > span,[\s\S]*?opacity: 1;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /#header \.brand-lockup small[^}]*color:\s*#6f7874/,
+  );
+});
 test("legal centre includes every required policy and route", async () => {
   const [html, app, build] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),

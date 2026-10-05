@@ -29,7 +29,7 @@
 }
 #header .brand-lockup { display: grid; line-height: 1; }
 #header .brand-lockup strong { font-family: var(--serif, Georgia, serif); font-size: 21px; letter-spacing: .01em; }
-#header .brand-lockup small { margin-top: 6px; color: #6f7874; font-size: 8px; font-weight: 700; letter-spacing: .13em; }
+#header .brand-lockup small { margin-top: 6px; color: #626c68; font-size: 8px; font-weight: 700; letter-spacing: .13em; }
 #header #nav {
   grid-column: 2; display: flex; align-items: center; justify-content: center;
   gap: clamp(2px, .45vw, 8px);
@@ -119,11 +119,12 @@
 .vista-footer .footer-social > span,
 .vista-footer .footer-group > summary {
   color: #b7bab5; font-size: 11px; font-weight: 750;
-  letter-spacing: .13em; text-transform: uppercase;
+  letter-spacing: .13em; text-transform: uppercase; opacity: 1;
 }
 .vista-footer .social-links { display: flex; flex-wrap: wrap; gap: 8px 17px; }
 .vista-footer .social-links a,
 .vista-footer .social-links span { color: var(--footer-muted); font-size: 12px; text-decoration: none; }
+.vista-footer .social-links .social-pending { opacity: 1; }
 .vista-footer .social-links a:hover { color: #fff; }
 .vista-footer .footer-links {
   display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr));
