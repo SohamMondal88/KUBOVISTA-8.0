@@ -9,10 +9,11 @@ import {
 } from "./transactional-email.js";
 import { weatherFor } from "./weather.js";
 import { databaseConfigured, query, transaction } from "./db.js";
-import { requireSession, isAdmin } from "./auth.js";
+import { requireSession, isAdmin, originAllowed } from "./auth.js";
 import { json, parseBody, cleanText, methodNotAllowed } from "./http.js";
 import { consumeRateLimit, requestSubject } from "./rate-limit.js";
 import { logEvent } from "./observability.js";
+import readiness from "./readiness.js";
 const kinds = [
   "contact",
   "career",
@@ -23,6 +24,7 @@ const kinds = [
 ];
 export default async function services(req, res) {
   const service = req.query?.service;
+  if (service === "readiness") return readiness(req, res);
   if (service === "kubo") return kubo(req, res);
   if (service === "growth") {
     const allowance = await consumeRateLimit({
@@ -190,13 +192,9 @@ export default async function services(req, res) {
           ? "Enquiry protection is temporarily unavailable."
           : "Too many requests. Please retry later.",
       });
-    let origin;
-    try {
-      origin = new URL(process.env.APP_URL).origin;
-    } catch {
+    if (!process.env.APP_URL)
       return json(res, 503, { error: "Enquiries are not configured." });
-    }
-    if (req.headers.origin !== origin)
+    if (!originAllowed(req))
       return json(res, 403, { error: "Request origin is not allowed." });
     const b = parseBody(req);
     if (b.website)
