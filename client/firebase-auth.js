@@ -108,11 +108,18 @@ async function server(path, options = {}) {
   }
   return data;
 }
-function friendly(error) {
+function friendly(error, path = "") {
   if (error?.source === "account-service") return error;
+  if (
+    error?.code === "auth/invalid-credential" &&
+    /sign-in\/(google-credential|social)$/.test(path)
+  )
+    return Error(
+      "Google sign-in could not be verified. Try again, or use your original sign-in method. If this continues, contact support.",
+    );
   const messages = {
     "auth/invalid-credential":
-      "Email or password is incorrect. Migrated accounts must use Forgot password first.",
+      "Email or password is incorrect. Check your details or use Forgot password. If you previously used Google, choose Continue with Google.",
     "auth/email-already-in-use":
       "This email already has an account. Sign in or reset your password.",
     "auth/account-exists-with-different-credential":
@@ -384,7 +391,7 @@ export async function authRequest(path, options = {}) {
     }
     throw Error("Unsupported account action.");
   } catch (error) {
-    throw friendly(error);
+    throw friendly(error, path);
   }
 }
 async function logout() {

@@ -167,8 +167,41 @@ const authIcon = (kind) =>
   `<span class="auth-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${kind === "signup" ? '<path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M4.5 21c.5-4.8 3-7.2 7.5-7.2 2 0 3.6.4 4.8 1.4"/><path d="M19 14v6m-3-3h6"/>' : '<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.5-5 3-7.5 7.5-7.5s7 2.5 7.5 7.5"/>'}</svg></span>`;
 
 function field(label, name, type = "text", options = "") {
+  if (type === "password") {
+    const id = `password-${name}`;
+    const strength = options.includes('new-password') && name !== 'confirmPassword';
+    return `<div class="password-field"><label for="${id}">${label}</label><div class="password-control"><input id="${id}" name="${name}" type="password" ${options}><button type="button" data-password-toggle="${id}" aria-controls="${id}" aria-label="Show ${label.toLowerCase()}" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>${strength ? `<div class="password-strength"><meter min="0" max="4" value="0" aria-label="Password strength" data-strength-for="${id}"></meter><small data-strength-label="${id}" aria-live="polite">Use at least 10 characters; a long, unique passphrase is best.</small></div>` : ''}</div>`;
+  }
   return `<label>${label}<input name="${name}" type="${type}" ${options}></label>`;
 }
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-password-toggle]");
+  if (!button) return;
+  const input = document.getElementById(button.dataset.passwordToggle);
+  if (!input) return;
+  const shown = input.type === "password";
+  input.type = shown ? "text" : "password";
+  button.setAttribute("aria-pressed", String(shown));
+  button.setAttribute("aria-label", `${shown ? "Hide" : "Show"} password`);
+});
+document.addEventListener("input", (event) => {
+  const input = event.target;
+  if (!input.matches('.password-control input')) return;
+  const field = input.closest('.password-field');
+  const meter = field.querySelector('meter');
+  if (!meter) return;
+  const length = input.value.length;
+  const score = length === 0 ? 0 : length < 10 ? 1 : length < 14 ? 2 : length < 18 ? 3 : 4;
+  meter.value = score;
+  field.querySelector('[data-strength-label]').textContent = [
+    'Use at least 10 characters; a long, unique passphrase is best.',
+    'Too short — use at least 10 characters.',
+    'Minimum length met — add more words for a stronger passphrase.',
+    'Good length — make sure this password is unique.',
+    'Long passphrase — avoid reused or predictable passwords.'
+  ][score];
+});
 
 async function setupGoogleAuth(toast, { signup = false, onSuccess } = {}) {
   const target = document.querySelector("#google-auth");
@@ -180,6 +213,7 @@ async function setupGoogleAuth(toast, { signup = false, onSuccess } = {}) {
       text: signup ? "signup_with" : "continue_with",
       onCredential: async (credential) => {
         if (busy) return;
+        document.querySelector('#login-form .form-status, #signup-form .form-status')?.replaceChildren();
         busy = true;
         target.inert = true;
         if (status)
@@ -223,6 +257,7 @@ async function signInPage(main, config, toast) {
     const values = Object.fromEntries(new FormData(form));
     button.disabled = true;
     status.textContent = "Signing you in…";
+    document.querySelector('#google-auth-status')?.replaceChildren();
     try {
       await request("/api/auth/sign-in/email", {
         method: "POST",

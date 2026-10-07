@@ -7492,6 +7492,23 @@ dialog::backdrop {
   }
 }
 
+/* Accessible password controls and optional homepage media. */
+.password-field { display:grid; gap:8px; min-width:0; }
+.password-control { position:relative; }
+.account-form .password-control input { width:100%; padding-right:58px; font-size:16px; }
+.password-control button { position:absolute; right:4px; top:50%; transform:translateY(-50%); width:44px; height:44px; padding:10px; border:0; border-radius:8px; background:transparent; color:#234b40; cursor:pointer; }
+.password-control svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.7; }
+.password-control button[aria-pressed="true"] { background:#e5eee6; }
+.password-control button:focus-visible { outline:2px solid #234b40; outline-offset:2px; }
+.password-strength { display:grid; gap:5px; }
+.password-strength meter { display:block; width:100%; height:12px; accent-color:#25634c; }
+.password-strength small { color:#52675d; font-size:12px; line-height:1.5; }
+.hero-video-surface { position:absolute; inset:0; background:linear-gradient(130deg,#102f2c,#325c50 70%,#52684d); }
+.hero-video-surface video { display:block; width:100%; height:100%; object-fit:cover; }
+.hero-video-toggle { position:absolute; right:24px; top:20px; z-index:5; min-height:44px; padding:10px 16px; border:1px solid #ffffff80; border-radius:24px; background:#143931; color:white; cursor:pointer; }
+.hero-video-toggle:focus-visible { outline:3px solid white; outline-offset:3px; }
+@media print { .hero-video-toggle,.password-control button { display:none; } }
+
 /* Card text follows the image or paper surface beneath it. */
 .photo-card .card-copy,.photo-card .card-copy h3,.photo-card .card-meta{color:#fffdf8}.photo-card .card-copy .eyebrow{color:#f0d6b7}.compact-card .card-copy,.compact-card h3,.compact-card .card-meta{color:var(--ink)}.compact-card .card-copy p{color:var(--muted)}.compact-card .card-copy .eyebrow,.compact-card .card-number,.compact-card .pill{color:var(--accent-dark)}.compact-card .pill{border-color:var(--line)}.cta h2,.cta-bottom{color:#fffdf8}.cta .button{background:#fff8ea;color:var(--ink);border-color:#fff8ea}.experience-track,.philosophy-mark{animation:none}.experience-track{width:100%;flex-wrap:wrap;justify-content:center;gap:12px 28px}.experience-track span{color:var(--muted)}.experience-track i{color:var(--accent-dark)}
 .next-trip,.next-trip h2{color:#fffdf8}.next-trip .button{background:#fff8ea;color:var(--ink);border-color:#fff8ea}.auth-story,.auth-story h1{color:#fffdf8}.stay-filters input,.stay-filters select,.directory-sort select,.map-heading select{color:var(--ink);border-color:var(--line)}.save-card.is-saved,.filter-saved.active,.chip.active{background:var(--forest);color:#fffdf8;border-color:var(--forest)}

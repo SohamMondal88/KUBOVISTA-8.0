@@ -2,21 +2,19 @@ import { groundedKnowledge } from "./grounded-knowledge.js";
 import { guideAnswer, quickPrompts } from "./kubo-knowledge.js";
 export function mountKubo() {
   const mascot =
-    '<span class="kubo-face" aria-hidden="true"><i></i><i></i></span>';
+    '<span class="kubo-face" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 11.5a8 8 0 0 1-8 8H4l1.7-3.4A8 8 0 1 1 20 11.5Z"/><path d="M8 10h8M8 14h5"/></svg></span>';
   const launcher = document.createElement("button");
   launcher.className = "kubo-launcher";
   launcher.type = "button";
   launcher.setAttribute("aria-label", "Ask Kubo, your travel companion");
   launcher.setAttribute("aria-haspopup", "dialog");
-  launcher.innerHTML =
-    mascot +
-    '<span>Ask <strong>Kubo</strong><small>Your next trip starts here</small></span><b aria-hidden="true">↗</b>';
+  launcher.innerHTML = mascot + "<span>Ask Kubo</span>";
   document.body.append(launcher);
   const dialog = document.createElement("dialog");
   dialog.id = "kubo-dialog";
   dialog.className = "kubo-dialog";
   dialog.setAttribute("aria-labelledby", "kubo-title");
-  dialog.innerHTML = `<div class="kubo-head">${mascot}<div><h2 id="kubo-title">Kubo <span>TRAVEL COMPANION</span></h2><p id="kubo-mode-label">Built-in guide · Ready to explore</p></div><button class="icon-button" id="kubo-close" aria-label="Close Kubo">✕</button></div><div class="kubo-toolbar"><label class="sr-only" for="kubo-mode">Conversation mode</label><select id="kubo-mode"><option value="guide">Built-in guide</option><option value="ai" disabled>OpenAI chat · Checking availability</option><option value="firebase-ai" disabled>Firebase AI Logic · Not activated</option></select><button id="kubo-clear" type="button">New chat ↺</button><button id="kubo-download" type="button" aria-label="Download this conversation">↓</button></div><div class="kubo-consent" hidden><label><input type="checkbox" id="kubo-consent"> Share your question with the selected AI provider to generate a reply. Don’t include private account, identity or payment details.</label><a href="/legal/privacy">Privacy details ↗</a></div><div class="kubo-feed" id="kubo-feed" role="log" aria-label="Conversation with Kubo" aria-live="polite" aria-relevant="additions"></div><div class="kubo-status" id="kubo-status" role="status"></div><form class="kubo-composer"><label class="sr-only" for="kubo-input">Your travel question</label><textarea id="kubo-input" maxlength="1200" rows="2" placeholder="A place, a question, a little wanderlust…" required></textarea><div><span id="kubo-counter">0 / 1200</span><button type="button" id="kubo-stop" hidden>Stop</button><button type="submit" id="kubo-send" aria-label="Send question to Kubo">Send ↗</button></div></form><div class="kubo-foot"><span>AI can make mistakes. Confirm trip details with our team.</span><a href="/company/contact">Talk to a human ↗</a></div>`;
+  dialog.innerHTML = `<div class="kubo-head">${mascot}<div><h2 id="kubo-title">Kubo <span>TRAVEL COMPANION</span></h2><p id="kubo-mode-label">Built-in guide · Ready to explore</p></div><button class="icon-button" id="kubo-close" aria-label="Close Kubo">✕</button></div><div class="kubo-toolbar"><label class="sr-only" for="kubo-mode">Conversation mode</label><select id="kubo-mode"><option value="guide">Built-in guide</option><option value="ai" disabled>OpenAI chat · Checking availability</option><option value="firebase-ai" disabled>Firebase AI Logic · Not activated</option></select><button id="kubo-clear" type="button">New chat ↺</button><button id="kubo-download" type="button" aria-label="Download this conversation">↓</button></div><div class="kubo-consent" hidden><label><input type="checkbox" id="kubo-consent"> Share your question with the selected AI provider to generate a reply. Don’t include private account, identity or payment details.</label><a href="/legal/privacy">Privacy details ↗</a></div><div class="kubo-feed" id="kubo-feed" role="log" aria-label="Conversation with Kubo" aria-live="polite" aria-relevant="additions"></div><div class="kubo-status" id="kubo-status" role="status"></div><form class="kubo-composer"><label class="sr-only" for="kubo-input">Your travel question</label><textarea id="kubo-input" maxlength="1200" rows="2" placeholder="Ask about a destination or your trip…" required></textarea><div><span id="kubo-counter">0 / 1200</span><button type="button" id="kubo-stop" hidden>Stop</button><button type="submit" id="kubo-send" aria-label="Send question to Kubo">Send ↗</button></div></form><div class="kubo-foot"><span>AI can make mistakes. Confirm trip details with our team.</span><a href="/company/contact">Talk to a human ↗</a></div>`;
   document.body.append(dialog);
   const $ = (s) => dialog.querySelector(s);
   const feed = $("#kubo-feed"),
@@ -96,7 +94,7 @@ export function mountKubo() {
     feed.replaceChildren();
     const box = document.createElement("div");
     box.className = "kubo-welcome";
-    box.innerHTML = `<span class="eyebrow">A LITTLE HELP. A WORLD TO EXPLORE.</span><h3>Where shall we<br><em>wander next?</em></h3><p>Hi, I’m Kubo. Let’s find your place, shape your itinerary and make the details a little easier.</p><div class="kubo-prompts"></div><p class="kubo-memory">This chat stays in memory until you refresh or start a new chat. AI modes send your question or recent conversation to the chosen provider only with your consent.</p>`;
+    box.innerHTML = `<span class="eyebrow">YOUR TRAVEL ASSISTANT</span><h3>How can I help?</h3><p>Hi, I’m Kubo. Let’s find your place, shape your itinerary and make the details a little easier.</p><div class="kubo-prompts"></div><p class="kubo-memory">This chat stays in memory until you refresh or start a new chat. AI modes send your question or recent conversation to the chosen provider only with your consent.</p>`;
     for (const prompt of quickPrompts) {
       const b = document.createElement("button");
       b.type = "button";
