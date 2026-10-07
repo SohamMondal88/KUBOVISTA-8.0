@@ -14,6 +14,7 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".jpg": "image/jpeg",
   ".svg": "image/svg+xml",
+  ".mp4": "video/mp4",
   ".txt": "text/plain; charset=utf-8",
 };
 const args = process.argv.slice(2);
@@ -62,6 +63,7 @@ const publicFiles = new Set([
   "/amp.html",
   "/styles.css",
   "/app.js",
+  "/hero-video.js",
   "/routing.js",
   "/account.js",
   "/journal.js",
@@ -140,7 +142,9 @@ createServer(async (req, res) => {
     if (
       !firebaseAsset &&
       !publicFiles.has(pathname) &&
-      !/^\/assets\/[a-zA-Z0-9_.-]+$/.test(pathname)
+      !/^\/assets\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-][a-zA-Z0-9_.-]*$/.test(
+        pathname,
+      )
     ) {
       res.writeHead(404).end("Not found");
       return;

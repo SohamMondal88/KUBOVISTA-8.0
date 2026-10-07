@@ -1,282 +1,225 @@
+/* Kubo: one minimal, accessible chat system. */
 .kubo-launcher {
   position: fixed;
-  right: 25px;
-  bottom: 24px;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   z-index: 26;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 17px 10px 10px;
-  border: 1px solid #e4efc35c;
-  border-radius: 48px;
-  background: #d8edac;
-  color: #173222;
-  box-shadow: 0 8px 35px #0005;
-  transition: transform .3s var(--ease), box-shadow .3s;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 18px 8px 10px;
+  border: 1px solid #315b54;
+  border-radius: 999px;
+  background: #163e37;
+  color: #fff;
+  box-shadow: 0 6px 24px #163e3726;
+  font: 600 14px/1.4 var(--sans, sans-serif);
+  cursor: pointer;
+  transition: transform 0.18s ease;
 }
 .kubo-launcher:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 45px #0006;
-}
-.kubo-launcher > span:not(.kubo-face) {
-  text-align: left;
-  font-size: 15px;
-  line-height: 1.3;
-}
-.kubo-launcher small {
-  display: block;
-  font-size: 9px;
-  letter-spacing: .015em;
-  margin-top: 3px;
-  opacity: .8;
-}
-.kubo-launcher b {
-  margin-left: 6px;
-  font-size: 22px;
-  font-weight: 400;
+  transform: translateY(-2px);
 }
 .kubo-face {
-  width: 43px;
-  height: 43px;
-  flex: 0 0 43px;
-  background: #173b2d;
-  border: 1px solid #d7e9aa50;
-  border-radius: 15px 15px 15px 5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  position: relative;
-  transform: rotate(-5deg);
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  color: inherit;
 }
-.kubo-face i {
-  width: 4px;
-  height: 9px;
-  background: #d8edac;
-  border-radius: 10px;
-}
-.kubo-face:after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 4px;
-  border-bottom: 1.5px solid #d8edac;
-  bottom: 8px;
-  border-radius: 50%;
+.kubo-face svg {
+  width: 26px;
+  height: 26px;
 }
 .back-to-top {
-  bottom: 105px;
+  bottom: 100px;
 }
 .kubo-dialog {
   position: fixed;
   inset: auto 24px 24px auto;
   margin: 0;
   padding: 0;
-  width: 440px;
+  width: 420px;
   max-width: calc(100vw - 32px);
-  height: min(760px, calc(100dvh - 48px));
+  height: min(690px, calc(100dvh - 48px));
   max-height: calc(100dvh - 48px);
-  border: 1px solid #d2ed8940;
-  border-radius: 24px;
-  background: #f5f5ec;
-  color: #173126;
-  box-shadow: 0 30px 100px #0007;
+  border: 1px solid #d5dfda;
+  border-radius: 20px;
+  background: #fffdf8;
+  color: #203e36;
+  box-shadow: 0 20px 70px #102e3433;
   overflow: hidden;
-  animation: kubo-enter .3s var(--ease);
 }
 .kubo-dialog[open] {
   display: flex;
   flex-direction: column;
 }
 .kubo-dialog::backdrop {
-  background: #03100c66;
-  backdrop-filter: blur(3px);
+  background: #102e344d;
 }
 .kubo-head {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 20px;
-  background:
-    linear-gradient(
-      125deg,
-      #17362a,
-      #0b2219);
-  color: #f1f3df;
+  gap: 10px;
+  padding: 18px;
+  border-bottom: 1px solid #dce3dd;
   flex-shrink: 0;
-}
-.kubo-head .kubo-face {
-  background: #d8edac;
-}
-.kubo-head .kubo-face i {
-  background: #163a2b;
-}
-.kubo-head .kubo-face:after {
-  border-color: #163a2b;
 }
 .kubo-head > div {
   flex: 1;
+  min-width: 0;
 }
 .kubo-head h2 {
-  font: 600 25px/1.15 var(--sans);
-  letter-spacing: -.045em;
+  font: 650 20px/1.3 var(--sans, sans-serif);
   margin: 0;
+  letter-spacing: 0;
 }
 .kubo-head h2 span {
   display: block;
-  font-size: 8px;
-  letter-spacing: .17em;
-  color: #c6dba8;
-  margin-top: 6px;
+  font: 500 10px/1.5 var(--sans, sans-serif);
+  letter-spacing: 0.08em;
+  margin-top: 3px;
 }
 .kubo-head p {
-  font-size: 10px;
-  color: #b6cbbb;
-  margin-top: 8px;
+  font-size: 12px;
+  margin: 4px 0 0;
+  color: #56695e;
 }
 .kubo-head .icon-button {
-  color: #e3ebd5;
-  border: 1px solid #ffffff20;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  color: #203e36;
+  border: 1px solid #dce3dd;
   border-radius: 50%;
-  min-width: 34px;
-  width: 34px;
-  height: 34px;
-  font-size: 15px;
+  background: transparent;
 }
 .kubo-toolbar {
   display: flex;
-  gap: 10px;
   align-items: center;
-  padding: 10px 18px;
-  border-bottom: 1px solid #17312619;
-  background: #e9edde;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #dce3dd;
   flex-shrink: 0;
 }
 .kubo-toolbar select {
-  min-width: 0;
-  max-width: 60%;
-  font-size: 11px;
-  border: 0;
-  background: transparent;
-  color: #25422d;
-  padding: 7px 0;
   flex: 1;
-  color-scheme: light;
+  min-width: 0;
+  width: 40%;
+  color: #203e36;
+  background: transparent;
+  border: 0;
+  font-size: 12px;
 }
 .kubo-toolbar button {
-  font-size: 11px;
-  padding: 7px 2px;
-  border: 0;
   background: transparent;
-  color: #24482d;
-  min-height: 34px;
+  color: #203e36;
+  border: 0;
+  padding: 6px;
+  font-size: 12px;
+}
+.kubo-dialog button,
+.kubo-toolbar select {
+  min-height: 44px;
+  cursor: pointer;
 }
 .kubo-toolbar button:last-child {
-  font-size: 21px;
-  padding-inline: 7px;
+  min-width: 44px;
+  font-size: 20px;
 }
 .kubo-consent {
   padding: 12px 18px;
-  font-size: 11px;
-  line-height: 1.6;
-  border-bottom: 1px solid #1d362624;
-  background: #f1ecd9;
+  background: #eef2eb;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 130px;
+  overflow: auto;
+  flex-shrink: 0;
 }
 .kubo-consent[hidden] {
   display: none;
 }
 .kubo-consent label {
   display: flex;
+  gap: 10px;
   align-items: flex-start;
-  gap: 9px;
 }
 .kubo-consent input {
-  margin: 4px 0 0;
-  accent-color: #244b31;
   flex-shrink: 0;
+  margin-top: 4px;
 }
 .kubo-consent a {
   display: inline-block;
+  margin-top: 8px;
   text-decoration: underline;
-  margin: 6px 0 0 23px;
 }
 .kubo-feed {
   flex: 1;
-  min-height: 90px;
-  overflow-y: auto;
+  min-height: 0;
+  overflow: auto;
   overscroll-behavior: contain;
-  padding: 24px 20px;
+  padding: 20px;
   scrollbar-width: thin;
-  scrollbar-color: #849b7a transparent;
 }
 .kubo-welcome > .eyebrow {
-  color: #547545;
-  font-size: 8px;
-  letter-spacing: .13em;
+  font-size: 10px;
+  color: #53675e;
 }
 .kubo-welcome h3 {
-  font-size: 37px;
-  margin: 16px 0;
-  line-height: 1.05;
+  font: 500 clamp(24px, 5vw, 32px)/1.2 var(--serif, Georgia, serif);
+  margin: 12px 0;
 }
-.kubo-welcome > p {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #60715e;
+.kubo-welcome p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #53675e;
 }
 .kubo-prompts {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin: 23px 0 16px;
+  margin: 20px 0;
 }
 .kubo-prompts button {
-  border: 1px solid #26462c26;
+  padding: 12px;
+  border: 1px solid #dce3dd;
   border-radius: 12px;
-  padding: 12px 11px;
-  min-height: 55px;
+  background: #fff;
+  color: #203e36;
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
-  background: #fff8;
-  color: #2f4c31;
-  transition:
-    background .2s,
-    border-color .2s,
-    transform .2s;
 }
 .kubo-prompts button:hover {
-  background: #e3edce;
-  border-color: #6e8c4a;
-  transform: translateY(-2px);
+  background: #edf2eb;
 }
 .kubo-welcome .kubo-memory {
-  font-size: 10px;
-  color: #74806b;
+  font-size: 12px;
 }
 .kubo-message {
-  margin: 0 0 20px;
-  max-width: 96%;
-  animation: kubo-enter .2s var(--ease);
+  margin: 0 0 18px;
+  max-width: 94%;
+  background: transparent;
 }
 .kubo-speaker {
   display: block;
-  font-size: 8px;
-  letter-spacing: .1em;
-  font-weight: 700;
-  color: #668057;
-  margin-bottom: 7px;
+  font-size: 10px;
+  color: #53675e;
+  margin-bottom: 6px;
 }
 .kubo-message p {
+  margin: 0;
+  padding: 13px 15px;
+  border: 1px solid #dce3dd;
+  border-radius: 14px;
+  background: #f0f3ed;
+  color: #203e36;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 13px;
-  line-height: 1.75;
-  background: #fff;
-  border: 1px solid #1b402016;
-  border-radius: 0 14px 14px;
-  padding: 15px;
-  color: #334936;
+  font: 14px/1.65 var(--sans, sans-serif);
 }
 .kubo-message.user {
   margin-left: auto;
@@ -285,78 +228,72 @@
   text-align: right;
 }
 .kubo-message.user p {
-  background: #e0ebcc;
-  border: 0;
-  border-radius: 14px 0 14px 14px;
-  color: #284029;
+  background: #163e37;
+  color: #fff;
+  border-color: #163e37;
 }
 .kubo-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 .kubo-links a {
-  font-size: 10px;
-  background: #dfe8d3;
-  color: #37502d;
-  padding: 7px 10px;
-  border-radius: 20px;
-  border: 1px solid #405b2620;
-}
-.kubo-links a:hover {
-  background: #cedcb9;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 10px;
+  color: #163e37;
+  border: 1px solid #dce3dd;
+  border-radius: 8px;
+  font-size: 12px;
+  text-decoration: underline;
 }
 .kubo-status {
-  font-size: 10px;
-  line-height: 1.6;
-  color: #526647;
-  padding: 0 20px;
+  flex-shrink: 0;
   max-height: 90px;
   overflow: auto;
-  flex-shrink: 0;
+  padding: 0 18px;
+  font-size: 12px;
+  color: #53675e;
 }
 .kubo-status:not(:empty) {
   padding-block: 8px;
-  border-top: 1px solid #20442218;
 }
 .kubo-status button {
-  background: transparent;
-  border: 1px solid #426c3f55;
-  border-radius: 15px;
-  padding: 4px 9px;
-  color: #2c542a;
-  font-size: 10px;
-  margin: 6px 6px 0 0;
+  margin: 4px;
+  padding: 6px 10px;
+  border: 1px solid #aebfb4;
+  border-radius: 8px;
+  background: #fff;
+  color: #203e36;
 }
 .kubo-composer {
-  margin: 12px 16px 0;
-  border: 1px solid #22482540;
+  margin: 8px 16px 0;
+  padding: 10px;
+  border: 1px solid #b4c4b9;
+  border-radius: 14px;
   background: #fff;
-  border-radius: 16px;
-  padding: 10px 12px;
   flex-shrink: 0;
 }
 .kubo-composer:focus-within {
-  border-color: #6d9141;
-  box-shadow: 0 0 0 3px #9eba7320;
+  outline: 2px solid #347264;
+  outline-offset: 2px;
 }
 .kubo-composer textarea {
   display: block;
   width: 100%;
-  max-height: 100px;
-  resize: none;
   min-height: 44px;
-  background: transparent;
+  max-height: 90px;
+  resize: none;
   border: 0;
-  color: #243d2a;
-  font: 13px/1.6 var(--sans);
-  padding: 2px;
-  outline: none;
-  color-scheme: light;
+  padding: 4px;
+  background: #fff;
+  color: #203e36;
+  font: 16px/1.5 var(--sans, sans-serif);
 }
 .kubo-composer textarea::placeholder {
-  color: #7e8778;
+  color: #63766b;
 }
 .kubo-composer > div {
   display: flex;
@@ -365,235 +302,88 @@
 }
 .kubo-composer > div > span {
   flex: 1;
-  font-size: 9px;
-  color: #839078;
+  font-size: 11px;
+  color: #63766b;
 }
 .kubo-composer button {
-  background: #244831;
-  color: #eef4dd;
-  border: 0;
-  border-radius: 20px;
   padding: 8px 14px;
-  font-size: 11px;
-  min-height: 34px;
-}
-.kubo-composer button:disabled {
-  opacity: .5;
+  border: 0;
+  border-radius: 10px;
+  background: #163e37;
+  color: #fff;
 }
 .kubo-composer #kubo-stop {
-  background: #e8eddf;
-  color: #37502f;
+  background: #eef2eb;
+  color: #203e36;
+}
+.kubo-dialog button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 .kubo-foot {
-  padding: 10px 20px 14px;
   display: grid;
   gap: 4px;
-  font-size: 9px;
-  color: #79816f;
+  padding: 10px 18px 14px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #53675e;
   flex-shrink: 0;
 }
 .kubo-foot a {
-  font-size: 10px;
-  color: #3c6334;
+  color: #163e37;
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
-.kubo-dialog :focus-visible {
-  outline: 2px solid #638a38;
+.kubo-dialog :focus-visible,
+.kubo-launcher:focus-visible {
+  outline: 3px solid #b87942;
   outline-offset: 3px;
-}
-.kubo-dialog textarea:focus-visible {
-  outline: none;
-}
-@keyframes kubo-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 @media (max-width: 700px) {
   .kubo-launcher {
-    bottom: calc(90px + env(safe-area-inset-bottom));
     right: 16px;
-    padding: 8px 13px 8px 8px;
-    gap: 9px;
-  }
-  .kubo-launcher small,
-  .kubo-launcher > b {
-    display: none;
-  }
-  .kubo-launcher .kubo-face {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-    border-radius: 12px 12px 12px 4px;
-  }
-  .kubo-launcher .kubo-face:after {
-    bottom: 6px;
-  }
-  .kubo-launcher > span:not(.kubo-face) {
-    font-size: 13px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
   }
   .kubo-dialog {
-    inset: 8px;
-    max-width: none;
-    width: calc(100% - 16px);
-    height: calc(100dvh - 16px);
-    max-height: calc(100dvh - 16px);
-    border-radius: 20px;
-  }
-  .kubo-head {
-    padding: 16px;
-  }
-  .kubo-feed {
-    padding: 20px 16px;
-  }
-  .kubo-foot {
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    inset: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    height: calc(100dvh - env(safe-area-inset-top) - 12px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - 12px);
+    border-radius: 18px 18px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
-@media (max-height: 600px) {
+@media (max-height: 520px) {
   .kubo-head {
-    padding-block: 10px;
+    padding: 6px 14px;
   }
-  .kubo-head h2 span {
+  .kubo-head h2 span,
+  .kubo-head p {
     display: none;
   }
-  .kubo-foot > span {
-    display: none;
-  }
-  .kubo-welcome h3 {
-    font-size: 28px;
-  }
-  .kubo-composer {
-    margin-top: 6px;
+  .kubo-feed {
+    padding: 12px;
   }
   .kubo-consent {
-    max-height: 75px;
-    overflow: auto;
+    max-height: 70px;
+  }
+  .kubo-foot {
+    padding-block: 4px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .kubo-dialog,
-  .kubo-message,
-  .kubo-launcher,
-  .kubo-prompts button {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
+  .kubo-launcher {
+    transition: none;
+    transform: none;
   }
 }
-.reduce-motion .kubo-dialog,
-.reduce-motion .kubo-message,
-.reduce-motion .kubo-launcher,
-.reduce-motion .kubo-prompts button {
-  animation: none !important;
-  transition: none !important;
-  transform: none !important;
+.reduce-motion .kubo-launcher {
+  transition: none;
+  transform: none;
 }
 @media print {
   .kubo-dialog,
   .kubo-launcher {
     display: none !important;
   }
-}
-.kubo-launcher {
-  background: var(--forest);
-  color: #fffdf8;
-  border: 1px solid #ffffff38;
-  box-shadow: var(--shadow-soft);
-}
-.kubo-launcher:hover {
-  background: #245650;
-  box-shadow: var(--shadow-lift);
-}
-.kubo-face {
-  background: #e8dbc2;
-  color: var(--forest);
-}
-.kubo-dialog {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-lift);
-}
-.kubo-head {
-  background: var(--forest);
-  color: #fffdf8;
-}
-.kubo-head p {
-  color: #e6eee8;
-}
-.kubo-head .icon-button {
-  color: #fff;
-}
-.kubo-toolbar,
-.kubo-consent {
-  background: var(--sage);
-  border-color: var(--line);
-  color: var(--ink);
-}
-.kubo-toolbar select,
-.kubo-toolbar button,
-.kubo-prompts button {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--line);
-}
-.kubo-prompts button:hover {
-  background: var(--sage);
-}
-.kubo-feed {
-  background: var(--surface);
-}
-.kubo-message {
-  background: var(--sage);
-  color: var(--ink);
-}
-.kubo-message.user {
-  background: var(--forest);
-  color: #fff;
-}
-.kubo-message.user p {
-  color: #fff;
-}
-.kubo-message p {
-  max-width: 65ch;
-}
-.kubo-dialog input,
-.kubo-dialog textarea {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-@media (max-width: 700px) {
-  .kubo-dialog[open] {
-    max-width: none;
-    width: 100vw;
-    height: min(100dvh, 900px);
-    max-height: 100dvh;
-    margin: 0;
-    border-radius: 18px 18px 0 0;
-    inset: auto 0 0;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .kubo-launcher {
-    bottom: calc(84px + env(safe-area-inset-bottom));
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .kubo-launcher,
-  .kubo-dialog * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-.reduce-motion .kubo-launcher,
-.reduce-motion .kubo-dialog * {
-  animation: none !important;
-  transition: none !important;
 }

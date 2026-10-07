@@ -53,6 +53,7 @@ for (const name of [
   "amp.html",
   "styles.css",
   "app.js",
+  "hero-video.js",
   "routing.js",
   "account.js",
   "journal.js",
@@ -76,6 +77,15 @@ await cp(new URL("assets/", root), new URL("assets/", output), {
   recursive: true,
 });
 const html = await readFile(new URL("index.html", output), "utf8");
+const videoFiles = await readdir(new URL("assets/videos/", root));
+const heroModule = new URL("hero-video.js", output);
+await writeFile(
+  heroModule,
+  (await readFile(heroModule, "utf8")).replace(
+    "__HERO_VIDEO_SOURCE__",
+    videoFiles.includes("home-hero.mp4") ? "/assets/videos/home-hero.mp4" : "",
+  ),
+);
 const appCheckKey = process.env.FIREBASE_APP_CHECK_SITE_KEY || "";
 if (appCheckKey && !/^[A-Za-z0-9_-]{20,100}$/.test(appCheckKey))
   throw new Error("Invalid public App Check site key.");

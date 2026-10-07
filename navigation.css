@@ -24,12 +24,9 @@
   gap: 11px; min-width: 0; color: var(--shell-ink); text-decoration: none;
 }
 #header .brand-mark {
-  flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%;
-  box-shadow: 0 8px 20px rgba(23, 63, 58, .18);
+  flex: 0 1 auto; width: clamp(64px, 9vw, 132px); height: 64px; object-fit: contain;
+  border-radius: 0; box-shadow: none;
 }
-#header .brand-lockup { display: grid; line-height: 1; }
-#header .brand-lockup strong { font-family: var(--serif, Georgia, serif); font-size: 21px; letter-spacing: .01em; }
-#header .brand-lockup small { margin-top: 6px; color: #626c68; font-size: 8px; font-weight: 700; letter-spacing: .13em; }
 #header #nav {
   grid-column: 2; display: flex; align-items: center; justify-content: center;
   gap: clamp(2px, .45vw, 8px);
@@ -113,7 +110,7 @@
   font-family: var(--serif, Georgia, serif); font-size: 25px; font-weight: 700;
   letter-spacing: .025em; text-decoration: none;
 }
-.vista-footer .footer-wordmark img { width: 44px; height: 44px; }
+.vista-footer .footer-wordmark img { width: clamp(104px, 14vw, 168px); height: 104px; object-fit: contain; }
 .vista-footer .footer-top > p { max-width: 330px; margin: 0; color: #aeb1ac; line-height: 1.75; }
 .vista-footer .footer-social { display: grid; gap: 10px; }
 .vista-footer .footer-social > span,
@@ -176,7 +173,6 @@
     color: var(--shell-ink); background: transparent; font-size: 20px; cursor: pointer;
   }
   #header .brand { grid-column: 2; grid-row: 1; justify-self: center; }
-  #header .brand-lockup small { display: none; }
   #header .header-actions { grid-column: 3; grid-row: 1; }
   #header #nav {
     position: fixed; z-index: 62; inset: var(--shell-height) auto 0 0;
@@ -241,8 +237,7 @@
 @media (max-width: 600px) {
   #header { padding-inline: 10px; }
   #header .brand { gap: 7px; }
-  #header .brand-mark { width: 35px; height: 35px; flex-basis: 35px; }
-  #header .brand-lockup strong { font-size: 18px; }
+  #header .brand-mark { width: 64px; height: 50px; flex-basis: auto; }
   #header .header-actions { gap: 2px; }
   #header .header-actions .icon-button,
   #header .saved-places-button,
@@ -256,8 +251,7 @@
   .vista-footer .footer-bottom { padding-inline: 22px; }
 }
 @media (max-width: 390px) {
-  #header .brand-lockup { display: none; }
-  #header .brand-mark { width: 38px; height: 38px; }
+  #header .brand-mark { width: 60px; height: 48px; }
 }
 @media (max-height: 540px) and (orientation: landscape) {
   #header #nav { padding-block: 18px; }
