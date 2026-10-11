@@ -185,23 +185,41 @@ document.addEventListener("click", (event) => {
   button.setAttribute("aria-pressed", String(shown));
   button.setAttribute("aria-label", `${shown ? "Hide" : "Show"} password`);
 });
-document.addEventListener("input", (event) => {
-  const input = event.target;
-  if (!input.matches('.password-control input')) return;
-  const field = input.closest('.password-field');
-  const meter = field.querySelector('meter');
+function updatePasswordStrength(input) {
+  if (!(input instanceof HTMLInputElement) || input.type !== "password" && input.type !== "text") return;
+  const meter = document.querySelector(`meter[data-strength-for="${input.id}"]`);
   if (!meter) return;
+
   const length = input.value.length;
   const score = length === 0 ? 0 : length < 10 ? 1 : length < 14 ? 2 : length < 18 ? 3 : 4;
   meter.value = score;
-  field.querySelector('[data-strength-label]').textContent = [
-    'Use at least 10 characters; a long, unique passphrase is best.',
-    'Too short — use at least 10 characters.',
-    'Minimum length met — add more words for a stronger passphrase.',
-    'Good length — make sure this password is unique.',
-    'Long passphrase — avoid reused or predictable passwords.'
-  ][score];
-});
+  // Keep both the DOM property and attribute in sync for assistive technology,
+  // browser tooling, and deterministic end-to-end assertions.
+  meter.setAttribute("value", String(score));
+  const label = document.querySelector(`[data-strength-label="${input.id}"]`);
+  if (label) {
+    label.textContent = [
+      'Use at least 10 characters; a long, unique passphrase is best.',
+      'Too short — use at least 10 characters.',
+      'Minimum length met — add more words for a stronger passphrase.',
+      'Good length — make sure this password is unique.',
+      'Long passphrase — avoid reused or predictable passwords.'
+    ][score];
+  }
+}
+
+document.addEventListener("input", (event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+  updatePasswordStrength(input);
+}, true);
+
+// Some browsers and password managers dispatch input before a field is fully
+// connected to the document. Recalculate on change as a reliable fallback.
+document.addEventListener("change", (event) => {
+  const input = event.target;
+  if (input instanceof HTMLInputElement) updatePasswordStrength(input);
+}, true);
 
 async function setupGoogleAuth(toast, { signup = false, onSuccess } = {}) {
   const target = document.querySelector("#google-auth");
