@@ -38,16 +38,16 @@
     "razorpay": "2.9.8"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
-    "@electric-sql/pglite": "0.5.8",
+    "@axe-core/playwright": "^4.14.0",
+    "@electric-sql/pglite": "0.5.11",
     "@eslint/js": "^10.0.1",
-    "@firebase/rules-unit-testing": "^5.0.2",
-    "@playwright/test": "^1.63.0",
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@playwright/test": "^1.64.1",
     "esbuild": "0.28.2",
-    "eslint": "^10.12.0",
-    "firebase-tools": "^15.32.1",
+    "eslint": "^10.13.0",
+    "firebase-tools": "^15.34.1",
     "globals": "^17.13.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "sharp": "^0.35.5"
   },
   "allowScripts": {
